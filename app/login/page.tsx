@@ -14,7 +14,7 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('https://web-production-dfe62.up.railway.app/login', {
+      const res = await fetch('https://web-production-97af6.up.railway.app/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -88,6 +88,11 @@ export default function Login() {
           <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
             <p style={{ color: '#6b7280', fontSize: '14px' }}>
               ما عندك حساب؟{' '}
+              <div style={{ textAlign: 'left', marginTop: '-8px' }}>
+  <Link href="/forgot-password" style={{ color: '#6b7280', fontSize: '13px', textDecoration: 'none' }}>
+    نسيت كلمة المرور؟
+  </Link>
+</div>
               <Link href="/register" style={{ color: '#00d4ff', textDecoration: 'none', fontWeight: 700 }}>سجّل مجاناً</Link>
             </p>
           </div>

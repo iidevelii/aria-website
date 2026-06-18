@@ -14,7 +14,7 @@ export default function Subscribe() {
     setMessage('')
     try {
       const user_id = localStorage.getItem('user_id')
-      const res = await fetch('https://web-production-dfe62.up.railway.app/verify-payment', {
+      const res = await fetch('https://web-production-97af6.up.railway.app/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ txid, user_id: parseInt(user_id || '0') })

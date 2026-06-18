@@ -87,23 +87,51 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
   const [chartSymbol, setChartSymbol] = useState('BTC')
-  const [nextScan, setNextScan] = useState(1800)
+  const [nextScan, setNextScan] = useState(900)
+  const [scanLoaded, setScanLoaded] = useState(false)
+  const [prices, setPrices] = useState<Record<string, number>>({})
 
   useEffect(() => {
-    const t = setInterval(() => setNextScan(p => p > 0 ? p - 1 : 1800), 1000)
+    const calcRemaining = () => {
+      const now = new Date()
+      const minutes = now.getMinutes()
+      const seconds = now.getSeconds()
+      const totalSeconds = (minutes % 15) * 60 + seconds
+      return 900 - totalSeconds
+    }
+    setNextScan(calcRemaining())
+    const t = setInterval(() => setNextScan(calcRemaining()), 1000)
     return () => clearInterval(t)
   }, [])
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      const openSignals = signals.filter(s => s.status === 'OPEN')
+      if (openSignals.length === 0) return
+      try {
+        const symbols = openSignals.map(s => s.pair.replace('/', ''))
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbols)}`)
+        const data = await res.json()
+        const map: Record<string, number> = {}
+        data.forEach((d: any) => { map[d.symbol] = parseFloat(d.price) })
+        setPrices(map)
+      } catch {}
+    }
+    fetchPrices()
+    const t = setInterval(fetchPrices, 10000)
+    return () => clearInterval(t)
+  }, [signals])
 
   useEffect(() => {
     const uid = localStorage.getItem('user_id')
     const fetchData = async () => {
       try {
         if (uid) {
-          const r = await fetch(`https://web-production-dfe62.up.railway.app/user/${uid}`)
+          const r = await fetch(`https://web-production-97af6.up.railway.app/user/${uid}`)
           if (r.ok) setUser(await r.json())
         }
         const [sr, tr, cr, nr] = await Promise.all([
-          fetch('https://web-production-dfe62.up.railway.app/signals'),
+          fetch('https://web-production-97af6.up.railway.app/signals'),
           fetch('https://api.binance.com/api/v3/ticker/24hr'),
           fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1'),
           fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss')
@@ -125,6 +153,8 @@ export default function Dashboard() {
   const losses = signals.filter(s => s.status === 'LOSS').length
   const total = signals.length
   const winRate = total > 0 ? Math.round((wins / total) * 100) : 0
+  const totalPnlWin = signals.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+  const totalPnlLoss = signals.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const mins = Math.floor(nextScan / 60)
   const secs = nextScan % 60
 
@@ -141,7 +171,6 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', background: '#050508', color: 'white' }}>
       <MarketBar />
 
-      {/* Sub-header */}
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -166,12 +195,11 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Guest banner */}
       {!user && (
         <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,255,0.06))', borderBottom: '1px solid rgba(0,212,255,0.12)', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <span style={{ fontWeight: 700, fontSize: '14px' }}>تبي الاشارات تجيك فوراً على التلقرام؟ </span>
-            <span style={{ color: '#6b7280', fontSize: '13px' }}>سجّل مجاناً وابدأ 14 يوم تجربة</span>
+            <span style={{ color: '#6b7280', fontSize: '13px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</span>
           </div>
           <Link href="/register" className="btn-primary" style={{ padding: '10px 20px', fontSize: '13px' }}>ابدأ مجاناً ←</Link>
         </div>
@@ -180,13 +208,14 @@ export default function Dashboard() {
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
             { label: 'الاشارات', value: total, color: 'white' },
             { label: 'الرابحة', value: wins, color: '#00e664' },
             { label: 'الخاسرة', value: losses, color: '#ff5555' },
             { label: 'نسبة الفوز', value: `${winRate}%`, color: winRate >= 60 ? '#00e664' : '#fbbf24' },
-            { label: user ? 'أيام متبقية' : 'يوم مجاناً', value: user ? user.days_left : 14, color: '#00d4ff' },
+            { label: 'إجمالي الربح', value: `+${totalPnlWin.toFixed(1)}%`, color: '#00e664' },
+            { label: 'إجمالي الخسارة', value: `${totalPnlLoss.toFixed(1)}%`, color: '#ff5555' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -210,12 +239,9 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Overview */}
         {tab === 'overview' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-              {/* Latest signal */}
               <div className="card-glow-cyan" style={{ padding: '24px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>آخر اشارة</div>
                 {signals.length === 0 ? (
@@ -258,7 +284,6 @@ export default function Dashboard() {
                 })()}
               </div>
 
-              {/* Telegram link */}
               {user && !user.telegram_id && (
                 <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '18px', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                   <div>
@@ -272,7 +297,7 @@ export default function Dashboard() {
               {!user && (
                 <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,255,0.06))', border: '1px solid rgba(0,212,255,0.15)', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
                   <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}>تبي الاشارات على تلقرامك؟</div>
-                  <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>سجّل مجاناً وابدأ 14 يوم تجربة</div>
+                  <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</div>
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     <Link href="/register" className="btn-primary">سجّل مجاناً</Link>
                     <Link href="/login" className="btn-secondary">دخول</Link>
@@ -281,7 +306,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Right column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <FearGreed />
               <div className="card">
@@ -300,7 +324,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Signals */}
         {tab === 'signals' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {signals.length === 0 ? (
@@ -310,7 +333,7 @@ export default function Dashboard() {
                 <div style={{ color: '#6b7280' }}>الفحص القادم خلال {mins}:{secs.toString().padStart(2,'0')}</div>
               </div>
             ) : signals.map((s: any) => (
-              <div key={s.id} className="signal-card" onClick={() => { setChartSymbol(s.pair.replace('/USDT','')); setTab('chart') }}>
+              <div key={s.id} className="signal-card" onClick={() => { window.open(`/chart?symbol=${s.pair.replace('/','')}USDT&entry=${s.entry}&tp=${s.tp}&sl=${s.sl}&side=${s.side}`, '_blank') }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '18px', fontWeight: 900 }}>{s.pair}</span>
@@ -319,6 +342,11 @@ export default function Dashboard() {
                     <span style={{ background: s.status === 'WIN' ? 'rgba(0,230,100,0.1)' : s.status === 'LOSS' ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)', color: s.status === 'WIN' ? '#00e664' : s.status === 'LOSS' ? '#ff5555' : '#fbbf24', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700 }}>
                       {s.status === 'WIN' ? '✓ ربح' : s.status === 'LOSS' ? '✗ خسارة' : '● مفتوحة'}
                     </span>
+                    {s.pnl_pct && s.status !== 'OPEN' && (
+                      <span style={{ background: parseFloat(s.pnl_pct) > 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', color: parseFloat(s.pnl_pct) > 0 ? '#00e664' : '#ff5555', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700 }}>
+                        {parseFloat(s.pnl_pct) > 0 ? '+' : ''}{parseFloat(s.pnl_pct).toFixed(2)}%
+                      </span>
+                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '11px', color: '#6b7280' }}>x{s.leverage}</span>
@@ -342,18 +370,47 @@ export default function Dashboard() {
                     <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#ff5555' }}>${s.sl}</div>
                   </div>
                 </div>
-                <div style={{ marginTop: '10px', fontSize: '11px', color: '#374151' }}>اضغط لرؤية الشارت ←</div>
+                {(() => {
+                  const sym = s.pair.replace('/', '')
+                  const cur = prices[sym]
+                  const entry = parseFloat(s.entry)
+                  const tp = parseFloat(s.tp)
+                  const sl = parseFloat(s.sl)
+                  if (!cur) return <div style={{ marginTop: '10px', fontSize: '11px', color: '#374151' }}>اضغط لرؤية الشارت ←</div>
+                  const pct = ((cur - entry) / entry) * 100 * (s.side === 'SHORT' ? -1 : 1)
+                  const lev = s.leverage || 5
+                  const levPct = pct * lev
+                  const isWin = s.side === 'LONG' ? cur >= tp : cur <= tp
+                  const isLoss = s.side === 'LONG' ? cur <= sl : cur >= sl
+                  const color = levPct >= 0 ? '#00e664' : '#ff5555'
+                  return (
+                    <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
+                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>السعر الحالي:</span>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px' }}>${cur.toLocaleString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '12px', color: '#6b7280' }}>x{lev}</span>
+                        <span style={{ fontWeight: 800, fontSize: '14px', color, background: `${color}15`, padding: '4px 10px', borderRadius: '8px' }}>
+                          {levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%
+                        </span>
+                        {isWin && <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 700 }}>🎯 وصل الهدف</span>}
+                        {isLoss && <span style={{ fontSize: '12px', color: '#ff5555', fontWeight: 700 }}>⛔ وصل الوقف</span>}
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             ))}
           </div>
         )}
 
-        {/* Chart */}
         {tab === 'chart' && (
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }}>
               {['BTC','ETH','BNB','SOL','XRP','ADA','DOGE','AVAX'].map(sym => (
-                <button key={sym} onClick={() => setChartSymbol(sym)} className={tab === 'chart' && chartSymbol === sym ? '' : ''} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00d4ff' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : '#9ca3af', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
+                <button key={sym} onClick={() => setChartSymbol(sym)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00d4ff' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : '#9ca3af', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
                   {sym}
                 </button>
               ))}
@@ -362,7 +419,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Market */}
         {tab === 'market' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {[
@@ -390,7 +446,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* News */}
         {tab === 'news' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {news.map((item: any, i: number) => (
@@ -408,7 +463,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Bottom */}
         <div style={{ marginTop: '32px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href="https://t.me/Devel100_bot" target="_blank" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', color: '#60a5fa', textDecoration: 'none', fontWeight: 700, padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}>فتح البوت</a>
           <Link href="/subscribe" className="btn-primary" style={{ padding: '10px 20px', fontSize: '14px' }}>تجديد الاشتراك</Link>

@@ -1,26 +1,18 @@
 'use client'
 import { useState, useEffect } from 'react'
-import type { Metadata } from 'next'
 import './globals.css'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-function AriaLogo() {
+function AriaLogo({ size = 36 }: { size?: number }) {
   return (
-    <svg width="32" height="38" viewBox="0 0 32 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 2L28 9V13L16 6L4 13V9L16 2Z" fill="url(#g1)" strokeLinecap="round"/>
-      <path d="M8 17C8 13.5 11 11 14 11C11.5 13 10 15.5 10 18.5C10 22 12.5 25 16 25C12 25 8 21.5 8 17Z" fill="url(#g2)"/>
-      <path d="M24 17C24 20.5 21 23 18 23C20.5 21 22 18.5 22 15.5C22 12 19.5 9 16 9C20 9 24 12.5 24 17Z" fill="url(#g1)"/>
-      <path d="M10 29L16 36L22 29L19 27L16 31L13 27L10 29Z" fill="url(#g2)"/>
-      <defs>
-        <linearGradient id="g1" x1="0" y1="0" x2="32" y2="38" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#00d4ff"/><stop offset="1" stopColor="#7b2fff"/>
-        </linearGradient>
-        <linearGradient id="g2" x1="32" y1="0" x2="0" y2="38" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#7b2fff"/><stop offset="1" stopColor="#00d4ff"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <img
+      src="/logo.png"
+      width={size}
+      height={size}
+      alt="ARIA Bot Logo"
+      style={{ objectFit: 'contain' }}
+    />
   )
 }
 
@@ -28,21 +20,33 @@ function Header() {
   const router = useRouter()
   const [username, setUsername] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchUser = () => {
     const token = localStorage.getItem('token')
     const userId = localStorage.getItem('user_id')
     if (token && userId) {
-      fetch(`https://web-production-dfe62.up.railway.app/user/${userId}`)
+      fetch(`https://web-production-97af6.up.railway.app/user/${userId}`)
         .then(r => r.json())
-        .then(data => setUsername(data.username))
-        .catch(() => {})
+        .then(data => {
+          if (data.username) setUsername(data.username)
+          else setUsername(null)
+        })
+        .catch(() => setUsername(null))
+    } else {
+      setUsername(null)
     }
+  }
+
+  useEffect(() => {
+    fetchUser()
+    window.addEventListener('auth-changed', fetchUser)
+    return () => window.removeEventListener('auth-changed', fetchUser)
   }, [])
 
   const logout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user_id')
     setUsername(null)
+    window.dispatchEvent(new Event('auth-changed'))
     router.push('/')
   }
 
@@ -57,7 +61,7 @@ function Header() {
       boxSizing: 'border-box',
     }}>
       <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'white' }}>
-        <AriaLogo />
+        <AriaLogo size={36} />
         <span style={{ fontWeight: 900, fontSize: '17px', letterSpacing: '-0.5px' }}>
           ARIA<span style={{ color: '#00d4ff' }}>Bot</span>
         </span>
@@ -75,7 +79,7 @@ function Header() {
             <button onClick={logout} style={{
               background: 'rgba(255,60,60,0.1)', border: '1px solid rgba(255,60,60,0.3)',
               color: '#ff7070', fontSize: '13px', padding: '7px 14px',
-              borderRadius: '10px', cursor: 'pointer'
+              borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit'
             }}>خروج</button>
           </>
         ) : (

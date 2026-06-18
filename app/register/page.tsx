@@ -14,7 +14,7 @@ export default function Register() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('https://web-production-dfe62.up.railway.app/register', {
+      const res = await fetch('https://web-production-97af6.up.railway.app/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
