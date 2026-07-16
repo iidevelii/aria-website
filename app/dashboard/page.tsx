@@ -3,6 +3,29 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+const API = 'https://web-production-97af6.up.railway.app'
+
+function fmt(p: number | string) {
+  const n = parseFloat(String(p))
+  if (isNaN(n)) return '—'
+  if (n >= 10000) return n.toLocaleString(undefined, { maximumFractionDigits: 0 })
+  if (n >= 1000) return n.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  if (n >= 1) return n.toFixed(4)
+  if (n >= 0.01) return n.toFixed(5)
+  return n.toFixed(6)
+}
+
+function fmtDate(raw: string | undefined) {
+  if (!raw) return ''
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return ''
+  const day = d.getDate().toString().padStart(2, '0')
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+  const hr = d.getHours().toString().padStart(2, '0')
+  const mn = d.getMinutes().toString().padStart(2, '0')
+  return `${day} ${months[d.getMonth()]} — ${hr}:${mn}`
+}
+
 function TradingViewWidget({ symbol }: { symbol: string }) {
   const container = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -65,13 +88,162 @@ function MarketBar() {
         {[...coins, ...coins].map((t: any, i: number) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap', fontSize: '12px' }}>
             <span style={{ color: '#9ca3af', fontWeight: 700 }}>{t.symbol.replace('USDT', '')}</span>
-            <span style={{ fontFamily: 'monospace' }}>${parseFloat(t.lastPrice) > 1 ? parseFloat(t.lastPrice).toLocaleString() : parseFloat(t.lastPrice).toFixed(4)}</span>
+            <span style={{ fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>${parseFloat(t.lastPrice) > 1 ? parseFloat(t.lastPrice).toLocaleString() : parseFloat(t.lastPrice).toFixed(4)}</span>
             <span style={{ color: parseFloat(t.priceChangePercent) >= 0 ? '#00e664' : '#ff5555', fontWeight: 600 }}>
               {parseFloat(t.priceChangePercent) >= 0 ? '▲' : '▼'}{Math.abs(parseFloat(t.priceChangePercent)).toFixed(2)}%
             </span>
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
+  const sym = (s.pair || '').replace('/', '')
+  const cur = prices[sym]
+  const entry = parseFloat(s.entry)
+  const tp = parseFloat(s.tp)
+  const sl = parseFloat(s.sl)
+  const lev = s.leverage || 1
+  const isOpen = s.status === 'OPEN'
+  const isWin = s.status === 'WIN'
+  const isLoss = s.status === 'LOSS'
+
+  let livePct = 0
+  if (cur && isOpen) {
+    livePct = ((cur - entry) / entry) * 100 * (s.side === 'SHORT' ? -1 : 1)
+  }
+  const levPct = livePct * lev
+
+  let progress = 50
+  if (cur && isOpen) {
+    if (s.side === 'LONG' && tp > sl) progress = Math.max(0, Math.min(100, ((cur - sl) / (tp - sl)) * 100))
+    else if (s.side === 'SHORT' && sl > tp) progress = Math.max(0, Math.min(100, ((sl - cur) / (sl - tp)) * 100))
+  }
+
+  const statusColor = isWin ? '#00e664' : isLoss ? '#ff5555' : '#fbbf24'
+  const sideColor = s.side === 'LONG' ? '#00e664' : '#ff5555'
+  const pnlColor = levPct >= 0 ? '#00e664' : '#ff5555'
+  const barColor = progress > 70 ? '#00e664' : progress > 35 ? '#fbbf24' : '#ff5555'
+
+  const closedPnl = s.pnl_pct ? parseFloat(s.pnl_pct) : null
+
+  return (
+    <div
+      className="signal-card"
+      onClick={() => window.open(`/chart?symbol=${sym}&entry=${s.entry}&tp=${s.tp}&sl=${s.sl}&side=${s.side}`, '_blank')}
+    >
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '-0.02em' }}>{s.pair}</span>
+          <span style={{
+            background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)',
+            color: sideColor,
+            border: `1px solid ${sideColor}50`,
+            borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
+          }}>{s.side}</span>
+          <span style={{ background: 'rgba(255,255,255,0.04)', color: '#9ca3af', borderRadius: '6px', padding: '3px 8px', fontSize: '11px' }}>
+            {s.regime}
+          </span>
+          <span style={{
+            background: isWin ? 'rgba(0,230,100,0.1)' : isLoss ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)',
+            color: statusColor,
+            border: `1px solid ${statusColor}30`,
+            borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700,
+          }}>
+            {isWin ? '✓ ربح' : isLoss ? '✗ خسارة' : '● مفتوحة'}
+          </span>
+          {closedPnl !== null && !isOpen && (
+            <span style={{ fontWeight: 800, fontSize: '13px', color: closedPnl > 0 ? '#00e664' : '#ff5555' }}>
+              {closedPnl > 0 ? '+' : ''}{closedPnl.toFixed(2)}%
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+          {s.created_at && (
+            <span style={{ fontSize: '11px', color: '#4b5563', fontVariantNumeric: 'tabular-nums' }}>
+              {fmtDate(s.created_at)}
+            </span>
+          )}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '9px', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Score</div>
+            <div style={{ fontSize: '20px', fontWeight: 900, color: '#00c4ef', lineHeight: 1 }}>{s.ai_score}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Price Grid ── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '8px',
+        marginBottom: '12px',
+      }}>
+        {/* Entry */}
+        <div style={{ background: 'rgba(0,196,239,0.05)', border: '1px solid rgba(0,196,239,0.12)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
+          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>دخول</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.entry)}</div>
+          <div style={{ fontSize: '10px', color: '#4b5563', marginTop: '3px' }}>×{lev}</div>
+        </div>
+        {/* TP */}
+        <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
+          <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>هدف</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#00e664', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
+          <div style={{ fontSize: '10px', color: 'rgba(0,230,100,0.55)', marginTop: '3px' }}>+{s.tp_pct}%</div>
+        </div>
+        {/* SL */}
+        <div style={{ background: 'rgba(255,85,85,0.05)', border: '1px solid rgba(255,85,85,0.15)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
+          <div style={{ fontSize: '10px', color: '#ff5555', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>وقف</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,85,85,0.55)', marginTop: '3px' }}>-{s.sl_pct}%</div>
+        </div>
+        {/* Current */}
+        <div style={{
+          background: cur
+            ? (isOpen ? (levPct >= 0 ? 'rgba(0,230,100,0.06)' : 'rgba(255,85,85,0.06)') : 'rgba(255,255,255,0.03)')
+            : 'rgba(255,255,255,0.03)',
+          border: `1px solid ${cur && isOpen ? (levPct >= 0 ? 'rgba(0,230,100,0.22)' : 'rgba(255,85,85,0.22)') : 'rgba(255,255,255,0.07)'}`,
+          borderRadius: '12px', padding: '10px 8px', textAlign: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '5px' }}>
+            {isOpen && cur && (
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00c4ef', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }}/>
+            )}
+            <span style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>الآن</span>
+          </div>
+          {cur ? (
+            <>
+              <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: isOpen ? pnlColor : 'white', fontVariantNumeric: 'tabular-nums' }}>${fmt(cur)}</div>
+              {isOpen && (
+                <div style={{ fontSize: '11px', fontWeight: 800, color: pnlColor, marginTop: '3px' }}>
+                  {levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ fontSize: '18px', color: '#374151', marginTop: '2px' }}>—</div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Progress bar (OPEN only) ── */}
+      {isOpen && cur && (
+        <div style={{ marginTop: '4px' }}>
+          <div style={{ height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '3px', transition: 'width 0.6s ease' }}/>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginTop: '5px' }}>
+            <span style={{ color: '#ff5555' }}>وقف ${fmt(sl)}</span>
+            <span style={{ color: barColor, fontWeight: 700 }}>{progress.toFixed(0)}% نحو الهدف</span>
+            <span style={{ color: '#00e664' }}>هدف ${fmt(tp)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Click hint */}
+      <div style={{ marginTop: '10px', fontSize: '10px', color: '#374151', textAlign: 'left' }}>اضغط لفتح الشارت ←</div>
     </div>
   )
 }
@@ -88,29 +260,23 @@ export default function Dashboard() {
   const [tab, setTab] = useState('overview')
   const [chartSymbol, setChartSymbol] = useState('BTC')
   const [nextScan, setNextScan] = useState(900)
-  const [scanLoaded, setScanLoaded] = useState(false)
   const [prices, setPrices] = useState<Record<string, number>>({})
+  const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'WIN' | 'LOSS'>('ALL')
 
   useEffect(() => {
-    const calcRemaining = () => {
-      const now = new Date()
-      const minutes = now.getMinutes()
-      const seconds = now.getSeconds()
-      const totalSeconds = (minutes % 15) * 60 + seconds
-      return 900 - totalSeconds
-    }
-    setNextScan(calcRemaining())
-    const t = setInterval(() => setNextScan(calcRemaining()), 1000)
+    const calc = () => { const n = new Date(); return 900 - ((n.getMinutes() % 15) * 60 + n.getSeconds()) }
+    setNextScan(calc())
+    const t = setInterval(() => setNextScan(calc()), 1000)
     return () => clearInterval(t)
   }, [])
 
   useEffect(() => {
     const fetchPrices = async () => {
-      const openSignals = signals.filter(s => s.status === 'OPEN')
-      if (openSignals.length === 0) return
+      const open = signals.filter(s => s.status === 'OPEN')
+      if (!open.length) return
       try {
-        const symbols = openSignals.map(s => s.pair.replace('/', ''))
-        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbols)}`)
+        const syms = open.map(s => (s.pair || '').replace('/', ''))
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(syms)}`)
         const data = await res.json()
         const map: Record<string, number> = {}
         data.forEach((d: any) => { map[d.symbol] = parseFloat(d.price) })
@@ -124,17 +290,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     const uid = localStorage.getItem('user_id')
-    const fetchData = async () => {
+    ;(async () => {
       try {
         if (uid) {
-          const r = await fetch(`https://web-production-97af6.up.railway.app/user/${uid}`)
+          const r = await fetch(`${API}/user/${uid}`)
           if (r.ok) setUser(await r.json())
         }
         const [sr, tr, cr, nr] = await Promise.all([
-          fetch('https://web-production-97af6.up.railway.app/signals'),
+          fetch(`${API}/signals`),
           fetch('https://api.binance.com/api/v3/ticker/24hr'),
           fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1'),
-          fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss')
+          fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss'),
         ])
         const s = await sr.json(); setSignals(Array.isArray(s) ? s : [])
         const tk = await tr.json()
@@ -145,24 +311,26 @@ export default function Dashboard() {
         const nd = await nr.json(); setNews(nd.items?.slice(0, 6) || [])
       } catch {}
       setLoading(false)
-    }
-    fetchData()
+    })()
   }, [])
 
   const wins = signals.filter(s => s.status === 'WIN').length
   const losses = signals.filter(s => s.status === 'LOSS').length
+  const open = signals.filter(s => s.status === 'OPEN').length
   const total = signals.length
-  const winRate = total > 0 ? Math.round((wins / total) * 100) : 0
+  const winRate = (wins + losses) > 0 ? Math.round((wins / (wins + losses)) * 100) : 0
   const totalPnlWin = signals.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const totalPnlLoss = signals.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const mins = Math.floor(nextScan / 60)
   const secs = nextScan % 60
 
+  const filteredSignals = filter === 'ALL' ? signals : signals.filter(s => s.status === filter)
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '22px', margin: '0 auto 16px' }}>A</div>
-        <div style={{ color: '#00d4ff', fontWeight: 700, fontSize: '16px' }}>جاري التحميل...</div>
+        <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #00c4ef, #6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '22px', margin: '0 auto 16px' }}>A</div>
+        <div style={{ color: '#00c4ef', fontWeight: 700, fontSize: '16px' }}>جاري التحميل...</div>
       </div>
     </div>
   )
@@ -171,13 +339,16 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', background: '#050508', color: 'white' }}>
       <MarketBar />
 
+      {/* Top nav */}
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-            <span style={{ fontSize: '13px', color: '#6b7280' }}>Live Trading</span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
+            <span style={{ fontSize: '13px', color: '#6b7280' }}>Live</span>
           </div>
-          <span style={{ color: '#374151', fontSize: '13px' }}>الفحص القادم: <span style={{ color: '#9ca3af', fontFamily: 'monospace' }}>{mins}:{secs.toString().padStart(2, '0')}</span></span>
+          <span style={{ color: '#374151', fontSize: '13px' }}>
+            الفحص القادم: <span style={{ color: '#9ca3af', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
+          </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {user ? (
@@ -196,7 +367,7 @@ export default function Dashboard() {
       </div>
 
       {!user && (
-        <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,255,0.06))', borderBottom: '1px solid rgba(0,212,255,0.12)', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ background: 'linear-gradient(135deg, rgba(0,196,239,0.06), rgba(107,31,255,0.06))', borderBottom: '1px solid rgba(0,196,239,0.12)', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <span style={{ fontWeight: 700, fontSize: '14px' }}>تبي الاشارات تجيك فوراً على التلقرام؟ </span>
             <span style={{ color: '#6b7280', fontSize: '13px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</span>
@@ -207,15 +378,15 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
-        {/* Stats */}
+        {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
-            { label: 'الاشارات', value: total, color: 'white' },
+            { label: 'الكل', value: total, color: 'white' },
+            { label: 'مفتوحة', value: open, color: '#fbbf24' },
             { label: 'الرابحة', value: wins, color: '#00e664' },
             { label: 'الخاسرة', value: losses, color: '#ff5555' },
             { label: 'نسبة الفوز', value: `${winRate}%`, color: winRate >= 60 ? '#00e664' : '#fbbf24' },
-            { label: 'إجمالي الربح', value: `+${totalPnlWin.toFixed(1)}%`, color: '#00e664' },
-            { label: 'إجمالي الخسارة', value: `${totalPnlLoss.toFixed(1)}%`, color: '#ff5555' },
+            { label: 'صافي الربح', value: `+${totalPnlWin.toFixed(1)}%`, color: '#00e664' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -228,7 +399,7 @@ export default function Dashboard() {
         <div className="tabs" style={{ marginBottom: '20px' }}>
           {[
             { id: 'overview', label: 'نظرة عامة' },
-            { id: 'signals', label: 'الاشارات' },
+            { id: 'signals', label: `الاشارات (${total})` },
             { id: 'chart', label: 'الشارت' },
             { id: 'market', label: 'السوق' },
             { id: 'news', label: 'الاخبار' },
@@ -239,9 +410,12 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* ── OVERVIEW ── */}
         {tab === 'overview' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+              {/* Latest signal */}
               <div className="card-glow-cyan" style={{ padding: '24px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>آخر اشارة</div>
                 {signals.length === 0 ? (
@@ -252,31 +426,51 @@ export default function Dashboard() {
                   </div>
                 ) : (() => {
                   const s = signals[0]
+                  const sym = (s.pair || '').replace('/', '')
+                  const cur = prices[sym]
+                  const entry = parseFloat(s.entry)
+                  const lev = s.leverage || 1
+                  let levPct = 0
+                  if (cur && s.status === 'OPEN') levPct = ((cur - entry) / entry) * 100 * (s.side === 'SHORT' ? -1 : 1) * lev
                   return (
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '24px', fontWeight: 900 }}>{s.pair}</span>
                           <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.side}</span>
                           <span style={{ background: 'rgba(255,255,255,0.05)', color: '#6b7280', borderRadius: '6px', padding: '4px 10px', fontSize: '12px' }}>{s.regime}</span>
+                          {s.created_at && <span style={{ fontSize: '12px', color: '#4b5563' }}>{fmtDate(s.created_at)}</span>}
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Quality Score</div>
-                          <div style={{ fontSize: '28px', fontWeight: 900, color: '#00d4ff' }}>{s.ai_score}<span style={{ fontSize: '13px', color: '#4b5563' }}>/100</span></div>
+                          <div style={{ fontSize: '28px', fontWeight: 900, color: '#00c4ef' }}>{s.ai_score}<span style={{ fontSize: '13px', color: '#4b5563' }}>/100</span></div>
                         </div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                        <div className="price-box">
-                          <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>دخول</div>
-                          <div style={{ fontFamily: 'monospace', fontWeight: 700 }}>${s.entry}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                        <div className="price-box" style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>دخول</div>
+                          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>${fmt(s.entry)}</div>
+                          <div style={{ fontSize: '10px', color: '#4b5563', marginTop: '2px' }}>×{lev}</div>
                         </div>
-                        <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
-                          <div style={{ fontSize: '11px', color: '#00e664', marginBottom: '4px' }}>هدف +{s.tp_pct}%</div>
-                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#00e664' }}>${s.tp}</div>
+                        <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '4px' }}>هدف +{s.tp_pct}%</div>
+                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#00e664', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
                         </div>
-                        <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.15)', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
-                          <div style={{ fontSize: '11px', color: '#ff5555', marginBottom: '4px' }}>وقف -{s.sl_pct}%</div>
-                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#ff5555' }}>${s.sl}</div>
+                        <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.15)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '10px', color: '#ff5555', marginBottom: '4px' }}>وقف -{s.sl_pct}%</div>
+                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
+                        </div>
+                        <div style={{ background: cur && s.status === 'OPEN' ? (levPct >= 0 ? 'rgba(0,230,100,0.06)' : 'rgba(255,85,85,0.06)') : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
+                            {s.status === 'OPEN' && cur && <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00c4ef', display: 'inline-block', animation: 'pulse 2s infinite' }}/>}
+                            <span style={{ fontSize: '10px', color: '#6b7280' }}>الآن</span>
+                          </div>
+                          {cur ? (
+                            <>
+                              <div style={{ fontFamily: 'monospace', fontWeight: 700, color: levPct >= 0 ? '#00e664' : '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(cur)}</div>
+                              {s.status === 'OPEN' && <div style={{ fontSize: '11px', fontWeight: 800, color: levPct >= 0 ? '#00e664' : '#ff5555', marginTop: '2px' }}>{levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%</div>}
+                            </>
+                          ) : <div style={{ color: '#374151' }}>—</div>}
                         </div>
                       </div>
                     </div>
@@ -284,18 +478,8 @@ export default function Dashboard() {
                 })()}
               </div>
 
-              {user && !user.telegram_id && (
-                <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '18px', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, marginBottom: '4px' }}>فعّل اشعارات التلقرام</div>
-                    <div style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.15)', borderRadius: '8px', padding: '6px 14px', fontFamily: 'monospace', color: '#00d4ff', fontSize: '14px', display: 'inline-block', marginTop: '8px' }}>/link {user.id}</div>
-                  </div>
-                  <a href="https://t.me/Devel100_bot" target="_blank" className="btn-primary" style={{ padding: '10px 20px', fontSize: '13px' }}>فتح البوت</a>
-                </div>
-              )}
-
               {!user && (
-                <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,255,0.06))', border: '1px solid rgba(0,212,255,0.15)', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
+                <div style={{ background: 'linear-gradient(135deg, rgba(0,196,239,0.06), rgba(107,31,255,0.06))', border: '1px solid rgba(0,196,239,0.15)', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
                   <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}>تبي الاشارات على تلقرامك؟</div>
                   <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</div>
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
@@ -313,8 +497,8 @@ export default function Dashboard() {
                 {gainers.slice(0, 6).map((t: any, i: number) => (
                   <div key={t.symbol} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 5 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#374151', fontSize: '11px', width: '16px' }}>{i+1}</span>
-                      <span style={{ fontWeight: 700, fontSize: '13px' }}>{t.symbol.replace('USDT','')}</span>
+                      <span style={{ color: '#374151', fontSize: '11px', width: '16px' }}>{i + 1}</span>
+                      <span style={{ fontWeight: 700, fontSize: '13px' }}>{t.symbol.replace('USDT', '')}</span>
                     </div>
                     <span style={{ color: '#00e664', fontSize: '13px', fontWeight: 700 }}>+{parseFloat(t.priceChangePercent).toFixed(2)}%</span>
                   </div>
@@ -324,93 +508,56 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── SIGNALS ── */}
         {tab === 'signals' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {signals.length === 0 ? (
+          <div>
+            {/* Filter bar */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              {(['ALL', 'OPEN', 'WIN', 'LOSS'] as const).map(f => (
+                <button key={f} onClick={() => setFilter(f)} style={{
+                  padding: '8px 18px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  background: filter === f
+                    ? (f === 'WIN' ? 'rgba(0,230,100,0.2)' : f === 'LOSS' ? 'rgba(255,85,85,0.2)' : f === 'OPEN' ? 'rgba(251,191,36,0.2)' : 'rgba(0,196,239,0.2)')
+                    : 'rgba(255,255,255,0.04)',
+                  color: filter === f
+                    ? (f === 'WIN' ? '#00e664' : f === 'LOSS' ? '#ff5555' : f === 'OPEN' ? '#fbbf24' : '#00c4ef')
+                    : '#6b7280',
+                  border: filter === f
+                    ? `1px solid ${f === 'WIN' ? 'rgba(0,230,100,0.35)' : f === 'LOSS' ? 'rgba(255,85,85,0.35)' : f === 'OPEN' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`
+                    : '1px solid rgba(255,255,255,0.06)',
+                }}>
+                  {f === 'ALL' ? `الكل (${total})` : f === 'OPEN' ? `مفتوحة (${open})` : f === 'WIN' ? `رابحة (${wins})` : `خاسرة (${losses})`}
+                </button>
+              ))}
+            </div>
+
+            {filteredSignals.length === 0 ? (
               <div className="card" style={{ textAlign: 'center', padding: '64px' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-                <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>البوت يراقب السوق</div>
-                <div style={{ color: '#6b7280' }}>الفحص القادم خلال {mins}:{secs.toString().padStart(2,'0')}</div>
-              </div>
-            ) : signals.map((s: any) => (
-              <div key={s.id} className="signal-card" onClick={() => { window.open(`/chart?symbol=${s.pair.replace('/','')}USDT&entry=${s.entry}&tp=${s.tp}&sl=${s.sl}&side=${s.side}`, '_blank') }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '18px', fontWeight: 900 }}>{s.pair}</span>
-                    <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '6px', padding: '3px 10px', fontSize: '12px', fontWeight: 800 }}>{s.side}</span>
-                    <span style={{ background: 'rgba(255,255,255,0.04)', color: '#6b7280', borderRadius: '6px', padding: '3px 8px', fontSize: '11px' }}>{s.regime}</span>
-                    <span style={{ background: s.status === 'WIN' ? 'rgba(0,230,100,0.1)' : s.status === 'LOSS' ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)', color: s.status === 'WIN' ? '#00e664' : s.status === 'LOSS' ? '#ff5555' : '#fbbf24', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700 }}>
-                      {s.status === 'WIN' ? '✓ ربح' : s.status === 'LOSS' ? '✗ خسارة' : '● مفتوحة'}
-                    </span>
-                    {s.pnl_pct && s.status !== 'OPEN' && (
-                      <span style={{ background: parseFloat(s.pnl_pct) > 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', color: parseFloat(s.pnl_pct) > 0 ? '#00e664' : '#ff5555', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700 }}>
-                        {parseFloat(s.pnl_pct) > 0 ? '+' : ''}{parseFloat(s.pnl_pct).toFixed(2)}%
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '11px', color: '#6b7280' }}>x{s.leverage}</span>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '10px', color: '#4b5563' }}>Score</div>
-                      <div style={{ fontSize: '20px', fontWeight: 900, color: '#00d4ff' }}>{s.ai_score}</div>
-                    </div>
-                  </div>
+                <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
+                  {total === 0 ? 'البوت يراقب السوق' : 'لا توجد اشارات في هذا التصنيف'}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                  <div className="price-box">
-                    <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '3px' }}>دخول</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px' }}>${s.entry}</div>
-                  </div>
-                  <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.12)', borderRadius: '10px', padding: '10px 12px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '3px' }}>+{s.tp_pct}%</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#00e664' }}>${s.tp}</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,85,85,0.05)', border: '1px solid rgba(255,85,85,0.12)', borderRadius: '10px', padding: '10px 12px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '10px', color: '#ff5555', marginBottom: '3px' }}>-{s.sl_pct}%</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#ff5555' }}>${s.sl}</div>
-                  </div>
+                <div style={{ color: '#6b7280' }}>
+                  {total === 0 ? `الفحص القادم خلال ${mins}:${secs.toString().padStart(2, '0')}` : 'جرّب تصنيفاً آخر'}
                 </div>
-                {(() => {
-                  const sym = s.pair.replace('/', '')
-                  const cur = prices[sym]
-                  const entry = parseFloat(s.entry)
-                  const tp = parseFloat(s.tp)
-                  const sl = parseFloat(s.sl)
-                  if (!cur) return <div style={{ marginTop: '10px', fontSize: '11px', color: '#374151' }}>اضغط لرؤية الشارت ←</div>
-                  const pct = ((cur - entry) / entry) * 100 * (s.side === 'SHORT' ? -1 : 1)
-                  const lev = s.leverage || 5
-                  const levPct = pct * lev
-                  const isWin = s.side === 'LONG' ? cur >= tp : cur <= tp
-                  const isLoss = s.side === 'LONG' ? cur <= sl : cur >= sl
-                  const color = levPct >= 0 ? '#00e664' : '#ff5555'
-                  return (
-                    <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>السعر الحالي:</span>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px' }}>${cur.toLocaleString()}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '12px', color: '#6b7280' }}>x{lev}</span>
-                        <span style={{ fontWeight: 800, fontSize: '14px', color, background: `${color}15`, padding: '4px 10px', borderRadius: '8px' }}>
-                          {levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%
-                        </span>
-                        {isWin && <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 700 }}>🎯 وصل الهدف</span>}
-                        {isLoss && <span style={{ fontSize: '12px', color: '#ff5555', fontWeight: 700 }}>⛔ وصل الوقف</span>}
-                      </div>
-                    </div>
-                  )
-                })()}
               </div>
-            ))}
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredSignals.map((s: any) => (
+                  <SignalCard key={s.id} s={s} prices={prices} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── CHART ── */}
         {tab === 'chart' && (
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }}>
-              {['BTC','ETH','BNB','SOL','XRP','ADA','DOGE','AVAX'].map(sym => (
-                <button key={sym} onClick={() => setChartSymbol(sym)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00d4ff' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : '#9ca3af', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
+              {['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'DOGE', 'AVAX'].map(sym => (
+                <button key={sym} onClick={() => setChartSymbol(sym)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00c4ef' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : '#9ca3af', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
                   {sym}
                 </button>
               ))}
@@ -419,6 +566,7 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── MARKET ── */}
         {tab === 'market' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {[
@@ -430,13 +578,13 @@ export default function Dashboard() {
                 <div style={{ fontWeight: 800, marginBottom: '20px', fontSize: '15px' }}>{col.title}</div>
                 {col.data.map((item: any, i: number) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < col.data.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' }}
-                    onClick={() => { setChartSymbol(col.isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT','')); setTab('chart') }}>
+                    onClick={() => { setChartSymbol((col as any).isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT', '')); setTab('chart') }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#374151', fontSize: '11px', width: '18px' }}>{i+1}</span>
-                      <span style={{ fontWeight: 700, fontSize: '13px' }}>{col.isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT','')}</span>
+                      <span style={{ color: '#374151', fontSize: '11px', width: '18px' }}>{i + 1}</span>
+                      <span style={{ fontWeight: 700, fontSize: '13px' }}>{(col as any).isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT', '')}</span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#6b7280' }}>${col.isCG ? item.current_price.toLocaleString() : parseFloat(item.lastPrice) > 1 ? parseFloat(item.lastPrice).toLocaleString() : parseFloat(item.lastPrice).toFixed(5)}</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#6b7280', fontVariantNumeric: 'tabular-nums' }}>${(col as any).isCG ? item.current_price.toLocaleString() : parseFloat(item.lastPrice) > 1 ? parseFloat(item.lastPrice).toLocaleString() : parseFloat(item.lastPrice).toFixed(5)}</div>
                       <div style={{ fontSize: '12px', fontWeight: 700, color: col.colorFn(item) }}>{col.valFn(item)}</div>
                     </div>
                   </div>
@@ -446,16 +594,17 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── NEWS ── */}
         {tab === 'news' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {news.map((item: any, i: number) => (
               <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'white' }}>
                 <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {item.thumbnail && <img src={item.thumbnail} alt="" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '12px', opacity: 0.85 }}/>}
+                  {item.thumbnail && <img src={item.thumbnail} alt="" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '12px', opacity: 0.85 }} />}
                   <div style={{ fontWeight: 700, fontSize: '14px', lineHeight: 1.6, flex: 1 }}>{item.title}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                     <span style={{ color: '#4b5563', fontSize: '12px' }}>{new Date(item.pubDate).toLocaleDateString('ar-SA')}</span>
-                    <span style={{ color: '#00d4ff', fontSize: '12px', fontWeight: 700 }}>اقرأ المزيد ←</span>
+                    <span style={{ color: '#00c4ef', fontSize: '12px', fontWeight: 700 }}>اقرأ المزيد ←</span>
                   </div>
                 </div>
               </a>
@@ -464,12 +613,17 @@ export default function Dashboard() {
         )}
 
         <div style={{ marginTop: '32px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="https://t.me/Devel100_bot" target="_blank" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', color: '#60a5fa', textDecoration: 'none', fontWeight: 700, padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}>فتح البوت</a>
-          <Link href="/subscribe" className="btn-primary" style={{ padding: '10px 20px', fontSize: '14px' }}>تجديد الاشتراك</Link>
+          <a href="https://t.me/devel_support" target="_blank" style={{ background: 'linear-gradient(135deg,rgba(0,196,239,0.1),rgba(107,31,255,0.1))', border: '1px solid rgba(0,196,239,0.25)', color: '#00c4ef', textDecoration: 'none', fontWeight: 700, padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}>💬 تواصل مع الدعم</a>
+          <Link href="/subscribe" style={{ background: 'linear-gradient(135deg,rgba(0,196,239,0.15),rgba(107,31,255,0.15))', border: '1px solid rgba(0,196,239,0.35)', color: '#00c4ef', textDecoration: 'none', fontWeight: 700, padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}>اشتراك احترافي</Link>
         </div>
       </div>
 
-      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @media (max-width: 640px) {
+          .signal-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </div>
   )
 }
