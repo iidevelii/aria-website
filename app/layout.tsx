@@ -75,7 +75,6 @@ const NAV = [
   { href:'/paper-trading',    label:'تداول ورقي',  icon:Icons.paper },
   { href:'/coin-tracker',     label:'تتبع العملات',icon:Icons.tracker },
   { href:'/ai-assistant',     label:'مساعد AI',    icon:Icons.ai },
-  { href:'/api-docs',         label:'API',          icon:Icons.api },
   { href:'/subscribe',        label:'اشتراك',      icon:Icons.subscribe },
 ]
 
