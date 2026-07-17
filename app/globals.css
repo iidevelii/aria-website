@@ -3,19 +3,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:            #08090f;
-  --surface:       #0e1018;
-  --surface-2:     #13151f;
-  --border:        rgba(255,255,255,0.07);
-  --border-hover:  rgba(255,255,255,0.13);
+  --bg:            #080a10;
+  --surface:       #0d1017;
+  --surface-2:     #131720;
+  --surface-3:     #181d28;
+  --border:        rgba(255,255,255,0.06);
+  --border-hover:  rgba(255,255,255,0.11);
   --cyan:          #00c4ef;
-  --purple:        #6b1fff;
-  --green:         #00e664;
-  --red:           #ff4455;
-  --yellow:        #f5c842;
-  --text:          #edf0f4;
-  --muted:         #5a6272;
-  --dim:           #2a2e38;
+  --purple:        #7c3aed;
+  --green:         #22d06e;
+  --red:           #f04060;
+  --yellow:        #f59e0b;
+  --text:          #e8ecf4;
+  --muted:         #5a6478;
+  --dim:           #252b38;
   --mono:          ui-monospace, 'Cascadia Code', 'Roboto Mono', monospace;
 }
 
