@@ -87,7 +87,7 @@ function MarketBar() {
       <div className="animate-marquee" style={{ display: 'flex', gap: '32px', width: 'max-content' }}>
         {[...coins, ...coins].map((t: any, i: number) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap', fontSize: '12px' }}>
-            <span style={{ color: '#9ca3af', fontWeight: 700 }}>{t.symbol.replace('USDT', '')}</span>
+            <span style={{ color: 'var(--muted)', fontWeight: 700 }}>{t.symbol.replace('USDT', '')}</span>
             <span style={{ fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>${parseFloat(t.lastPrice) > 1 ? parseFloat(t.lastPrice).toLocaleString() : parseFloat(t.lastPrice).toFixed(4)}</span>
             <span style={{ color: parseFloat(t.priceChangePercent) >= 0 ? '#00e664' : '#ff5555', fontWeight: 600 }}>
               {parseFloat(t.priceChangePercent) >= 0 ? '▲' : '▼'}{Math.abs(parseFloat(t.priceChangePercent)).toFixed(2)}%
@@ -144,7 +144,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
             border: `1px solid ${sideColor}50`,
             borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
           }}>{s.side}</span>
-          <span style={{ background: 'rgba(255,255,255,0.04)', color: '#9ca3af', borderRadius: '6px', padding: '3px 8px', fontSize: '11px' }}>
+          <span style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--muted)', borderRadius: '6px', padding: '3px 8px', fontSize: '11px' }}>
             {s.regime}
           </span>
           <span style={{
@@ -163,12 +163,12 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
           {s.created_at && (
-            <span style={{ fontSize: '11px', color: '#4b5563', fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ fontSize: '11px', color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
               {fmtDate(s.created_at)}
             </span>
           )}
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '9px', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Score</div>
+            <div style={{ fontSize: '9px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Score</div>
             <div style={{ fontSize: '20px', fontWeight: 900, color: '#00c4ef', lineHeight: 1 }}>{s.ai_score}</div>
           </div>
         </div>
@@ -183,9 +183,9 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
       }}>
         {/* Entry */}
         <div style={{ background: 'rgba(0,196,239,0.05)', border: '1px solid rgba(0,196,239,0.12)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>دخول</div>
+          <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>دخول</div>
           <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.entry)}</div>
-          <div style={{ fontSize: '10px', color: '#4b5563', marginTop: '3px' }}>×{lev}</div>
+          <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '3px' }}>×{lev}</div>
         </div>
         {/* TP */}
         <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
@@ -211,7 +211,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
             {isOpen && cur && (
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00c4ef', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }}/>
             )}
-            <span style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>الآن</span>
+            <span style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>الآن</span>
           </div>
           {cur ? (
             <>
@@ -223,7 +223,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
               )}
             </>
           ) : (
-            <div style={{ fontSize: '18px', color: '#374151', marginTop: '2px' }}>—</div>
+            <div style={{ fontSize: '18px', color: 'var(--muted)', marginTop: '2px' }}>—</div>
           )}
         </div>
       </div>
@@ -243,7 +243,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
       )}
 
       {/* Click hint */}
-      <div style={{ marginTop: '10px', fontSize: '10px', color: '#374151', textAlign: 'left' }}>اضغط لفتح الشارت ←</div>
+      <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--muted)', textAlign: 'left' }}>اضغط لفتح الشارت ←</div>
     </div>
   )
 }
@@ -327,7 +327,7 @@ export default function Dashboard() {
   const filteredSignals = filter === 'ALL' ? signals : signals.filter(s => s.status === filter)
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #00c4ef, #6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '22px', margin: '0 auto 16px' }}>A</div>
         <div style={{ color: '#00c4ef', fontWeight: 700, fontSize: '16px' }}>جاري التحميل...</div>
@@ -336,7 +336,7 @@ export default function Dashboard() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050508', color: 'white' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <MarketBar />
 
       {/* Top nav */}
@@ -344,22 +344,22 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-            <span style={{ fontSize: '13px', color: '#6b7280' }}>Live</span>
+            <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Live</span>
           </div>
-          <span style={{ color: '#374151', fontSize: '13px' }}>
-            الفحص القادم: <span style={{ color: '#9ca3af', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
+          <span style={{ color: 'var(--muted)', fontSize: '13px' }}>
+            الفحص القادم: <span style={{ color: 'var(--muted)', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {user ? (
             <>
-              <span style={{ fontSize: '13px', color: '#6b7280' }}>مرحباً <span style={{ color: 'white', fontWeight: 600 }}>{user.username}</span></span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>مرحباً <span style={{ color: 'var(--text)', fontWeight: 600 }}>{user.username}</span></span>
               <span className={user.is_active ? 'status-active' : 'status-inactive'}>{user.is_active ? `نشط · ${user.days_left}د` : 'منتهي'}</span>
-              <button onClick={() => { localStorage.clear(); router.push('/') }} style={{ background: 'none', border: 'none', color: '#4b5563', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>خروج</button>
+              <button onClick={() => { localStorage.clear(); router.push('/') }} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>خروج</button>
             </>
           ) : (
             <>
-              <Link href="/login" style={{ color: '#6b7280', textDecoration: 'none', fontSize: '13px' }}>دخول</Link>
+              <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px' }}>دخول</Link>
               <Link href="/register" className="btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>سجّل مجاناً</Link>
             </>
           )}
@@ -370,7 +370,7 @@ export default function Dashboard() {
         <div style={{ background: 'linear-gradient(135deg, rgba(0,196,239,0.06), rgba(107,31,255,0.06))', borderBottom: '1px solid rgba(0,196,239,0.12)', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <span style={{ fontWeight: 700, fontSize: '14px' }}>تبي الاشارات تجيك فوراً على التلقرام؟ </span>
-            <span style={{ color: '#6b7280', fontSize: '13px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</span>
+            <span style={{ color: 'var(--muted)', fontSize: '13px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</span>
           </div>
           <Link href="/register" className="btn-primary" style={{ padding: '10px 20px', fontSize: '13px' }}>ابدأ مجاناً ←</Link>
         </div>
@@ -381,7 +381,7 @@ export default function Dashboard() {
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
-            { label: 'الكل', value: total, color: 'white' },
+            { label: 'الكل', value: total, color: 'var(--text)' },
             { label: 'مفتوحة', value: open, color: '#fbbf24' },
             { label: 'الرابحة', value: wins, color: '#00e664' },
             { label: 'الخاسرة', value: losses, color: '#ff5555' },
@@ -417,9 +417,9 @@ export default function Dashboard() {
 
               {/* Latest signal */}
               <div className="card-glow-cyan" style={{ padding: '24px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>آخر اشارة</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>آخر اشارة</div>
                 {signals.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '32px', color: '#4b5563' }}>
+                  <div style={{ textAlign: 'center', padding: '32px', color: 'var(--muted)' }}>
                     <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔍</div>
                     <div style={{ fontWeight: 600 }}>البوت يراقب السوق</div>
                     <div style={{ fontSize: '13px', marginTop: '4px' }}>الفحص القادم خلال {mins}:{secs.toString().padStart(2, '0')}</div>
@@ -438,19 +438,19 @@ export default function Dashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '24px', fontWeight: 900 }}>{s.pair}</span>
                           <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.side}</span>
-                          <span style={{ background: 'rgba(255,255,255,0.05)', color: '#6b7280', borderRadius: '6px', padding: '4px 10px', fontSize: '12px' }}>{s.regime}</span>
-                          {s.created_at && <span style={{ fontSize: '12px', color: '#4b5563' }}>{fmtDate(s.created_at)}</span>}
+                          <span style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--muted)', borderRadius: '6px', padding: '4px 10px', fontSize: '12px' }}>{s.regime}</span>
+                          {s.created_at && <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{fmtDate(s.created_at)}</span>}
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Quality Score</div>
-                          <div style={{ fontSize: '28px', fontWeight: 900, color: '#00c4ef' }}>{s.ai_score}<span style={{ fontSize: '13px', color: '#4b5563' }}>/100</span></div>
+                          <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '2px' }}>Quality Score</div>
+                          <div style={{ fontSize: '28px', fontWeight: 900, color: '#00c4ef' }}>{s.ai_score}<span style={{ fontSize: '13px', color: 'var(--muted)' }}>/100</span></div>
                         </div>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                         <div className="price-box" style={{ textAlign: 'center' }}>
-                          <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>دخول</div>
+                          <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '4px' }}>دخول</div>
                           <div style={{ fontFamily: 'monospace', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>${fmt(s.entry)}</div>
-                          <div style={{ fontSize: '10px', color: '#4b5563', marginTop: '2px' }}>×{lev}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>×{lev}</div>
                         </div>
                         <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
                           <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '4px' }}>هدف +{s.tp_pct}%</div>
@@ -463,14 +463,14 @@ export default function Dashboard() {
                         <div style={{ background: cur && s.status === 'OPEN' ? (levPct >= 0 ? 'rgba(0,230,100,0.06)' : 'rgba(255,85,85,0.06)') : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
                             {s.status === 'OPEN' && cur && <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00c4ef', display: 'inline-block', animation: 'pulse 2s infinite' }}/>}
-                            <span style={{ fontSize: '10px', color: '#6b7280' }}>الآن</span>
+                            <span style={{ fontSize: '10px', color: 'var(--muted)' }}>الآن</span>
                           </div>
                           {cur ? (
                             <>
                               <div style={{ fontFamily: 'monospace', fontWeight: 700, color: levPct >= 0 ? '#00e664' : '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(cur)}</div>
                               {s.status === 'OPEN' && <div style={{ fontSize: '11px', fontWeight: 800, color: levPct >= 0 ? '#00e664' : '#ff5555', marginTop: '2px' }}>{levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%</div>}
                             </>
-                          ) : <div style={{ color: '#374151' }}>—</div>}
+                          ) : <div style={{ color: 'var(--muted)' }}>—</div>}
                         </div>
                       </div>
                     </div>
@@ -481,7 +481,7 @@ export default function Dashboard() {
               {!user && (
                 <div style={{ background: 'linear-gradient(135deg, rgba(0,196,239,0.06), rgba(107,31,255,0.06))', border: '1px solid rgba(0,196,239,0.15)', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
                   <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}>تبي الاشارات على تلقرامك؟</div>
-                  <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</div>
+                  <div style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '20px' }}>سجّل مجاناً وابدأ 30 يوم تجربة</div>
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     <Link href="/register" className="btn-primary">سجّل مجاناً</Link>
                     <Link href="/login" className="btn-secondary">دخول</Link>
@@ -493,11 +493,11 @@ export default function Dashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <FearGreed />
               <div className="card">
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>افضل الرابحين</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>افضل الرابحين</div>
                 {gainers.slice(0, 6).map((t: any, i: number) => (
                   <div key={t.symbol} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 5 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#374151', fontSize: '11px', width: '16px' }}>{i + 1}</span>
+                      <span style={{ color: 'var(--muted)', fontSize: '11px', width: '16px' }}>{i + 1}</span>
                       <span style={{ fontWeight: 700, fontSize: '13px' }}>{t.symbol.replace('USDT', '')}</span>
                     </div>
                     <span style={{ color: '#00e664', fontSize: '13px', fontWeight: 700 }}>+{parseFloat(t.priceChangePercent).toFixed(2)}%</span>
@@ -538,7 +538,7 @@ export default function Dashboard() {
                 <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
                   {total === 0 ? 'البوت يراقب السوق' : 'لا توجد اشارات في هذا التصنيف'}
                 </div>
-                <div style={{ color: '#6b7280' }}>
+                <div style={{ color: 'var(--muted)' }}>
                   {total === 0 ? `الفحص القادم خلال ${mins}:${secs.toString().padStart(2, '0')}` : 'جرّب تصنيفاً آخر'}
                 </div>
               </div>
@@ -580,11 +580,11 @@ export default function Dashboard() {
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < col.data.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' }}
                     onClick={() => { setChartSymbol((col as any).isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT', '')); setTab('chart') }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#374151', fontSize: '11px', width: '18px' }}>{i + 1}</span>
+                      <span style={{ color: 'var(--muted)', fontSize: '11px', width: '18px' }}>{i + 1}</span>
                       <span style={{ fontWeight: 700, fontSize: '13px' }}>{(col as any).isCG ? item.symbol.toUpperCase() : item.symbol.replace('USDT', '')}</span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#6b7280', fontVariantNumeric: 'tabular-nums' }}>${(col as any).isCG ? item.current_price.toLocaleString() : parseFloat(item.lastPrice) > 1 ? parseFloat(item.lastPrice).toLocaleString() : parseFloat(item.lastPrice).toFixed(5)}</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>${(col as any).isCG ? item.current_price.toLocaleString() : parseFloat(item.lastPrice) > 1 ? parseFloat(item.lastPrice).toLocaleString() : parseFloat(item.lastPrice).toFixed(5)}</div>
                       <div style={{ fontSize: '12px', fontWeight: 700, color: col.colorFn(item) }}>{col.valFn(item)}</div>
                     </div>
                   </div>
@@ -598,12 +598,12 @@ export default function Dashboard() {
         {tab === 'news' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {news.map((item: any, i: number) => (
-              <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'white' }}>
+              <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'var(--text)' }}>
                 <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {item.thumbnail && <img src={item.thumbnail} alt="" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '12px', opacity: 0.85 }} />}
                   <div style={{ fontWeight: 700, fontSize: '14px', lineHeight: 1.6, flex: 1 }}>{item.title}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <span style={{ color: '#4b5563', fontSize: '12px' }}>{new Date(item.pubDate).toLocaleDateString('ar-SA')}</span>
+                    <span style={{ color: 'var(--muted)', fontSize: '12px' }}>{new Date(item.pubDate).toLocaleDateString('ar-SA')}</span>
                     <span style={{ color: '#00c4ef', fontSize: '12px', fontWeight: 700 }}>اقرأ المزيد ←</span>
                   </div>
                 </div>
