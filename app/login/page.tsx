@@ -45,7 +45,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '18px', color: 'white' }}>A</div>
-            <span style={{ fontWeight: 900, fontSize: '20px', color: 'white' }}>ARIA<span style={{ color: '#00d4ff' }}>Bot</span></span>
+            <span style={{ fontWeight: 900, fontSize: '20px', color: 'white' }}>Devel<span style={{ color: '#00d4ff' }}>Bot</span></span>
           </Link>
           <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>مرحباً بعودتك</h1>
           <p style={{ color: '#6b7280', fontSize: '15px' }}>سجّل دخولك للوصول لإشاراتك</p>
