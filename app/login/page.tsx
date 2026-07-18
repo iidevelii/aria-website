@@ -34,7 +34,7 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
       <div className="orb-1"></div>
       <div className="orb-2"></div>
       <div className="grid-bg"></div>
@@ -98,9 +98,12 @@ export default function Login() {
           </div>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '24px' }}>
+        <div style={{ textAlign: 'center', marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <Link href="/activate" style={{ color: '#00c4ef', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+            🔑 تفعيل برقم التحويل
+          </Link>
           <Link href="/dashboard" style={{ color: '#374151', fontSize: '13px', textDecoration: 'none' }}>تصفح بدون تسجيل ←</Link>
-        </p>
+        </div>
       </div>
     </div>
   )

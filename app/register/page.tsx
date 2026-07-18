@@ -34,7 +34,7 @@ export default function Register() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
       <div className="orb-1"></div>
       <div className="orb-2"></div>
       <div className="grid-bg"></div>

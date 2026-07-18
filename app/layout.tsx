@@ -9,7 +9,7 @@ type AuthCtx = { user: any; loading: boolean; refresh: () => void }
 const AuthContext = createContext<AuthCtx>({ user: null, loading: true, refresh: () => {} })
 export const useAuth = () => useContext(AuthContext)
 
-const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password']
+const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg']
 
 const API = 'https://web-production-97af6.up.railway.app'
 
@@ -72,7 +72,7 @@ const NAV = [
   { href:'/dashboard',        label:'الداشبورد',   icon:Icons.dashboard },
   { href:'/scanner',          label:'السكانر',     icon:Icons.scanner },
   { href:'/strategy-builder', label:'ستراتيجي',    icon:Icons.strategy },
-  { href:'/paper-trading',    label:'تداول ورقي',  icon:Icons.paper },
+  { href:'/paper-trading',    label:'التداول',      icon:Icons.paper },
   { href:'/coin-tracker',     label:'تتبع العملات',icon:Icons.tracker },
   { href:'/ai-assistant',     label:'مساعد AI',    icon:Icons.ai },
   { href:'/subscribe',        label:'اشتراك',      icon:Icons.subscribe },
@@ -83,7 +83,7 @@ const PAGE_HELP: Record<string,{title:string;sections:{icon:string;heading:strin
   '/dashboard':        {title:'دليل الداشبورد',sections:[{icon:'📡',heading:'الإشارات النشطة',body:'آخر إشارات الشراء والبيع من البوت مع سعر الدخول، الهدف، ووقف الخسارة.'},{icon:'📊',heading:'الإحصائيات',body:'معدل الربح (Win Rate) وعامل الربح (Profit Factor) من جميع الصفقات المغلقة.'},{icon:'🎯',heading:'نوع الإشارة',body:'SPOT = تداول فوري. FUTURES = عقود آجلة مع رافعة.'}]},
   '/scanner':          {title:'دليل السكانر',sections:[{icon:'🔍',heading:'كيف يعمل',body:'يفحص عشرات العملات ويحسب RSI وMACD وADX وSupertrend ويعطي score من -100 إلى +100.'},{icon:'📈',heading:'Score',body:'+60 وأكثر = شراء قوي. -60 وأقل = بيع قوي.'},{icon:'💥',heading:'Pump & Dump',body:'حجم أكثر من 3× المعدل مع تغير سعر أكبر من 3%.'}]},
   '/strategy-builder': {title:'دليل منشئ الاستراتيجيات',sections:[{icon:'⚙️',heading:'بناء الشروط',body:'اختر مؤشراً ثم حدد الشرط (أكبر من، أصغر من، بين قيمتين).'},{icon:'🔗',heading:'AND vs OR',body:'AND = جميع الشروط. OR = شرط واحد يكفي.'},{icon:'▶',heading:'التشغيل',body:'اضغط "ابدأ المسح" لفحص جميع العملات.'}]},
-  '/paper-trading':    {title:'دليل التداول الورقي',sections:[{icon:'💰',heading:'الرصيد الافتراضي',body:'تبدأ بـ $10,000 افتراضية بدون أموال حقيقية.'},{icon:'📋',heading:'فتح صفقة',body:'اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.'},{icon:'⏱',heading:'التحديث',body:'الأسعار تتحدث كل 15 ثانية — تُغلق الصفقات تلقائياً.'}]},
+  '/paper-trading':    {title:'دليل محفظة التداول',sections:[{icon:'💰',heading:'الرصيد',body:'المحفظة الحقيقية لإشارات ARIA — رصيد $311,000.'},{icon:'📋',heading:'فتح صفقة',body:'اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.'},{icon:'⏱',heading:'التحديث',body:'الأسعار تتحدث كل 15 ثانية — تُغلق الصفقات تلقائياً عند TP/SL.'}]},
   '/coin-tracker':     {title:'دليل تتبع العملات',sections:[{icon:'🔔',heading:'إنشاء تنبيه',body:'أضف عملة وحدد نوع التنبيه: السعر فوق/تحت قيمة، أو نسبة تغير 24h.'},{icon:'⚡',heading:'التشغيل',body:'يُفحص التنبيه كل 30 ثانية.'},{icon:'📋',heading:'التبويبات',body:'النشطة: لم تتحقق. المُشغَّلة: تحققت.'}]},
   '/ai-assistant':     {title:'دليل المساعد الذكي',sections:[{icon:'🤖',heading:'ما يستطيع فعله',body:'شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.'},{icon:'⚠️',heading:'تنبيه',body:'تحليل تعليمي فقط — ليس نصيحة مالية.'}]},
   '/api-docs':         {title:'دليل API',sections:[{icon:'🔗',heading:'Base URL',body:`جميع الطلبات ترسل لـ ${API}`},{icon:'📋',heading:'الصيغة',body:'Content-Type: application/json'}]},
@@ -234,7 +234,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
 function TopBar({pathname,user}:{pathname:string;user:any}) {
   const pageNames: Record<string,string> = {
     '/dashboard':'الداشبورد','/scanner':'السكانر','/strategy-builder':'منشئ الاستراتيجيات',
-    '/paper-trading':'التداول الورقي','/coin-tracker':'تتبع العملات','/ai-assistant':'مساعد AI',
+    '/paper-trading':'التداول الحقيقي','/coin-tracker':'تتبع العملات','/ai-assistant':'مساعد AI',
     '/api-docs':'توثيق API','/subscribe':'الاشتراك',
   }
   const name=pageNames[pathname]

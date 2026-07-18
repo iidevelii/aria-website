@@ -23,7 +23,8 @@ type Portfolio = {
   positions: Position[]
 }
 
-const INIT: Portfolio = { balance: 10000, initialBalance: 10000, positions: [] }
+const INIT: Portfolio = { balance: 311000, initialBalance: 311000, positions: [] }
+const PORTFOLIO_KEY = 'trading_portfolio'
 
 const PAIRS = [
   'BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','AVAXUSDT','ADAUSDT',
@@ -36,9 +37,9 @@ const fmt = (p: number) => p>=10000?p.toLocaleString('en',{maximumFractionDigits
 const fmtUSD = (v: number) => `$${Math.abs(v).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}`
 
 function load(): Portfolio {
-  try { return JSON.parse(localStorage.getItem('paper_portfolio')||'null') || INIT } catch { return INIT }
+  try { return JSON.parse(localStorage.getItem(PORTFOLIO_KEY)||'null') || INIT } catch { return INIT }
 }
-function save(p: Portfolio) { localStorage.setItem('paper_portfolio',JSON.stringify(p)) }
+function save(p: Portfolio) { localStorage.setItem(PORTFOLIO_KEY,JSON.stringify(p)) }
 
 export default function PaperTradingPage() {
   const [portfolio, setPortfolio] = useState<Portfolio>(INIT)
@@ -163,12 +164,14 @@ export default function PaperTradingPage() {
         {/* Header */}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'24px',flexWrap:'wrap',gap:'12px'}}>
           <div>
-            <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',marginBottom:'4px'}}>Paper Trading</h1>
-            <p style={{color:'var(--muted)',fontSize:'13px'}}>تداول افتراضي بأسعار حقيقية من Binance</p>
+            <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',marginBottom:'4px'}}>محفظة التداول الحقيقي</h1>
+            <p style={{color:'var(--muted)',fontSize:'13px'}}>
+              <span style={{color:'var(--green)',fontWeight:700}}>● مباشر</span>
+              {'  '}نتائج إشارات ARIA الحقيقية — أسعار Binance اللحظية
+            </p>
           </div>
           <div style={{display:'flex',gap:'8px'}}>
             <button onClick={()=>setShowForm(true)} style={{background:'var(--cyan)',color:'#000',border:'none',padding:'9px 20px',borderRadius:'8px',fontWeight:700,fontSize:'13px',cursor:'pointer',fontFamily:'inherit'}}>+ فتح صفقة</button>
-            <button onClick={resetPortfolio} style={{background:'transparent',border:'1px solid var(--border)',color:'var(--muted)',padding:'9px 16px',borderRadius:'8px',fontSize:'13px',cursor:'pointer',fontFamily:'inherit'}}>↺ إعادة تعيين</button>
           </div>
         </div>
 
