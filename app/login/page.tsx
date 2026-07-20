@@ -44,7 +44,7 @@ export default function Login() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-            <img src="/logo.png" alt="DevelBot" style={{ height: '64px', width: 'auto', display: 'block', borderRadius: '12px', background: '#fff', padding: '6px' }}/>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
           </Link>
           <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>مرحباً بعودتك</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>سجّل دخولك للوصول لإشاراتك</p>

@@ -144,7 +144,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
     }}>
       {/* Logo */}
       <div style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start'}}>
-        <img src="/logo.png" alt="DevelBot" style={{height:34,width:'auto',display:'block',borderRadius:'8px',background:'#fff',padding:'3px',flexShrink:0}}/>
+        <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
       </div>
 
       {/* Nav */}

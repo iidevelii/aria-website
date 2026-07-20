@@ -53,9 +53,9 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
 
       {/* ══ NAV ══ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid var(--border)', background: 'rgba(8,9,15,0.85)', backdropFilter: 'blur(16px)', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid var(--border)', background: 'rgba(8,9,15,0.85)', backdropFilter: 'blur(16px)', padding: '0 24px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
-          <Logo size={36}/>
+          <Logo size={52}/>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {[['الإشارات','/dashboard'],['الأسعار','/subscribe'],['تواصل','https://t.me/devel_support']].map(([label,href]) => (
@@ -329,7 +329,7 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', marginBottom: '40px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Logo size={30}/>
+                <Logo size={42}/>
               </div>
               <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: '220px' }}>منصة إشارات تداول مبنية على استراتيجيات محسوبة وبيانات حقيقية.</p>
             </div>
