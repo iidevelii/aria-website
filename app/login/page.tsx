@@ -44,11 +44,10 @@ export default function Login() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '18px', color: 'white' }}>A</div>
-            <span style={{ fontWeight: 900, fontSize: '20px', color: 'white' }}>Devel<span style={{ color: '#00d4ff' }}>Bot</span></span>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '64px', width: 'auto', display: 'block', borderRadius: '12px', background: '#fff', padding: '6px' }}/>
           </Link>
           <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>مرحباً بعودتك</h1>
-          <p style={{ color: '#6b7280', fontSize: '15px' }}>سجّل دخولك للوصول لإشاراتك</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>سجّل دخولك للوصول لإشاراتك</p>
         </div>
 
         {/* Card */}
@@ -85,15 +84,15 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-            <p style={{ color: '#6b7280', fontSize: '14px' }}>
+          <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
               ما عندك حساب؟{' '}
               <div style={{ textAlign: 'left', marginTop: '-8px' }}>
-  <Link href="/forgot-password" style={{ color: '#6b7280', fontSize: '13px', textDecoration: 'none' }}>
+  <Link href="/forgot-password" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>
     نسيت كلمة المرور؟
   </Link>
 </div>
-              <Link href="/register" style={{ color: '#00d4ff', textDecoration: 'none', fontWeight: 700 }}>سجّل مجاناً</Link>
+              <Link href="/register" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>سجّل مجاناً</Link>
             </p>
           </div>
         </div>
@@ -102,7 +101,7 @@ export default function Login() {
           <Link href="/activate" style={{ color: '#00c4ef', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
             🔑 تفعيل برقم التحويل
           </Link>
-          <Link href="/dashboard" style={{ color: '#374151', fontSize: '13px', textDecoration: 'none' }}>تصفح بدون تسجيل ←</Link>
+          <Link href="/dashboard" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>تصفح بدون تسجيل ←</Link>
         </div>
       </div>
     </div>

@@ -5,13 +5,7 @@ import Link from 'next/link'
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 52 52" fill="none">
-      <rect x="9"  y="22" width="5" height="9"  rx="1.5" fill="#00c4ef" opacity="0.6"/>
-      <rect x="16" y="17" width="5" height="14" rx="1.5" fill="#00c4ef" opacity="0.8"/>
-      <rect x="23" y="12" width="5" height="19" rx="1.5" fill="#00c4ef"/>
-      <rect x="30" y="17" width="5" height="14" rx="1.5" fill="#8b5cf6" opacity="0.8"/>
-      <rect x="37" y="22" width="5" height="9"  rx="1.5" fill="#6b1fff" opacity="0.6"/>
-    </svg>
+    <img src="/logo.png" alt="DevelBot" style={{ height: size, width: 'auto', display: 'block', borderRadius: '6px', background: '#fff', padding: '3px' }}/>
   )
 }
 
@@ -61,8 +55,7 @@ export default function Home() {
       {/* ══ NAV ══ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid var(--border)', background: 'rgba(8,9,15,0.85)', backdropFilter: 'blur(16px)', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
-          <Logo size={24}/>
-          <span style={{ fontWeight: 900, fontSize: '16px', letterSpacing: '-0.02em' }}>Devel<span style={{ color: 'var(--cyan)' }}>Bot</span></span>
+          <Logo size={36}/>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {[['الإشارات','/dashboard'],['الأسعار','/subscribe'],['تواصل','https://t.me/devel_support']].map(([label,href]) => (
@@ -336,8 +329,7 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', marginBottom: '40px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Logo size={20}/>
-                <span style={{ fontWeight: 900, fontSize: '15px' }}>Devel<span style={{ color: 'var(--cyan)' }}>Bot</span></span>
+                <Logo size={30}/>
               </div>
               <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: '220px' }}>منصة إشارات تداول مبنية على استراتيجيات محسوبة وبيانات حقيقية.</p>
             </div>

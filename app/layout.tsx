@@ -144,13 +144,12 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
     }}>
       {/* Logo */}
       <div style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start'}}>
-        <div style={{width:30,height:30,borderRadius:'8px',background:'linear-gradient(135deg,#00c4ef,#6b1fff)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'14px',color:'#fff',flexShrink:0}}>D</div>
-        {!collapsed && <span style={{fontWeight:900,fontSize:'15px',letterSpacing:'-0.03em',whiteSpace:'nowrap'}}>Devel<span style={{color:'var(--cyan)'}}>Bot</span></span>}
+        <img src="/logo.png" alt="DevelBot" style={{height:34,width:'auto',display:'block',borderRadius:'8px',background:'#fff',padding:'3px',flexShrink:0}}/>
       </div>
 
       {/* Nav */}
       <nav style={{flex:1,padding:'8px 6px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
-        {NAV.map(l=>{
+        {NAV.filter(l => l.href !== '/paper-trading' || user?.is_admin).map(l=>{
           const active=pathname===l.href
           return (
             <Link key={l.href} href={l.href} title={collapsed?l.label:undefined} style={{
@@ -289,7 +288,10 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
 
   return (
     <html lang="ar" dir="rtl">
-      <head><meta charSet="utf-8"/><title>DevelBot</title></head>
+      <head>
+        <meta charSet="utf-8"/>
+        <title>DevelBot — منصة إشارات التداول</title>
+      </head>
       <body style={{margin:0,padding:0,background:'var(--bg)',color:'var(--text)',visibility:mounted?'visible':'hidden'}}>
         <AuthContext.Provider value={{user,loading:authLoading,refresh:fetchUser}}>
 
