@@ -37,8 +37,8 @@ function ResetForm() {
   if (success) return (
     <div style={{ textAlign: 'center', padding: '20px 0' }}>
       <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-      <h2 style={{ color: '#00d4ff', marginBottom: '12px' }}>تم تغيير كلمة المرور</h2>
-      <Link href="/login" style={{ display: 'inline-block', marginTop: '16px', background: 'linear-gradient(135deg,#00d4ff,#7b2fff)', color: 'white', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700 }}>
+      <h2 style={{ color: 'var(--cyan)', marginBottom: '12px' }}>تم تغيير كلمة المرور</h2>
+      <Link href="/login" style={{ display: 'inline-block', marginTop: '16px', background: 'linear-gradient(135deg,#00d4ff,#7b2fff)', color: '#fff', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700 }}>
         تسجيل الدخول
       </Link>
     </div>
@@ -74,11 +74,11 @@ export default function ResetPassword() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'white', marginBottom: '8px' }}>كلمة مرور جديدة</h1>
-          <p style={{ color: '#6b7280', fontSize: '15px' }}>اختر كلمة مرور قوية</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>كلمة مرور جديدة</h1>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>اختر كلمة مرور قوية</p>
         </div>
         <div className="glass-card">
-          <Suspense fallback={<div style={{color:'#9ca3af',textAlign:'center'}}>جاري التحميل...</div>}>
+          <Suspense fallback={<div style={{color:'var(--muted)',textAlign:'center'}}>جاري التحميل...</div>}>
             <ResetForm />
           </Suspense>
         </div>

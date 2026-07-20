@@ -43,8 +43,8 @@ export default function Register() {
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '18px', color: 'white' }}>A</div>
-            <span style={{ fontWeight: 900, fontSize: '20px', color: 'white' }}>Devel<span style={{ color: '#00d4ff' }}>Bot</span></span>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '18px', color: '#fff' }}>A</div>
+            <span style={{ fontWeight: 900, fontSize: '20px', color: 'var(--text)' }}>Devel<span style={{ color: 'var(--cyan)' }}>Bot</span></span>
           </Link>
 
           <div className="badge" style={{ marginBottom: '20px' }}>
@@ -53,7 +53,7 @@ export default function Register() {
           </div>
 
           <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>انشئ حسابك</h1>
-          <p style={{ color: '#6b7280', fontSize: '15px' }}>ابدأ رحلتك مع Devel Bot مجاناً</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>ابدأ رحلتك مع DevelBot مجاناً</p>
         </div>
 
         <div className="glass-card">
@@ -93,17 +93,17 @@ export default function Register() {
               { icon: '✓', text: '14 يوم مجاناً' },
               { icon: '✓', text: 'بدون بطاقة' },
             ].map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#9ca3af' }}>
-                <span style={{ color: '#00d4ff', fontWeight: 700 }}>{f.icon}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
+                <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>{f.icon}</span>
                 {f.text}
               </div>
             ))}
           </div>
 
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <p style={{ color: '#6b7280', fontSize: '14px' }}>
+            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
               عندك حساب؟{' '}
-              <Link href="/login" style={{ color: '#00d4ff', textDecoration: 'none', fontWeight: 700 }}>سجّل دخول</Link>
+              <Link href="/login" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>سجّل دخول</Link>
             </p>
           </div>
         </div>

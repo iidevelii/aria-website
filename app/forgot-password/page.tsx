@@ -30,16 +30,16 @@ export default function ForgotPassword() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'white', marginBottom: '8px' }}>نسيت كلمة المرور؟</h1>
-          <p style={{ color: '#6b7280', fontSize: '15px' }}>أدخل إيميلك وراح نرسل لك رابط الاستعادة</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>نسيت كلمة المرور؟</h1>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>أدخل إيميلك وراح نرسل لك رابط الاستعادة</p>
         </div>
         <div className="glass-card">
           {sent ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
-              <h2 style={{ color: '#00d4ff', marginBottom: '12px' }}>تم الإرسال!</h2>
-              <p style={{ color: '#9ca3af', fontSize: '15px' }}>تحقق من إيميلك واضغط على الرابط</p>
-              <Link href="/login" style={{ display: 'inline-block', marginTop: '24px', color: '#00d4ff', textDecoration: 'none' }}>
+              <h2 style={{ color: 'var(--cyan)', marginBottom: '12px' }}>تم الإرسال!</h2>
+              <p style={{ color: 'var(--muted)', fontSize: '15px' }}>تحقق من إيميلك واضغط على الرابط</p>
+              <Link href="/login" style={{ display: 'inline-block', marginTop: '24px', color: 'var(--cyan)', textDecoration: 'none' }}>
                 رجوع لتسجيل الدخول
               </Link>
             </div>
@@ -60,7 +60,7 @@ export default function ForgotPassword() {
                 {loading ? 'جاري الإرسال...' : 'إرسال رابط الاستعادة'}
               </button>
               <div style={{ textAlign: 'center' }}>
-                <Link href="/login" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>
+                <Link href="/login" style={{ color: 'var(--muted)', fontSize: '14px', textDecoration: 'none' }}>
                   رجوع لتسجيل الدخول
                 </Link>
               </div>
