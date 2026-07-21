@@ -1316,899 +1316,1798 @@
     ],
     "blacklistNote": "العملات اللي حققت 5 صفقات فأكثر ونسبة نجاح أقل من 60% تُستبعد تلقائياً من الفحص الحي (BLACKLIST_TREND_FUTURES بالكود)."
   },
-  "spot": {
-    "engine": "SMC_MTF (هيكل سوق + سحب سيولة، TP@2R)",
-    "universe": 88,
-    "summary": {
-      "totalTrades": 9,
-      "wins": 6,
-      "losses": 3,
-      "winRate": 66.7,
-      "pf": 2.74,
-      "netPct": 2.9
+  "spotStrategies": [
+    {
+      "key": "trend_mtf",
+      "engine": "TREND_MTF (اختراق قناة + تدفق أموال + فلتر EMA200، LONG فقط، TP@1.5R)",
+      "universe": 88,
+      "summary": {
+        "totalTrades": 536,
+        "wins": 364,
+        "losses": 172,
+        "winRate": 67.9,
+        "pf": 2.67,
+        "netPct": 1025.15
+      },
+      "coins": [
+        {
+          "symbol": "TRXUSDT",
+          "trades": 24,
+          "wins": 17,
+          "losses": 7,
+          "winRate": 70.8,
+          "pf": 2.18,
+          "netPct": 15.41,
+          "status": "active"
+        },
+        {
+          "symbol": "BNBUSDT",
+          "trades": 16,
+          "wins": 11,
+          "losses": 5,
+          "winRate": 68.8,
+          "pf": 2.41,
+          "netPct": 21.5,
+          "status": "active"
+        },
+        {
+          "symbol": "SOLUSDT",
+          "trades": 16,
+          "wins": 12,
+          "losses": 4,
+          "winRate": 75.0,
+          "pf": 3.06,
+          "netPct": 22.55,
+          "status": "active"
+        },
+        {
+          "symbol": "LTCUSDT",
+          "trades": 16,
+          "wins": 9,
+          "losses": 7,
+          "winRate": 56.2,
+          "pf": 1.16,
+          "netPct": 3.43,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "BTCUSDT",
+          "trades": 14,
+          "wins": 11,
+          "losses": 3,
+          "winRate": 78.6,
+          "pf": 6.55,
+          "netPct": 21.63,
+          "status": "active"
+        },
+        {
+          "symbol": "CHZUSDT",
+          "trades": 14,
+          "wins": 10,
+          "losses": 4,
+          "winRate": 71.4,
+          "pf": 6.41,
+          "netPct": 45.58,
+          "status": "active"
+        },
+        {
+          "symbol": "DOTUSDT",
+          "trades": 12,
+          "wins": 10,
+          "losses": 2,
+          "winRate": 83.3,
+          "pf": 8.15,
+          "netPct": 39.05,
+          "status": "active"
+        },
+        {
+          "symbol": "LINKUSDT",
+          "trades": 12,
+          "wins": 6,
+          "losses": 6,
+          "winRate": 50.0,
+          "pf": 1.05,
+          "netPct": 0.9,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "trades": 11,
+          "wins": 8,
+          "losses": 3,
+          "winRate": 72.7,
+          "pf": 2.89,
+          "netPct": 22.49,
+          "status": "active"
+        },
+        {
+          "symbol": "ATOMUSDT",
+          "trades": 11,
+          "wins": 7,
+          "losses": 4,
+          "winRate": 63.6,
+          "pf": 2.14,
+          "netPct": 19.54,
+          "status": "active"
+        },
+        {
+          "symbol": "INJUSDT",
+          "trades": 11,
+          "wins": 6,
+          "losses": 5,
+          "winRate": 54.5,
+          "pf": 1.43,
+          "netPct": 9.82,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "JUPUSDT",
+          "trades": 11,
+          "wins": 11,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 59.9,
+          "status": "active"
+        },
+        {
+          "symbol": "CRVUSDT",
+          "trades": 10,
+          "wins": 7,
+          "losses": 3,
+          "winRate": 70.0,
+          "pf": 2.69,
+          "netPct": 15.97,
+          "status": "active"
+        },
+        {
+          "symbol": "MASKUSDT",
+          "trades": 10,
+          "wins": 8,
+          "losses": 2,
+          "winRate": 80.0,
+          "pf": 5.17,
+          "netPct": 25.4,
+          "status": "active"
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "trades": 9,
+          "wins": 7,
+          "losses": 2,
+          "winRate": 77.8,
+          "pf": 3.59,
+          "netPct": 16.35,
+          "status": "active"
+        },
+        {
+          "symbol": "MANAUSDT",
+          "trades": 9,
+          "wins": 3,
+          "losses": 6,
+          "winRate": 33.3,
+          "pf": 0.77,
+          "netPct": -4.27,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "trades": 9,
+          "wins": 6,
+          "losses": 3,
+          "winRate": 66.7,
+          "pf": 3.69,
+          "netPct": 22.74,
+          "status": "active"
+        },
+        {
+          "symbol": "ETHUSDT",
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRate": 75.0,
+          "pf": 3.95,
+          "netPct": 16.63,
+          "status": "active"
+        },
+        {
+          "symbol": "SUIUSDT",
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRate": 75.0,
+          "pf": 3.35,
+          "netPct": 16.53,
+          "status": "active"
+        },
+        {
+          "symbol": "LDOUSDT",
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRate": 75.0,
+          "pf": 4.43,
+          "netPct": 26.05,
+          "status": "active"
+        },
+        {
+          "symbol": "VIRTUALUSDT",
+          "trades": 8,
+          "wins": 7,
+          "losses": 1,
+          "winRate": 87.5,
+          "pf": 8.46,
+          "netPct": 40.89,
+          "status": "active"
+        },
+        {
+          "symbol": "MINAUSDT",
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRate": 75.0,
+          "pf": 3.97,
+          "netPct": 21.86,
+          "status": "active"
+        },
+        {
+          "symbol": "SNXUSDT",
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRate": 75.0,
+          "pf": 2.9,
+          "netPct": 15.99,
+          "status": "active"
+        },
+        {
+          "symbol": "ARBUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 4.09,
+          "netPct": 17.13,
+          "status": "active"
+        },
+        {
+          "symbol": "SHIBUSDT",
+          "trades": 7,
+          "wins": 4,
+          "losses": 3,
+          "winRate": 57.1,
+          "pf": 1.06,
+          "netPct": 0.46,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "TIAUSDT",
+          "trades": 7,
+          "wins": 3,
+          "losses": 4,
+          "winRate": 42.9,
+          "pf": 0.9,
+          "netPct": -1.88,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "RENDERUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 4.38,
+          "netPct": 23.89,
+          "status": "active"
+        },
+        {
+          "symbol": "BONKUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 4.26,
+          "netPct": 19.36,
+          "status": "active"
+        },
+        {
+          "symbol": "HBARUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 2.47,
+          "netPct": 9.58,
+          "status": "active"
+        },
+        {
+          "symbol": "VETUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 2.29,
+          "netPct": 11.86,
+          "status": "active"
+        },
+        {
+          "symbol": "IMXUSDT",
+          "trades": 7,
+          "wins": 4,
+          "losses": 3,
+          "winRate": 57.1,
+          "pf": 2.82,
+          "netPct": 16.16,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "TAOUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 3.95,
+          "netPct": 18.06,
+          "status": "active"
+        },
+        {
+          "symbol": "GRTUSDT",
+          "trades": 7,
+          "wins": 5,
+          "losses": 2,
+          "winRate": 71.4,
+          "pf": 4.62,
+          "netPct": 20.38,
+          "status": "active"
+        },
+        {
+          "symbol": "ADAUSDT",
+          "trades": 6,
+          "wins": 3,
+          "losses": 3,
+          "winRate": 50.0,
+          "pf": 0.95,
+          "netPct": -0.66,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "NEARUSDT",
+          "trades": 6,
+          "wins": 4,
+          "losses": 2,
+          "winRate": 66.7,
+          "pf": 2.8,
+          "netPct": 8.45,
+          "status": "active"
+        },
+        {
+          "symbol": "APTUSDT",
+          "trades": 6,
+          "wins": 4,
+          "losses": 2,
+          "winRate": 66.7,
+          "pf": 1.95,
+          "netPct": 9.72,
+          "status": "active"
+        },
+        {
+          "symbol": "CYBERUSDT",
+          "trades": 6,
+          "wins": 3,
+          "losses": 3,
+          "winRate": 50.0,
+          "pf": 1.35,
+          "netPct": 3.29,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "IOUSDT",
+          "trades": 6,
+          "wins": 3,
+          "losses": 3,
+          "winRate": 50.0,
+          "pf": 1.03,
+          "netPct": 0.42,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "QNTUSDT",
+          "trades": 6,
+          "wins": 4,
+          "losses": 2,
+          "winRate": 66.7,
+          "pf": 4.01,
+          "netPct": 18.59,
+          "status": "active"
+        },
+        {
+          "symbol": "IOTXUSDT",
+          "trades": 6,
+          "wins": 6,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 30.81,
+          "status": "active"
+        },
+        {
+          "symbol": "JTOUSDT",
+          "trades": 6,
+          "wins": 2,
+          "losses": 4,
+          "winRate": 33.3,
+          "pf": 0.72,
+          "netPct": -4.97,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "FILUSDT",
+          "trades": 6,
+          "wins": 5,
+          "losses": 1,
+          "winRate": 83.3,
+          "pf": 6.35,
+          "netPct": 23.23,
+          "status": "active"
+        },
+        {
+          "symbol": "XRPUSDT",
+          "trades": 5,
+          "wins": 4,
+          "losses": 1,
+          "winRate": 80.0,
+          "pf": 4.37,
+          "netPct": 12.88,
+          "status": "active"
+        },
+        {
+          "symbol": "ETCUSDT",
+          "trades": 5,
+          "wins": 2,
+          "losses": 3,
+          "winRate": 40.0,
+          "pf": 0.49,
+          "netPct": -4.72,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "SANDUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 1.74,
+          "netPct": 5.45,
+          "status": "active"
+        },
+        {
+          "symbol": "GALAUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 1.69,
+          "netPct": 6.23,
+          "status": "active"
+        },
+        {
+          "symbol": "ENAUSDT",
+          "trades": 5,
+          "wins": 4,
+          "losses": 1,
+          "winRate": 80.0,
+          "pf": 4.54,
+          "netPct": 16.7,
+          "status": "active"
+        },
+        {
+          "symbol": "WIFUSDT",
+          "trades": 5,
+          "wins": 2,
+          "losses": 3,
+          "winRate": 40.0,
+          "pf": 1.37,
+          "netPct": 4.69,
+          "status": "blacklisted"
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 1.91,
+          "netPct": 7.64,
+          "status": "active"
+        },
+        {
+          "symbol": "FLOKIUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 2.64,
+          "netPct": 13.58,
+          "status": "active"
+        },
+        {
+          "symbol": "PYTHUSDT",
+          "trades": 5,
+          "wins": 5,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 24.05,
+          "status": "active"
+        },
+        {
+          "symbol": "AXSUSDT",
+          "trades": 5,
+          "wins": 4,
+          "losses": 1,
+          "winRate": 80.0,
+          "pf": 5.49,
+          "netPct": 15.56,
+          "status": "active"
+        },
+        {
+          "symbol": "MAGICUSDT",
+          "trades": 5,
+          "wins": 5,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 23.62,
+          "status": "active"
+        },
+        {
+          "symbol": "ARKMUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 1.99,
+          "netPct": 9.58,
+          "status": "active"
+        },
+        {
+          "symbol": "IDUSDT",
+          "trades": 5,
+          "wins": 4,
+          "losses": 1,
+          "winRate": 80.0,
+          "pf": 3.49,
+          "netPct": 12.22,
+          "status": "active"
+        },
+        {
+          "symbol": "SCRUSDT",
+          "trades": 5,
+          "wins": 3,
+          "losses": 2,
+          "winRate": 60.0,
+          "pf": 1.95,
+          "netPct": 8.71,
+          "status": "active"
+        },
+        {
+          "symbol": "XLMUSDT",
+          "trades": 4,
+          "wins": 1,
+          "losses": 3,
+          "winRate": 25.0,
+          "pf": 0.55,
+          "netPct": -4.38,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "ICPUSDT",
+          "trades": 4,
+          "wins": 2,
+          "losses": 2,
+          "winRate": 50.0,
+          "pf": 0.91,
+          "netPct": -0.91,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "WLDUSDT",
+          "trades": 4,
+          "wins": 4,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 25.32,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "RAYUSDT",
+          "trades": 4,
+          "wins": 3,
+          "losses": 1,
+          "winRate": 75.0,
+          "pf": 8.27,
+          "netPct": 15.6,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "ONDOUSDT",
+          "trades": 4,
+          "wins": 4,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 17.31,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "ZKUSDT",
+          "trades": 4,
+          "wins": 3,
+          "losses": 1,
+          "winRate": 75.0,
+          "pf": 3.33,
+          "netPct": 11.07,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "APEUSDT",
+          "trades": 4,
+          "wins": 2,
+          "losses": 2,
+          "winRate": 50.0,
+          "pf": 1.15,
+          "netPct": 1.39,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "AXLUSDT",
+          "trades": 4,
+          "wins": 3,
+          "losses": 1,
+          "winRate": 75.0,
+          "pf": 4.81,
+          "netPct": 16.58,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "UNIUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 3.83,
+          "netPct": 8.16,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "FETUSDT",
+          "trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "winRate": 33.3,
+          "pf": 0.24,
+          "netPct": -8.08,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "ALGOUSDT",
+          "trades": 3,
+          "wins": 3,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 14.52,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "STXUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 2.98,
+          "netPct": 8.89,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "TRUMPUSDT",
+          "trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "winRate": 33.3,
+          "pf": 0.5,
+          "netPct": -4.59,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "LISTAUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 3.36,
+          "netPct": 7.4,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "GLMRUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 3.57,
+          "netPct": 8.35,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "ANKRUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": null,
+          "netPct": 6.32,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "WUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 1.98,
+          "netPct": 5.06,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "TONUSDT",
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 11.36,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "OPUSDT",
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRate": 50.0,
+          "pf": 0.74,
+          "netPct": -1.13,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRate": 50.0,
+          "pf": 0.76,
+          "netPct": -1.43,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "KAIAUSDT",
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRate": 50.0,
+          "pf": 0.99,
+          "netPct": -0.06,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "SEIUSDT",
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRate": 50.0,
+          "pf": 1.52,
+          "netPct": 2.05,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "MOVEUSDT",
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 14.48,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "GMTUSDT",
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 15.28,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "HOOKUSDT",
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRate": 0.0,
+          "pf": 0.0,
+          "netPct": -10.33,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "RDNTUSDT",
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRate": 0.0,
+          "pf": 0.0,
+          "netPct": -9.45,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "MKRUSDT",
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "winRate": 0.0,
+          "pf": 0.0,
+          "netPct": -0.35,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "SOLVUSDT",
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 0.75,
+          "status": "insufficient_data"
+        },
+        {
+          "symbol": "MATICUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "EOSUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "NOTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "NEIROUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        }
+      ],
+      "blacklistNote": "العملات اللي حققت 5 صفقات فأكثر ونسبة نجاح أقل من 60% تُستبعد تلقائياً من الفحص الحي."
     },
-    "coins": [
-      {
-        "symbol": "SOLUSDT",
-        "trades": 3,
-        "wins": 2,
-        "losses": 1,
+    {
+      "key": "smc_mtf",
+      "engine": "SMC_MTF (هيكل سوق + سحب سيولة، LONG فقط، TP@2R)",
+      "universe": 88,
+      "summary": {
+        "totalTrades": 9,
+        "wins": 6,
+        "losses": 3,
         "winRate": 66.7,
-        "pf": 3.76,
-        "netPct": 1.21,
-        "status": "active"
-      },
-      {
-        "symbol": "BTCUSDT",
-        "trades": 2,
-        "wins": 2,
-        "losses": 0,
-        "winRate": 100.0,
-        "pf": null,
-        "netPct": 1.52,
-        "status": "active"
-      },
-      {
-        "symbol": "BNBUSDT",
-        "trades": 2,
-        "wins": 1,
-        "losses": 1,
-        "winRate": 50.0,
-        "pf": 0.9,
-        "netPct": -0.06,
-        "status": "active"
-      },
-      {
-        "symbol": "ETHUSDT",
-        "trades": 1,
-        "wins": 0,
-        "losses": 1,
-        "winRate": 0.0,
-        "pf": 0.0,
-        "netPct": -0.63,
-        "status": "active"
-      },
-      {
-        "symbol": "AVAXUSDT",
-        "trades": 1,
-        "wins": 1,
-        "losses": 0,
-        "winRate": 100.0,
-        "pf": null,
-        "netPct": 0.87,
-        "status": "active"
-      },
-      {
-        "symbol": "XRPUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ADAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "DOGEUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "DOTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "LINKUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "LTCUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ATOMUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "UNIUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "NEARUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "TONUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "TRXUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MATICUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "XLMUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ICPUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ETCUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ARBUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "APTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "OPUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "INJUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SUIUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "AAVEUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SANDUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "GALAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MANAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "LDOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SHIBUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "PEPEUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "WLDUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "TIAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "JUPUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ENAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "FETUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "RENDERUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "KAIAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "WIFUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "BONKUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "HBARUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "VETUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ALGOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "EGLDUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "EOSUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "CRVUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MKRUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "IMXUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "STXUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "FLOKIUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "TRUMPUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "NOTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "PYTHUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "RAYUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SEIUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ONDOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "TAOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MOVEUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ZKUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "LISTAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "VIRTUALUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "GMTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "APEUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "AXSUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "CHZUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MAGICUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "HOOKUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ARKMUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "GLMRUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MINAUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "ANKRUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "RDNTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "CYBERUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "IDUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "IOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "AXLUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "WUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "QNTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "IOTXUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SCRUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "JTOUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "NEIROUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SOLVUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "SNXUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "GRTUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "MASKUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      },
-      {
-        "symbol": "FILUSDT",
-        "trades": 0,
-        "wins": 0,
-        "losses": 0,
-        "winRate": null,
-        "pf": null,
-        "netPct": null,
-        "status": "no_signal"
-      }
-    ],
-    "blacklistNote": "عدد صفقات السبوت بهذي النافذة الزمنية صغير جداً (لا عملة وصلت 5 صفقات) — ما نقدر نبني بلاك ليست موثوقة بعد؛ سنراجعها بعد تراكم بيانات كافية."
-  }
+        "pf": 2.74,
+        "netPct": 2.9
+      },
+      "coins": [
+        {
+          "symbol": "SOLUSDT",
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRate": 66.7,
+          "pf": 3.76,
+          "netPct": 1.21,
+          "status": "active"
+        },
+        {
+          "symbol": "BTCUSDT",
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 1.52,
+          "status": "active"
+        },
+        {
+          "symbol": "BNBUSDT",
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRate": 50.0,
+          "pf": 0.9,
+          "netPct": -0.06,
+          "status": "active"
+        },
+        {
+          "symbol": "ETHUSDT",
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "winRate": 0.0,
+          "pf": 0.0,
+          "netPct": -0.63,
+          "status": "active"
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "winRate": 100.0,
+          "pf": null,
+          "netPct": 0.87,
+          "status": "active"
+        },
+        {
+          "symbol": "XRPUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ADAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "DOTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "LINKUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "LTCUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ATOMUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "UNIUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "NEARUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "TONUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "TRXUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MATICUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "XLMUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ICPUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ETCUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ARBUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "APTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "OPUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "INJUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SUIUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SANDUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "GALAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MANAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "LDOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SHIBUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "WLDUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "TIAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "JUPUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ENAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "FETUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "RENDERUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "KAIAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "WIFUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "BONKUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "HBARUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "VETUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ALGOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "EOSUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "CRVUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MKRUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "IMXUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "STXUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "FLOKIUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "TRUMPUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "NOTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "PYTHUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "RAYUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SEIUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ONDOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "TAOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MOVEUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ZKUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "LISTAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "VIRTUALUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "GMTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "APEUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "AXSUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "CHZUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MAGICUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "HOOKUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ARKMUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "GLMRUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MINAUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "ANKRUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "RDNTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "CYBERUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "IDUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "IOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "AXLUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "WUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "QNTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "IOTXUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SCRUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "JTOUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "NEIROUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SOLVUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "SNXUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "GRTUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "MASKUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        },
+        {
+          "symbol": "FILUSDT",
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": null,
+          "pf": null,
+          "netPct": null,
+          "status": "no_signal"
+        }
+      ],
+      "blacklistNote": "عدد الصفقات بهذي النافذة الزمنية صغير جداً (لا عملة وصلت 5 صفقات) — ما نقدر نبني بلاك ليست موثوقة بعد؛ سنراجعها بعد تراكم بيانات كافية."
+    }
+  ]
 }

@@ -8,14 +8,14 @@ type CoinRow = {
   status: 'active' | 'blacklisted' | 'insufficient_data' | 'no_signal'
 }
 type MarketData = {
-  engine: string; universe: number
+  key?: string; engine: string; universe: number
   summary: { totalTrades: number; wins: number; losses: number; winRate: number; pf: number | null; netPct: number }
   coins: CoinRow[]
   blacklistNote: string
 }
 type BacktestData = {
   generatedNote: string; period: string
-  futures: MarketData; spot: MarketData
+  futures: MarketData; spotStrategies: MarketData[]
 }
 
 function StatusBadge({ status }: { status: CoinRow['status'] }) {
@@ -168,7 +168,19 @@ export default function BacktestResults() {
         {data && (
           <>
             <MarketSection data={data.futures} title="الفيوتشر" emoji="🔵" />
-            <MarketSection data={data.spot} title="السبوت" emoji="🟡" />
+
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                <span style={{ fontSize: '24px' }}>🟡</span>
+                <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0 }}>السبوت — مقارنة استراتيجيتين</h2>
+              </div>
+              <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0 }}>
+                نختبر أكثر من استراتيجية على نفس عملات السبوت — نشوف الأداء الحقيقي لكل وحدة قبل ما نعتمد النهائية.
+              </p>
+            </div>
+            {data.spotStrategies.map((s, i) => (
+              <MarketSection key={s.key || i} data={s} title={`استراتيجية ${i + 1}`} emoji={i === 0 ? '🥇' : '🥈'} />
+            ))}
           </>
         )}
 
