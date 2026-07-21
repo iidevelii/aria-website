@@ -9,7 +9,7 @@ type AuthCtx = { user: any; loading: boolean; refresh: () => void }
 const AuthContext = createContext<AuthCtx>({ user: null, loading: true, refresh: () => {} })
 export const useAuth = () => useContext(AuthContext)
 
-const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg']
+const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg', '/backtest-results']
 
 const API = 'https://web-production-97af6.up.railway.app'
 

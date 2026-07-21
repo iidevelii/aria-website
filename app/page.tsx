@@ -58,7 +58,7 @@ export default function Home() {
           <Logo size={52}/>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {[['الإشارات','/dashboard'],['الأسعار','/subscribe'],['تواصل','https://t.me/devel_support']].map(([label,href]) => (
+          {[['الإشارات','/dashboard'],['نتائج الباك تست','/backtest-results'],['الأسعار','/subscribe'],['تواصل','https://t.me/devel_support']].map(([label,href]) => (
             <Link key={href} href={href} style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px', borderRadius: '6px', transition: 'color 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.color='var(--text)')}
               onMouseLeave={e => (e.currentTarget.style.color='var(--muted)')}
@@ -335,7 +335,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
               {[
-                { title: 'المنتج',  links: [['الإشارات','/dashboard'],['الأسعار','/subscribe']] },
+                { title: 'المنتج',  links: [['الإشارات','/dashboard'],['نتائج الباك تست','/backtest-results'],['الأسعار','/subscribe']] },
                 { title: 'الحساب', links: [['تسجيل','/register'],['دخول','/login']] },
                 { title: 'تواصل',  links: [['تلقرام','https://t.me/Devel100_bot'],['القناة','https://t.me/DevilAISignals']] },
               ].map((col,i) => (
