@@ -142,10 +142,10 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
       display:'flex', flexDirection:'column', transition:'width 0.2s ease',
       overflow:'hidden',
     }}>
-      {/* Logo */}
-      <div style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start'}}>
+      {/* Logo — يرجّع للصفحة الرئيسية */}
+      <Link href="/" title="الصفحة الرئيسية" style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start', textDecoration:'none'}}>
         <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav style={{flex:1,padding:'8px 6px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
@@ -317,8 +317,9 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
           }}>
             {isApp && <TopBar pathname={pathname} user={user}/>}
 
-            {/* Public header (landing/login etc) */}
-            {!isApp && (
+            {/* Public header (login/register/etc) — الرئيسية "/" مستثناة لأن
+                page.tsx عندها نافبار كامل خاص فيها، عرضهم مع بعض يسبب هيدر مكرر */}
+            {!isApp && pathname !== '/' && (
               <header style={{padding:'0 24px',height:'60px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',background:'var(--surface)'}}>
                 <Link href="/" style={{display:'flex',alignItems:'center',gap:'10px',textDecoration:'none',color:'var(--text)'}}>
                   <div style={{width:30,height:30,borderRadius:'8px',background:'linear-gradient(135deg,#00c4ef,#6b1fff)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'14px',color:'#fff'}}>D</div>
