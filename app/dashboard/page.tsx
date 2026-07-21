@@ -139,6 +139,12 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '-0.02em' }}>{s.pair}</span>
           <span style={{
+            background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)',
+            color: s.market === 'SPOT' ? '#fbbf24' : '#00c4ef',
+            border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`,
+            borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
+          }}>{s.market === 'SPOT' ? '🟡 سبوت' : '🔵 فيوتشر'}</span>
+          <span style={{
             background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)',
             color: sideColor,
             border: `1px solid ${sideColor}50`,
@@ -262,6 +268,7 @@ export default function Dashboard() {
   const [nextScan, setNextScan] = useState(900)
   const [prices, setPrices] = useState<Record<string, number>>({})
   const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'WIN' | 'LOSS'>('ALL')
+  const [marketFilter, setMarketFilter] = useState<'ALL' | 'SPOT' | 'FUTURES'>('ALL')
 
   useEffect(() => {
     const calc = () => { const n = new Date(); return 900 - ((n.getMinutes() % 15) * 60 + n.getSeconds()) }
@@ -324,7 +331,24 @@ export default function Dashboard() {
   const mins = Math.floor(nextScan / 60)
   const secs = nextScan % 60
 
-  const filteredSignals = filter === 'ALL' ? signals : signals.filter(s => s.status === filter)
+  const filteredSignals = signals
+    .filter(s => filter === 'ALL' || s.status === filter)
+    .filter(s => marketFilter === 'ALL' || s.market === marketFilter)
+  const spotCount = signals.filter(s => s.market === 'SPOT').length
+  const futuresCount = signals.filter(s => s.market === 'FUTURES').length
+
+  // مقارنة LONG مقابل SHORT — الفيوتشر بس (السبوت LONG فقط دائماً)
+  const futuresSignals = signals.filter(s => s.market === 'FUTURES')
+  const sideStats = (['LONG', 'SHORT'] as const).map(side => {
+    const rows = futuresSignals.filter(s => s.side === side)
+    const w = rows.filter(s => s.status === 'WIN').length
+    const l = rows.filter(s => s.status === 'LOSS').length
+    const o = rows.filter(s => s.status === 'OPEN').length
+    const wr = (w + l) > 0 ? Math.round((w / (w + l)) * 100) : 0
+    const net = rows.filter(s => s.status === 'WIN' || s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+    return { side, count: rows.length, wins: w, losses: l, open: o, winRate: wr, net }
+  })
+  const betterSide = sideStats[0].net === sideStats[1].net ? null : (sideStats[0].net > sideStats[1].net ? sideStats[0].side : sideStats[1].side)
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -437,6 +461,7 @@ export default function Dashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '24px', fontWeight: 900 }}>{s.pair}</span>
+                          <span style={{ background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)', color: s.market === 'SPOT' ? '#fbbf24' : '#00c4ef', border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.market === 'SPOT' ? '🟡 سبوت' : '🔵 فيوتشر'}</span>
                           <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.side}</span>
                           <span style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--muted)', borderRadius: '6px', padding: '4px 10px', fontSize: '12px' }}>{s.regime}</span>
                           {s.created_at && <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{fmtDate(s.created_at)}</span>}
@@ -528,6 +553,66 @@ export default function Dashboard() {
                     : '1px solid rgba(255,255,255,0.06)',
                 }}>
                   {f === 'ALL' ? `الكل (${total})` : f === 'OPEN' ? `مفتوحة (${open})` : f === 'WIN' ? `رابحة (${wins})` : `خاسرة (${losses})`}
+                </button>
+              ))}
+            </div>
+
+            {/* LONG مقابل SHORT — فيوتشر بس */}
+            {futuresSignals.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                {sideStats.map(st => {
+                  const color = st.side === 'LONG' ? '#00e664' : '#ff5555'
+                  const isBetter = betterSide === st.side
+                  return (
+                    <div key={st.side} className="card" style={{ padding: '16px', position: 'relative', border: isBetter ? `1px solid ${color}55` : undefined }}>
+                      {isBetter && (
+                        <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>الأكثر ربحاً</span>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 900, color }}>{st.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--muted)' }}>({st.count} صفقة · فيوتشر)</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '12px' }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 800, fontSize: '16px' }}>{st.winRate}%</div>
+                          <div style={{ color: 'var(--muted)', fontSize: '10px' }}>نسبة الفوز</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 800, fontSize: '16px', color: '#00e664' }}>{st.wins}</div>
+                          <div style={{ color: 'var(--muted)', fontSize: '10px' }}>رابحة</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 800, fontSize: '16px', color: '#ff5555' }}>{st.losses}</div>
+                          <div style={{ color: 'var(--muted)', fontSize: '10px' }}>خاسرة</div>
+                        </div>
+                      </div>
+                      <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                        <span style={{ color: 'var(--muted)' }}>مفتوحة: {st.open}</span>
+                        <span style={{ fontWeight: 700, color: st.net >= 0 ? '#00e664' : '#ff5555' }}>{st.net >= 0 ? '+' : ''}{st.net.toFixed(1)}% صافي</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Market filter — سبوت مقابل فيوتشر */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              {(['ALL', 'SPOT', 'FUTURES'] as const).map(m => (
+                <button key={m} onClick={() => setMarketFilter(m)} style={{
+                  padding: '8px 18px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  background: marketFilter === m
+                    ? (m === 'SPOT' ? 'rgba(251,191,36,0.2)' : m === 'FUTURES' ? 'rgba(0,196,239,0.2)' : 'rgba(255,255,255,0.1)')
+                    : 'rgba(255,255,255,0.04)',
+                  color: marketFilter === m
+                    ? (m === 'SPOT' ? '#fbbf24' : m === 'FUTURES' ? '#00c4ef' : 'var(--text)')
+                    : '#6b7280',
+                  border: marketFilter === m
+                    ? `1px solid ${m === 'SPOT' ? 'rgba(251,191,36,0.35)' : m === 'FUTURES' ? 'rgba(0,196,239,0.35)' : 'rgba(255,255,255,0.2)'}`
+                    : '1px solid rgba(255,255,255,0.06)',
+                }}>
+                  {m === 'ALL' ? `كل الأسواق (${total})` : m === 'SPOT' ? `🟡 سبوت (${spotCount})` : `🔵 فيوتشر (${futuresCount})`}
                 </button>
               ))}
             </div>
