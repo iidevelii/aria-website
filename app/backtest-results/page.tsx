@@ -7,11 +7,13 @@ type CoinRow = {
   winRate: number | null; pf: number | null; netPct: number | null
   status: 'active' | 'blacklisted' | 'insufficient_data' | 'no_signal'
 }
+type SideStat = { side: 'LONG' | 'SHORT'; trades: number; wins: number; losses: number; winRate: number; pf: number | null; netPct: number }
 type MarketData = {
   key?: string; engine: string; universe: number
   summary: { totalTrades: number; wins: number; losses: number; winRate: number; pf: number | null; netPct: number }
   coins: CoinRow[]
   blacklistNote: string
+  sideBreakdown?: SideStat[]
 }
 type BacktestData = {
   generatedNote: string; period: string
@@ -67,6 +69,47 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
       }}>
         ℹ️ {data.blacklistNote}
       </div>
+
+      {data.sideBreakdown && data.sideBreakdown.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+          {(() => {
+            const better = data.sideBreakdown!.reduce((a, b) => (b.netPct > a.netPct ? b : a))
+            return data.sideBreakdown!.map(st => {
+              const color = st.side === 'LONG' ? 'var(--green)' : 'var(--red)'
+              const isBetter = better.side === st.side
+              return (
+                <div key={st.side} style={{ background: 'var(--surface)', border: `1px solid ${isBetter ? color + '55' : 'var(--border)'}`, borderRadius: '14px', padding: '16px', position: 'relative' }}>
+                  {isBetter && (
+                    <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>الأكثر ربحاً</span>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '15px', fontWeight: 900, color }}>{st.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>({st.trades} صفقة)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '12px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontWeight: 800, fontSize: '16px' }}>{st.winRate}%</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>نسبة الفوز</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--green)' }}>{st.wins}</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>رابحة</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--red)' }}>{st.losses}</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>خاسرة</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                    <span style={{ color: 'var(--muted)' }}>PF: {st.pf ?? '—'}</span>
+                    <span style={{ fontWeight: 700, color: st.netPct >= 0 ? 'var(--green)' : 'var(--red)' }}>{st.netPct >= 0 ? '+' : ''}{st.netPct}% صافي</span>
+                  </div>
+                </div>
+              )
+            })
+          })()}
+        </div>
+      )}
 
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>

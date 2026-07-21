@@ -1314,7 +1314,27 @@
         "status": "no_signal"
       }
     ],
-    "blacklistNote": "العملات اللي حققت 5 صفقات فأكثر ونسبة نجاح أقل من 60% تُستبعد تلقائياً من الفحص الحي (BLACKLIST_TREND_FUTURES بالكود)."
+    "blacklistNote": "العملات اللي حققت 5 صفقات فأكثر ونسبة نجاح أقل من 60% تُستبعد تلقائياً من الفحص الحي (BLACKLIST_TREND_FUTURES بالكود).",
+    "sideBreakdown": [
+      {
+        "side": "LONG",
+        "trades": 669,
+        "wins": 514,
+        "losses": 155,
+        "winRate": 76.8,
+        "pf": 3.8,
+        "netPct": 1495.63
+      },
+      {
+        "side": "SHORT",
+        "trades": 891,
+        "wins": 691,
+        "losses": 200,
+        "winRate": 77.6,
+        "pf": 3.88,
+        "netPct": 1998.22
+      }
+    ]
   },
   "spotStrategies": [
     {
