@@ -97,7 +97,7 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             {[
               { v: '100+', l: 'عملة' },
-              { v: '~60%', l: 'معدل الفوز' },
+              { v: '77.2%', l: 'نسبة نجاح (باك تست)' },
               { v: '24/7', l: 'مراقبة' },
               { v: '$0', l: '14 يوم' },
             ].map((s,i) => (
@@ -107,6 +107,9 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <Link href="/backtest-results" style={{ display: 'inline-block', marginTop: '14px', fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none' }}>
+            شوف تفاصيل الباك تست لكل عملة ←
+          </Link>
         </div>
 
         {/* Right — signal feed preview */}
@@ -240,11 +243,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ 03 · البداية ══ */}
+      {/* ══ 03 · كل الأدوات ══ */}
+      <section className="section">
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+            <div className="section-eyebrow" style={{ textAlign: 'center' }}>03 · كل الأدوات</div>
+            <h2 className="section-title" style={{ textAlign: 'center' }}>مو بس إشارات — منصة كاملة</h2>
+            <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+            {[
+              { icon: '📡', title: 'السكانر', desc: 'يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', href: '/scanner' },
+              { icon: '⚙️', title: 'منشئ الاستراتيجيات', desc: 'ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', href: '/strategy-builder' },
+              { icon: '📊', title: 'نتائج الباك تست', desc: 'شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', href: '/backtest-results' },
+              { icon: '🔔', title: 'تتبع العملات', desc: 'أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', href: '/coin-tracker' },
+              { icon: '🤖', title: 'مساعد AI', desc: 'اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', href: '/ai-assistant' },
+              { icon: '💼', title: 'محفظة تجريبية', desc: 'جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', href: '/paper-trading' },
+            ].map((f, i) => (
+              <Link key={i} href={f.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="signal-card" style={{ height: '100%', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
+                  <div style={{ fontSize: '28px', marginBottom: '12px' }}>{f.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '8px' }}>{f.title}</div>
+                  <div style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7 }}>{f.desc}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 04 · البداية ══ */}
       <section className="section">
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow">03 · البداية</div>
+            <div className="section-eyebrow">04 · البداية</div>
             <h2 className="section-title" style={{ textAlign: 'center' }}>3 خطوات وتبدأ</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
