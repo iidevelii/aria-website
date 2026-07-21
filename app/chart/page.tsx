@@ -12,14 +12,16 @@ function ChartView() {
   const side = searchParams.get('side') || 'LONG'
 
   const chartRef = useRef<HTMLDivElement>(null)
+  const curLineRef = useRef<any>(null)
   const [currentPrice, setCurrentPrice] = useState(0)
+  const [live, setLive] = useState(false)
 
   useEffect(() => {
     if (!chartRef.current) return
     let chart: any, series: any
 
     const init = async () => {
-      const { createChart, LineStyle } = await import('lightweight-charts')
+      const { createChart, CandlestickSeries, LineStyle } = await import('lightweight-charts')
       chart = createChart(chartRef.current!, {
         width: chartRef.current!.clientWidth,
         height: 500,
@@ -30,7 +32,7 @@ function ChartView() {
         timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
       })
 
-      series = chart.addCandlestickSeries({
+      series = chart.addSeries(CandlestickSeries, {
         upColor: '#00e664', downColor: '#ff5555',
         borderUpColor: '#00e664', borderDownColor: '#ff5555',
         wickUpColor: '#00e664', wickDownColor: '#ff5555',
@@ -48,7 +50,7 @@ function ChartView() {
       }))
       series.setData(candles)
 
-      // السعر الحالي
+      // السعر الحالي (نقطة انطلاق قبل أول تحديث لايف)
       const lastClose = candles[candles.length - 1].close
       setCurrentPrice(lastClose)
 
@@ -62,9 +64,7 @@ function ChartView() {
       if (sl > 0) {
         series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'وقف' })
       }
-      if (lastClose > 0) {
-        series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: 'الحالي' })
-      }
+      curLineRef.current = series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: 'الحالي' })
 
       chart.timeScale().fitContent()
     }
@@ -73,7 +73,35 @@ function ChartView() {
     return () => { if (chart) chart.remove() }
   }, [symbol, entry, tp, sl])
 
+  // تحديث السعر الحالي لايف كل 8 ثواني — يحرّك خط "الحالي" على الشارت بدون إعادة رسم الشموع
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`)
+        const d = await res.json()
+        const p = parseFloat(d.price)
+        if (!isFinite(p) || p <= 0) return
+        setCurrentPrice(p)
+        setLive(true)
+        curLineRef.current?.applyOptions({ price: p })
+      } catch {}
+    }
+    poll()
+    const t = setInterval(poll, 8000)
+    return () => clearInterval(t)
+  }, [symbol])
+
   const pct = entry > 0 ? ((currentPrice - entry) / entry) * 100 * (side === 'SHORT' ? -1 : 1) : 0
+
+  // كم باقي (بالنسبة المئوية من السعر الحالي) عشان توصل الهدف أو الوقف
+  const toTargetPct = tp > 0 && currentPrice > 0 ? ((tp - currentPrice) / currentPrice) * 100 * (side === 'SHORT' ? -1 : 1) : null
+  const toStopPct   = sl > 0 && currentPrice > 0 ? ((sl - currentPrice) / currentPrice) * 100 * (side === 'SHORT' ? -1 : 1) : null
+  let progress = 50
+  if (currentPrice > 0 && tp > 0 && sl > 0) {
+    if (side === 'LONG' && tp > sl) progress = Math.max(0, Math.min(100, ((currentPrice - sl) / (tp - sl)) * 100))
+    else if (side === 'SHORT' && sl > tp) progress = Math.max(0, Math.min(100, ((sl - currentPrice) / (sl - tp)) * 100))
+  }
+  const barColor = progress > 70 ? '#00e664' : progress > 35 ? '#fbbf24' : '#ff5555'
 
   return (
     <div style={{ minHeight: '100vh', background: '#050508', color: 'white', padding: '24px' }}>
@@ -87,7 +115,8 @@ function ChartView() {
           </div>
           {currentPrice > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: live ? '#00e664' : '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
+              {live && <span style={{ fontSize: '10px', color: '#00e664', fontWeight: 700 }}>لايف</span>}
               <span style={{ fontFamily: 'monospace', fontSize: '20px', fontWeight: 900 }}>${currentPrice.toLocaleString()}</span>
               <span style={{ fontWeight: 800, fontSize: '16px', color: pct >= 0 ? '#00e664' : '#ff5555', background: pct >= 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', padding: '4px 10px', borderRadius: '8px' }}>
                 {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
@@ -98,7 +127,7 @@ function ChartView() {
 
         {/* Levels */}
         {entry > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
             <div style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: '#00d4ff', marginBottom: '6px', fontWeight: 700 }}>سعر الدخول</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px' }}>${entry.toLocaleString()}</div>
@@ -106,10 +135,26 @@ function ChartView() {
             <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: '#00e664', marginBottom: '6px', fontWeight: 700 }}>الهدف</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#00e664' }}>${tp.toLocaleString()}</div>
+              {toTargetPct !== null && <div style={{ fontSize: '11px', color: 'rgba(0,230,100,0.7)', marginTop: '4px' }}>باقي {Math.abs(toTargetPct).toFixed(2)}%</div>}
             </div>
             <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: '#ff5555', marginBottom: '6px', fontWeight: 700 }}>الوقف</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#ff5555' }}>${sl.toLocaleString()}</div>
+              {toStopPct !== null && <div style={{ fontSize: '11px', color: 'rgba(255,85,85,0.7)', marginTop: '4px' }}>باقي {Math.abs(toStopPct).toFixed(2)}%</div>}
+            </div>
+          </div>
+        )}
+
+        {/* Progress bar — كم باقي نحو الهدف مقابل الوقف */}
+        {entry > 0 && tp > 0 && sl > 0 && currentPrice > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '4px', transition: 'width 0.6s ease' }}/>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
+              <span style={{ color: '#ff5555' }}>وقف</span>
+              <span style={{ color: barColor, fontWeight: 700 }}>{progress.toFixed(0)}% نحو الهدف</span>
+              <span style={{ color: '#00e664' }}>هدف</span>
             </div>
           </div>
         )}

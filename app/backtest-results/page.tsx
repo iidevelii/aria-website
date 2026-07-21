@@ -151,13 +151,13 @@ export default function BacktestResults() {
           borderRadius: '14px', padding: '16px 20px', marginBottom: '32px',
           display: 'flex', gap: '12px', alignItems: 'flex-start',
         }}>
-          <span style={{ fontSize: '20px' }}>⚠️</span>
+          <span style={{ fontSize: '20px' }}>📈</span>
           <div style={{ fontSize: '13px', lineHeight: 1.8, color: 'var(--text)' }}>
-            <strong>هذي نتائج باك تست (محاكاة تاريخية) على بيانات Binance الحقيقية — مو صفقات حية نُفِّذت فعلياً.</strong>
+            <strong>لو كنت مشترك معنا خلال آخر 365 يوم، هذي تقريباً النتائج اللي كانت طالعة لك — بمحاكاة دقيقة على بيانات Binance الحقيقية لكل صفقة.</strong>
             <br />
-            محدودياتها بصراحة: تشغيلة واحدة (مو walk-forward)، بدون احتساب رسوم التداول أو الانزلاق السعري (slippage) أو تمويل
-            المراكز (funding rate بالفيوتشر). الأداء الماضي لا يضمن نتائج مستقبلية، وظروف السوق تتغير — الاستراتيجيات تحتاج
-            مراجعة دورية. هذي أرقام واعدة، مو وعد بربح مضمون.
+            بكل شفافية: هذي أرقام محاكاة (باك تست) على بيانات تاريخية من تشغيلة واحدة، مو صفقات حية نُفِّذت فعلياً، وما تحتسب رسوم
+            التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate بالفيوتشر). السوق يتغير باستمرار والأداء الفعلي
+            ممكن يختلف عن الماضي — لكنها مؤشر قوي على الاستراتيجية اللي يشتغل فيها البوت كل يوم، ونراجعها بشكل دوري لنحافظ على جودتها.
           </div>
         </div>
 
@@ -168,15 +168,6 @@ export default function BacktestResults() {
           <>
             <MarketSection data={data.futures} title="الفيوتشر" emoji="🔵" />
 
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '24px' }}>🟡</span>
-                <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0 }}>السبوت — مقارنة استراتيجيتين</h2>
-              </div>
-              <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0 }}>
-                نختبر أكثر من استراتيجية على نفس عملات السبوت — نشوف الأداء الحقيقي لكل وحدة قبل ما نعتمد النهائية.
-              </p>
-            </div>
             {data.spotStrategies.map((s, i) => (
               <MarketSection key={s.key || i} data={s} title={`استراتيجية ${i + 1}`} emoji={i === 0 ? '🥇' : '🥈'} />
             ))}
