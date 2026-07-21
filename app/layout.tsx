@@ -23,6 +23,7 @@ const Icons = {
   ai:        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>,
   api:       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
   subscribe: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  backtest:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   moon:      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   sun:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   logout:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
@@ -75,6 +76,7 @@ const NAV = [
   { href:'/paper-trading',    label:'التداول',      icon:Icons.paper },
   { href:'/coin-tracker',     label:'تتبع العملات',icon:Icons.tracker },
   { href:'/ai-assistant',     label:'مساعد AI',    icon:Icons.ai },
+  { href:'/backtest-results', label:'نتائج الباك تست', icon:Icons.backtest },
   { href:'/subscribe',        label:'اشتراك',      icon:Icons.subscribe },
 ]
 
@@ -321,9 +323,8 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
                 page.tsx عندها نافبار كامل خاص فيها، عرضهم مع بعض يسبب هيدر مكرر */}
             {!isApp && pathname !== '/' && (
               <header style={{padding:'0 24px',height:'60px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',background:'var(--surface)'}}>
-                <Link href="/" style={{display:'flex',alignItems:'center',gap:'10px',textDecoration:'none',color:'var(--text)'}}>
-                  <div style={{width:30,height:30,borderRadius:'8px',background:'linear-gradient(135deg,#00c4ef,#6b1fff)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'14px',color:'#fff'}}>D</div>
-                  <span style={{fontWeight:900,fontSize:'17px',letterSpacing:'-0.03em'}}>Devel<span style={{color:'var(--cyan)'}}>Bot</span></span>
+                <Link href="/" title="الصفحة الرئيسية" style={{display:'flex',alignItems:'center',gap:'10px',textDecoration:'none',color:'var(--text)'}}>
+                  <img src="/logo.png" alt="DevelBot" style={{height:34,width:'auto',display:'block',borderRadius:'8px',background:'#fff',padding:'3px',flexShrink:0}}/>
                 </Link>
                 <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
                   <button onClick={toggleTheme} style={{width:'32px',height:'32px',borderRadius:'8px',border:'1px solid var(--border)',background:'transparent',cursor:'pointer',color:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center'}}>

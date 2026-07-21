@@ -10,11 +10,11 @@ function Logo({ size = 28 }: { size?: number }) {
 }
 
 /* ── Static signal row for hero preview ── */
-function SigRow({ pair, side, entry, tp, score, pct, age }: {
-  pair: string; side: 'LONG'|'SHORT'; entry: string; tp: string; score: number; pct: string; age: string
+function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
+  pair: string; side: 'LONG'|'SHORT'; entry: string; tp: string; score: number; pct: string; age: string; delay?: number
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', animation: `sigRowIn 0.5s ease ${delay}s both` }}>
       <span style={{ fontWeight: 800, minWidth: '90px', fontFamily: 'var(--mono)' }}>{pair}</span>
       <span className={side === 'LONG' ? 'pill-long' : 'pill-short'}>{side}</span>
       <span style={{ color: '#5a6272', fontFamily: 'var(--mono)', fontSize: '12px', flex: 1 }}>${entry}</span>
@@ -113,7 +113,7 @@ export default function Home() {
         </div>
 
         {/* Right — signal feed preview */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden' }}>
+        <div className="hero-feed-card" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>آخر الإشارات</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -131,11 +131,11 @@ export default function Home() {
               <span style={{ minWidth: '52px', textAlign: 'right' }}>P&L</span>
               <span style={{ minWidth: '36px', textAlign: 'right' }}>وقت</span>
             </div>
-            <SigRow pair="INJ/USDT"    side="LONG"  entry="24.31"     tp="27.89"    score={82} pct="+11.2%" age="2h" />
-            <SigRow pair="SOL/USDT"    side="LONG"  entry="162.40"    tp="186.50"   score={79} pct="+7.4%"  age="5h" />
-            <SigRow pair="FLOKI/USDT"  side="SHORT" entry="0.0001840" tp="0.0001590" score={74} pct="+13.6%" age="8h" />
-            <SigRow pair="XLM/USDT"    side="SHORT" entry="0.2841"    tp="0.2450"   score={71} pct="+5.8%"  age="11h"/>
-            <SigRow pair="AVAX/USDT"   side="LONG"  entry="35.12"     tp="40.30"    score={68} pct="+3.1%"  age="1d" />
+            <SigRow pair="INJ/USDT"    side="LONG"  entry="24.31"     tp="27.89"    score={82} pct="+11.2%" age="2h"  delay={0} />
+            <SigRow pair="SOL/USDT"    side="LONG"  entry="162.40"    tp="186.50"   score={79} pct="+7.4%"  age="5h"  delay={0.08} />
+            <SigRow pair="FLOKI/USDT"  side="SHORT" entry="0.0001840" tp="0.0001590" score={74} pct="+13.6%" age="8h" delay={0.16} />
+            <SigRow pair="XLM/USDT"    side="SHORT" entry="0.2841"    tp="0.2450"   score={71} pct="+5.8%"  age="11h" delay={0.24} />
+            <SigRow pair="AVAX/USDT"   side="LONG"  entry="35.12"     tp="40.30"    score={68} pct="+3.1%"  age="1d"  delay={0.32} />
           </div>
           <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '11px', color: 'var(--muted)' }}>هذه بيانات توضيحية</span>
@@ -396,6 +396,13 @@ export default function Home() {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+        @keyframes sigRowIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+        @keyframes sweepLine { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+        .hero-feed-card::before {
+          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, transparent, #00c4ef, #00e664, transparent);
+          animation: sweepLine 4s linear infinite; opacity: .8; pointer-events: none;
+        }
         @media (max-width: 768px) {
           section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
           h1 { font-size: 36px !important; }

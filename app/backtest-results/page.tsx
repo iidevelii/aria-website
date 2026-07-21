@@ -51,7 +51,6 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
         <span style={{ fontSize: '24px' }}>{emoji}</span>
         <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0 }}>{title}</h2>
-        <span style={{ fontSize: '12px', color: 'var(--muted)' }}>({data.engine})</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '20px' }}>
