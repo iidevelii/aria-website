@@ -5,15 +5,31 @@ import Link from 'next/link'
 type CoinRow = {
   symbol: string; trades: number; wins: number; losses: number
   winRate: number | null; pf: number | null; netPct: number | null
+  status: 'active' | 'blacklisted' | 'insufficient_data' | 'no_signal'
 }
 type MarketData = {
   engine: string; universe: number
   summary: { totalTrades: number; wins: number; losses: number; winRate: number; pf: number | null; netPct: number }
   coins: CoinRow[]
+  blacklistNote: string
 }
 type BacktestData = {
   generatedNote: string; period: string
   futures: MarketData; spot: MarketData
+}
+
+function StatusBadge({ status }: { status: CoinRow['status'] }) {
+  const map = {
+    active:             { text: '✅ نشطة',        bg: 'rgba(0,230,100,0.12)',  color: 'var(--green)' },
+    blacklisted:        { text: '🚫 مستبعدة',     bg: 'rgba(255,68,85,0.12)',  color: 'var(--red)' },
+    insufficient_data:  { text: '⏳ بيانات قليلة', bg: 'rgba(251,191,36,0.12)', color: 'var(--yellow)' },
+    no_signal:          { text: '— بدون إشارة',   bg: 'transparent',           color: 'var(--muted)' },
+  }[status]
+  return (
+    <span style={{ background: map.bg, color: map.color, borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+      {map.text}
+    </span>
+  )
 }
 
 function StatCard({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -46,6 +62,13 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
         <StatCard label="صافي %" value={`${data.summary.netPct >= 0 ? '+' : ''}${data.summary.netPct}%`} color={data.summary.netPct >= 0 ? 'var(--green)' : 'var(--red)'} />
       </div>
 
+      <div style={{
+        background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.2)',
+        borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', fontSize: '12.5px', color: 'var(--muted)', lineHeight: 1.7,
+      }}>
+        ℹ️ {data.blacklistNote}
+      </div>
+
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ fontWeight: 700, fontSize: '14px' }}>نتائج كل عملة ({tested.length} من {data.coins.length})</span>
@@ -71,11 +94,12 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
                 <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>نسبة النجاح</th>
                 <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>Profit Factor</th>
                 <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>صافي %</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>الحالة</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map(c => (
-                <tr key={c.symbol} style={{ borderBottom: '1px solid var(--border)' }}>
+                <tr key={c.symbol} style={{ borderBottom: '1px solid var(--border)', opacity: c.status === 'blacklisted' ? 0.55 : 1 }}>
                   <td style={{ padding: '10px 16px', fontWeight: 800, fontFamily: 'var(--mono)' }}>{c.symbol}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'center' }}>{c.trades}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'center', fontFamily: 'var(--mono)' }}>
@@ -88,6 +112,7 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
                   <td style={{ padding: '10px 16px', textAlign: 'center', fontFamily: 'var(--mono)', color: (c.netPct ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
                     {(c.netPct ?? 0) >= 0 ? '+' : ''}{c.netPct}%
                   </td>
+                  <td style={{ padding: '10px 16px', textAlign: 'center' }}><StatusBadge status={c.status} /></td>
                 </tr>
               ))}
             </tbody>
