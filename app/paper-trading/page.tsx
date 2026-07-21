@@ -167,7 +167,7 @@ export default function PaperTradingPage() {
             <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',marginBottom:'4px'}}>محفظة التداول الحقيقي</h1>
             <p style={{color:'var(--muted)',fontSize:'13px'}}>
               <span style={{color:'var(--green)',fontWeight:700}}>● مباشر</span>
-              {'  '}نتائج إشارات ARIA الحقيقية — أسعار Binance اللحظية
+              {'  '}نتائج إشارات Devel الحقيقية — أسعار Binance اللحظية
             </p>
           </div>
           <div style={{display:'flex',gap:'8px'}}>

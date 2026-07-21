@@ -100,8 +100,8 @@ const ENDPOINTS: { section: string; emoji: string; items: Endpoint[] }[] = [
     section: 'AI Assistant', emoji: '🤖',
     items: [
       {
-        method: 'POST', path: '/ai-chat', title: 'محادثة ARIA', auth: false,
-        desc: 'إرسال رسالة لمساعد ARIA الذكي والحصول على رد فوري.',
+        method: 'POST', path: '/ai-chat', title: 'محادثة Devel', auth: false,
+        desc: 'إرسال رسالة لمساعد Devel الذكي والحصول على رد فوري.',
         body: [
           { name: 'message', type: 'string', required: true,  desc: 'رسالة المستخدم' },
           { name: 'history', type: 'array',  required: false, desc: 'آخر 6 رسائل للسياق [{role,content}]' },

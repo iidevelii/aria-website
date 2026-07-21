@@ -16,7 +16,7 @@ const QUICK = [
   'كيف أقرأ تباعد RSI (Divergence)؟',
 ]
 
-const WELCOME = `مرحباً! أنا **ARIA**، مساعد التداول الذكي من DevelBot.
+const WELCOME = `مرحباً! أنا **Devel**، مساعد التداول الذكي من DevelBot.
 
 يمكنني مساعدتك في:
 - 📊 قراءة وتفسير الإشارات
@@ -136,9 +136,9 @@ export default function AIAssistantPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#00c4ef,#6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#fff' }}>A</div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#00c4ef,#6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#fff' }}>D</div>
               <div>
-                <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em' }}>ARIA</div>
+                <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em' }}>Devel</div>
                 <div style={{ fontSize: '11px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><span className="live-dot"/>مساعد تداول ذكي</div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function AIAssistantPage() {
           {/* Input */}
           <div style={{ padding: '14px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
             <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
-              placeholder="اسأل ARIA عن التداول..." rows={1} disabled={loading}
+              placeholder="اسأل Devel عن التداول..." rows={1} disabled={loading}
               style={{ flex: 1, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '10px 14px', color: 'var(--text)', fontSize: '13px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: 1.5, minHeight: '42px', maxHeight: '120px', transition: 'border-color 0.15s' }}
               onFocus={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
               onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
@@ -189,7 +189,7 @@ export default function AIAssistantPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--dim)', marginTop: '12px' }}>
-          ⚠️ ARIA تقدم تحليلاً تعليمياً فقط — ليست نصيحة مالية
+          ⚠️ Devel تقدم تحليلاً تعليمياً فقط — ليست نصيحة مالية
         </p>
       </div>
     </div>
