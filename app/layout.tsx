@@ -293,6 +293,21 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
       <head>
         <meta charSet="utf-8"/>
         <title>DevelBot — منصة إشارات التداول</title>
+        <meta name="description" content="DevelBot يراقب Binance Spot وFutures ويرسل إشارات دخول عالية الجودة فوراً — مع الدخول، الهدف، والوقف."/>
+        <link rel="icon" href="/favicon.ico" sizes="any"/>
+        <link rel="apple-touch-icon" href="/logo.png"/>
+
+        {/* Open Graph / WhatsApp / Twitter link preview */}
+        <meta property="og:type" content="website"/>
+        <meta property="og:site_name" content="DevelBot"/>
+        <meta property="og:title" content="DevelBot — منصة إشارات التداول"/>
+        <meta property="og:description" content="إشارات كريبتو + بوت تلقرام — Spot وFutures، إشارات عالية الجودة فوراً مع الدخول والهدف والوقف."/>
+        <meta property="og:image" content="https://devel-bot.space/logo.png"/>
+        <meta property="og:url" content="https://devel-bot.space"/>
+        <meta name="twitter:card" content="summary"/>
+        <meta name="twitter:title" content="DevelBot — منصة إشارات التداول"/>
+        <meta name="twitter:description" content="إشارات كريبتو + بوت تلقرام — Spot وFutures، إشارات عالية الجودة فوراً."/>
+        <meta name="twitter:image" content="https://devel-bot.space/logo.png"/>
       </head>
       <body style={{margin:0,padding:0,background:'var(--bg)',color:'var(--text)',visibility:mounted?'visible':'hidden'}}>
         <AuthContext.Provider value={{user,loading:authLoading,refresh:fetchUser}}>
