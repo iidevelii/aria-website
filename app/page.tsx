@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLang } from './layout'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -39,6 +40,7 @@ function TgMsg({ text, time }: { text: string; time: string }) {
 }
 
 export default function Home() {
+  const { t, lang, setLang } = useLang()
   const [btcPrice, setBtcPrice] = useState<string|null>(null)
   const [btcChg, setBtcChg] = useState(0)
 
@@ -58,15 +60,18 @@ export default function Home() {
           <Logo size={52}/>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {[['الإشارات','/dashboard'],['نتائج الباك تست','/backtest-results'],['الأسعار','/subscribe'],['تواصل','https://t.me/devel_support']].map(([label,href]) => (
+          {[[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']].map(([label,href]) => (
             <Link key={href} href={href} style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px', borderRadius: '6px', transition: 'color 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.color='var(--text)')}
               onMouseLeave={e => (e.currentTarget.style.color='var(--muted)')}
             >{label}</Link>
           ))}
           <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 6px' }}/>
-          <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>دخول</Link>
-          <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>ابدأ مجاناً ←</Link>
+          <button onClick={() => setLang(lang==='ar'?'en':'ar')} title="Language / اللغة" style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '12px', fontWeight: 700, borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+            {lang==='ar'?'EN':'ع'}
+          </button>
+          <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>{t('دخول','Login')}</Link>
+          <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('ابدأ مجاناً ←','Start free →')}</Link>
         </div>
       </nav>
 
@@ -76,30 +81,30 @@ export default function Home() {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,230,100,0.08)', border: '1px solid rgba(0,230,100,0.18)', borderRadius: '6px', padding: '5px 12px', marginBottom: '28px' }}>
             <span className="live-dot"/>
-            <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 600 }}>online · 100+ عملة · فحص كل 15 دقيقة</span>
+            <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 600 }}>{t('online · 100+ عملة · فحص كل 15 دقيقة', 'online · 100+ coins · scanned every 15 minutes')}</span>
           </div>
 
           <h1 style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: '20px' }}>
-            إشارات كريبتو<br/>
-            <span className="gradient-text">+ بوت تلقرام.</span><br/>
-            اشتراك واحد.
+            {t('إشارات كريبتو', 'Crypto signals')}<br/>
+            <span className="gradient-text">{t('+ بوت تلقرام.', '+ Telegram bot.')}</span><br/>
+            {t('اشتراك واحد.', 'One subscription.')}
           </h1>
 
           <p style={{ color: 'var(--muted)', fontSize: '16px', lineHeight: 1.75, marginBottom: '36px', maxWidth: '400px' }}>
-            DevelBot يراقب Binance Spot و Futures ويرسل إشارات عالية الجودة فوراً — مع الدخول، الهدف، الوقف، والرافعة.
+            {t('DevelBot يراقب Binance Spot و Futures ويرسل إشارات عالية الجودة فوراً — مع الدخول، الهدف، الوقف، والرافعة.', 'DevelBot monitors Binance Spot and Futures and sends high-quality signals instantly — with entry, target, stop loss, and leverage.')}
           </p>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '48px' }}>
-            <Link href="/register" className="btn-primary" style={{ padding: '12px 28px', fontSize: '15px', borderRadius: '8px' }}>ابدأ مجاناً — 14 يوم ←</Link>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '12px 24px', fontSize: '15px', borderRadius: '8px' }}>شوف الإشارات</Link>
+            <Link href="/register" className="btn-primary" style={{ padding: '12px 28px', fontSize: '15px', borderRadius: '8px' }}>{t('ابدأ مجاناً — 14 يوم ←', 'Start free — 14 days →')}</Link>
+            <Link href="/dashboard" className="btn-ghost" style={{ padding: '12px 24px', fontSize: '15px', borderRadius: '8px' }}>{t('شوف الإشارات', 'View signals')}</Link>
           </div>
 
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             {[
-              { v: '100+', l: 'عملة' },
-              { v: '77.2%', l: 'نسبة نجاح (باك تست)' },
-              { v: '24/7', l: 'مراقبة' },
-              { v: '$0', l: '14 يوم' },
+              { v: '100+', l: t('عملة', 'coins') },
+              { v: '77.2%', l: t('نسبة نجاح (باك تست)', 'win rate (backtest)') },
+              { v: '24/7', l: t('مراقبة', 'monitoring') },
+              { v: '$0', l: t('14 يوم', '14 days') },
             ].map((s,i) => (
               <div key={i}>
                 <div style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{s.v}</div>
@@ -108,14 +113,14 @@ export default function Home() {
             ))}
           </div>
           <Link href="/backtest-results" style={{ display: 'inline-block', marginTop: '14px', fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none' }}>
-            شوف تفاصيل الباك تست لكل عملة ←
+            {t('شوف تفاصيل الباك تست لكل عملة ←', 'See backtest details for every coin →')}
           </Link>
         </div>
 
         {/* Right — signal feed preview */}
         <div className="hero-feed-card" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>آخر الإشارات</span>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('آخر الإشارات', 'Latest signals')}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="live-dot"/>
               <span style={{ fontSize: '11px', color: '#00e664' }}>live</span>
@@ -123,13 +128,13 @@ export default function Home() {
           </div>
           <div style={{ padding: '4px 16px 4px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', fontSize: '10px', color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 700 }}>
-              <span style={{ minWidth: '90px' }}>زوج</span>
-              <span style={{ minWidth: '42px' }}>جانب</span>
-              <span style={{ flex: 1 }}>دخول</span>
-              <span style={{ minWidth: '72px' }}>هدف</span>
+              <span style={{ minWidth: '90px' }}>{t('زوج', 'Pair')}</span>
+              <span style={{ minWidth: '42px' }}>{t('جانب', 'Side')}</span>
+              <span style={{ flex: 1 }}>{t('دخول', 'Entry')}</span>
+              <span style={{ minWidth: '72px' }}>{t('هدف', 'Target')}</span>
               <span style={{ minWidth: '38px', textAlign: 'right' }}>Score</span>
               <span style={{ minWidth: '52px', textAlign: 'right' }}>P&L</span>
-              <span style={{ minWidth: '36px', textAlign: 'right' }}>وقت</span>
+              <span style={{ minWidth: '36px', textAlign: 'right' }}>{t('وقت', 'Time')}</span>
             </div>
             <SigRow pair="INJ/USDT"    side="LONG"  entry="24.31"     tp="27.89"    score={82} pct="+11.2%" age="2h"  delay={0} />
             <SigRow pair="SOL/USDT"    side="LONG"  entry="162.40"    tp="186.50"   score={79} pct="+7.4%"  age="5h"  delay={0.08} />
@@ -138,8 +143,8 @@ export default function Home() {
             <SigRow pair="AVAX/USDT"   side="LONG"  entry="35.12"     tp="40.30"    score={68} pct="+3.1%"  age="1d"  delay={0.32} />
           </div>
           <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>هذه بيانات توضيحية</span>
-            <Link href="/dashboard" style={{ fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>الإشارات الحقيقية ←</Link>
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('هذه بيانات توضيحية', 'This is sample data')}</span>
+            <Link href="/dashboard" style={{ fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('الإشارات الحقيقية ←', 'Real signals →')}</Link>
           </div>
         </div>
       </section>
@@ -148,9 +153,9 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px' }}>
-            <div className="section-eyebrow">01 · الداشبورد</div>
-            <h2 className="section-title">كل إشاراتك في مكان واحد</h2>
-            <p className="section-sub">لوحة تحكم حية — كل صفقة ببوكس مستقل مع السعر الحالي ونسبة الربح أو الخسارة.</p>
+            <div className="section-eyebrow">{t('01 · الداشبورد', '01 · Dashboard')}</div>
+            <h2 className="section-title">{t('كل إشاراتك في مكان واحد', 'All your signals in one place')}</h2>
+            <p className="section-sub">{t('لوحة تحكم حية — كل صفقة ببوكس مستقل مع السعر الحالي ونسبة الربح أو الخسارة.', 'A live dashboard — every trade in its own card with the current price and profit/loss percentage.')}</p>
           </div>
 
           {/* mock signal cards */}
@@ -167,7 +172,7 @@ export default function Home() {
                     <span className={s.side === 'LONG' ? 'pill-long' : 'pill-short'}>{s.side}</span>
                     <span className="pill-type">{s.type}</span>
                     <span className={s.status === 'WIN' ? 'pill-win' : 'pill-open'}>
-                      {s.status === 'WIN' ? '✓ ربح' : '● مفتوحة'}
+                      {s.status === 'WIN' ? `✓ ${t('ربح', 'Win')}` : `● ${t('مفتوحة', 'Open')}`}
                     </span>
                   </div>
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -177,23 +182,23 @@ export default function Home() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
                   <div className="price-box">
-                    <div style={{ fontSize: '9px', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>دخول</div>
+                    <div style={{ fontSize: '9px', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('دخول', 'Entry')}</div>
                     <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px' }}>${s.entry}</div>
                   </div>
                   <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '9px', color: 'var(--green)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>هدف</div>
+                    <div style={{ fontSize: '9px', color: 'var(--green)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('هدف', 'Target')}</div>
                     <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--green)' }}>${s.tp}</div>
                     <div style={{ fontSize: '10px', color: 'rgba(0,230,100,0.5)', marginTop: '2px' }}>{s.tpp}</div>
                   </div>
                   <div style={{ background: 'rgba(255,68,85,0.05)', border: '1px solid rgba(255,68,85,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '9px', color: 'var(--red)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>وقف</div>
+                    <div style={{ fontSize: '9px', color: 'var(--red)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('وقف', 'Stop')}</div>
                     <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--red)' }}>${s.sl}</div>
                     <div style={{ fontSize: '10px', color: 'rgba(255,68,85,0.5)', marginTop: '2px' }}>{s.slp}</div>
                   </div>
                   <div style={{ background: 'rgba(0,196,239,0.05)', border: '1px solid rgba(0,196,239,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', marginBottom: '4px' }}>
                       <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--cyan)', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-                      <span style={{ fontSize: '9px', color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>الآن</span>
+                      <span style={{ fontSize: '9px', color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('الآن', 'Now')}</span>
                     </div>
                     <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--green)' }}>${s.cur}</div>
                     <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--green)', marginTop: '2px' }}>{s.pnl}</div>
@@ -203,7 +208,7 @@ export default function Home() {
             ))}
           </div>
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '10px 28px', fontSize: '13px' }}>فتح الداشبورد ←</Link>
+            <Link href="/dashboard" className="btn-ghost" style={{ padding: '10px 28px', fontSize: '13px' }}>{t('فتح الداشبورد ←', 'Open dashboard →')}</Link>
           </div>
         </div>
       </section>
@@ -212,12 +217,12 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           <div>
-            <div className="section-eyebrow">02 · تلقرام</div>
-            <h2 className="section-title">كل إشارة تجيك فوراً</h2>
-            <p className="section-sub">بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك — الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.</p>
+            <div className="section-eyebrow">{t('02 · تلقرام', '02 · Telegram')}</div>
+            <h2 className="section-title">{t('كل إشارة تجيك فوراً', 'Every signal reaches you instantly')}</h2>
+            <p className="section-sub">{t('بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك — الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.', 'As soon as an opportunity is found, the bot sends full details to your Telegram — pair, side, entry, target, stop loss, leverage, and Score.')}</p>
             <div style={{ marginTop: '28px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a href="https://t.me/Devel100_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>فتح البوت في تلقرام ↗</a>
-              <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>سجّل للحصول على الكود</Link>
+              <a href="https://t.me/Devel100_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
+              <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>{t('سجّل للحصول على الكود', 'Sign up to get your code')}</Link>
             </div>
           </div>
           {/* Telegram UI mockup */}
@@ -231,11 +236,11 @@ export default function Home() {
             </div>
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '260px' }}>
               <TgMsg
-                text={`🟢 LONG · FUTURES\n━━━━━━━━━━━━━━\n📌 INJ/USDT\n\n🎯 دخول:   $24.31\n✅ هدف:    $27.89 (+14.8%)\n🛑 وقف:    $22.80 (-6.2%)\n⚡ رافعة:  ×5\n\n🤖 Score: 82/100\n📊 RSI Dip · Spot v11`}
+                text={`🟢 LONG · FUTURES\n━━━━━━━━━━━━━━\n📌 INJ/USDT\n\n🎯 ${t('دخول','Entry')}:   $24.31\n✅ ${t('هدف','Target')}:    $27.89 (+14.8%)\n🛑 ${t('وقف','Stop')}:    $22.80 (-6.2%)\n⚡ ${t('رافعة','Leverage')}:  ×5\n\n🤖 Score: 82/100\n📊 RSI Dip · Spot v11`}
                 time="14:22"
               />
               <TgMsg
-                text={`🔴 SHORT · FUTURES\n━━━━━━━━━━━━━━\n📌 FLOKI/USDT\n\n🎯 دخول:   $0.0001840\n✅ هدف:    $0.0001590 (+13.6%)\n🛑 وقف:    $0.0001990 (-8.2%)\n⚡ رافعة:  ×3\n\n🤖 Score: 74/100\n📊 RSI OB · Futures v13`}
+                text={`🔴 SHORT · FUTURES\n━━━━━━━━━━━━━━\n📌 FLOKI/USDT\n\n🎯 ${t('دخول','Entry')}:   $0.0001840\n✅ ${t('هدف','Target')}:    $0.0001590 (+13.6%)\n🛑 ${t('وقف','Stop')}:    $0.0001990 (-8.2%)\n⚡ ${t('رافعة','Leverage')}:  ×3\n\n🤖 Score: 74/100\n📊 RSI OB · Futures v13`}
                 time="09:47"
               />
             </div>
@@ -247,18 +252,18 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow" style={{ textAlign: 'center' }}>03 · كل الأدوات</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>مو بس إشارات — منصة كاملة</h2>
-            <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.</p>
+            <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('03 · كل الأدوات', '03 · All the tools')}</div>
+            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('مو بس إشارات — منصة كاملة', 'Not just signals — a complete platform')}</h2>
+            <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>{t('كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.', 'Every tool you need to analyze the market and make decisions, without paying for extra third-party tools.')}</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
             {[
-              { icon: '📡', title: 'السكانر', desc: 'يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', href: '/scanner' },
-              { icon: '⚙️', title: 'منشئ الاستراتيجيات', desc: 'ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', href: '/strategy-builder' },
-              { icon: '📊', title: 'نتائج الباك تست', desc: 'شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', href: '/backtest-results' },
-              { icon: '🔔', title: 'تتبع العملات', desc: 'أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', href: '/coin-tracker' },
-              { icon: '🤖', title: 'مساعد AI', desc: 'اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', href: '/ai-assistant' },
-              { icon: '💼', title: 'محفظة تجريبية', desc: 'جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', href: '/paper-trading' },
+              { icon: '📡', title: t('السكانر', 'Scanner'), desc: t('يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', 'Scans dozens of coins in real time and calculates RSI, MACD, ADX and Supertrend, giving each coin a Score from -100 to +100.'), href: '/scanner' },
+              { icon: '⚙️', title: t('منشئ الاستراتيجيات', 'Strategy Builder'), desc: t('ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', 'Build your own scan conditions (AND/OR between indicators) and run them across the whole market with one click.'), href: '/strategy-builder' },
+              { icon: '📊', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency — individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
+              { icon: '🔔', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage) — checked every 30 seconds.'), href: '/coin-tracker' },
+              { icon: '🤖', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal — it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
+              { icon: '💼', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market — leverage, size, LONG/SHORT.'), href: '/paper-trading' },
             ].map((f, i) => (
               <Link key={i} href={f.href} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="signal-card" style={{ height: '100%', cursor: 'pointer', transition: 'border-color 0.15s' }}
@@ -278,14 +283,14 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow">04 · البداية</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>3 خطوات وتبدأ</h2>
+            <div className="section-eyebrow">{t('04 · البداية', '04 · Getting started')}</div>
+            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('3 خطوات وتبدأ', '3 steps and you\'re started')}</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              { n: '01', title: 'سجّل مجاناً', desc: 'حساب في ثوانٍ — بدون بطاقة ائتمان، 14 يوم تجربة كاملة', href: '/register', cta: 'سجّل ←' },
-              { n: '02', title: 'اربط بوت التلقرام', desc: 'أرسل كود التفعيل لـ @DevelBot وابدأ استقبال الإشارات فوراً', href: 'https://t.me/Devel100_bot', cta: 'فتح ↗' },
-              { n: '03', title: 'تداول بثقة', desc: 'كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', href: '/dashboard', cta: 'الإشارات ←' },
+              { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ — بدون بطاقة ائتمان، 14 يوم تجربة كاملة', 'An account in seconds — no credit card, 14 days full trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
+              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('أرسل كود التفعيل لـ @DevelBot وابدأ استقبال الإشارات فوراً', 'Send your activation code to @DevelBot and start receiving signals instantly'), href: 'https://t.me/Devel100_bot', cta: t('فتح ↗', 'Open ↗') },
+              { n: '03', title: t('تداول بثقة', 'Trade with confidence'), desc: t('كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', 'Every signal arrives with the strategy, entry, target, stop loss, and leverage'), href: '/dashboard', cta: t('الإشارات ←', 'Signals →') },
             ].map((s,i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
                 <span style={{ fontSize: '36px', fontWeight: 900, color: 'var(--dim)', minWidth: '48px', fontVariantNumeric: 'tabular-nums' }}>{s.n}</span>
@@ -304,39 +309,39 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <div className="section-eyebrow">الأسعار</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>بسيط وشفاف</h2>
+            <div className="section-eyebrow">{t('الأسعار', 'Pricing')}</div>
+            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('بسيط وشفاف', 'Simple and transparent')}</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '32px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>تجربة مجانية</div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('تجربة مجانية', 'Free trial')}</div>
               <div style={{ fontSize: '52px', fontWeight: 900, marginBottom: '4px', letterSpacing: '-0.03em' }}>$0</div>
-              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>14 يوم كاملة</div>
+              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('14 يوم كاملة', 'Full 14 days')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
-                {['كامل الإشارات','ربط التلقرام','الداشبورد الكامل','بدون بطاقة'].map((item,i) => (
+                {[t('كامل الإشارات', 'All signals'), t('ربط التلقرام', 'Telegram connection'), t('الداشبورد الكامل', 'Full dashboard'), t('بدون بطاقة', 'No card required')].map((item,i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#9ca3af' }}>
                     <span style={{ color: 'var(--green)', fontWeight: 700 }}>✓</span> {item}
                   </div>
                 ))}
               </div>
-              <Link href="/register" className="btn-ghost" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px' }}>ابدأ مجاناً</Link>
+              <Link href="/register" className="btn-ghost" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px' }}>{t('ابدأ مجاناً', 'Start free')}</Link>
             </div>
             <div style={{ background: 'var(--surface)', border: '1px solid rgba(0,196,239,0.28)', borderRadius: '14px', padding: '32px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '-11px', right: '20px', background: 'var(--cyan)', color: '#000', fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '5px' }}>الأشهر</div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>احترافي</div>
+              <div style={{ position: 'absolute', top: '-11px', right: '20px', background: 'var(--cyan)', color: '#000', fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '5px' }}>{t('الأشهر', 'Most popular')}</div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('احترافي', 'Pro')}</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginBottom: '4px' }}>
                 <span style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.03em' }}>$35</span>
-                <span style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '10px' }}>/ 30 يوم</span>
+                <span style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '10px' }}>{t('/ 30 يوم', '/ 30 days')}</span>
               </div>
-              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>وصول كامل بدون قيود</div>
+              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('وصول كامل بدون قيود', 'Full access, no limits')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
-                {['كل مميزات المجاني','100 عملة متجددة','رافعة ديناميكية','Quality Score','دعم فوري'].map((item,i) => (
+                {[t('كل مميزات المجاني', 'All free features'), t('100 عملة متجددة', '100 rotating coins'), t('رافعة ديناميكية', 'Dynamic leverage'), 'Quality Score', t('دعم فوري', 'Instant support')].map((item,i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#d1d5db' }}>
                     <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>✓</span> {item}
                   </div>
                 ))}
               </div>
-              <Link href="/subscribe" className="btn-primary" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px', borderRadius: '8px' }}>اشترك الآن</Link>
+              <Link href="/subscribe" className="btn-primary" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px', borderRadius: '8px' }}>{t('اشترك الآن', 'Subscribe now')}</Link>
             </div>
           </div>
         </div>
@@ -346,13 +351,13 @@ export default function Home() {
       <section style={{ padding: '80px 24px', borderTop: '1px solid var(--border)', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '16px' }}>
-            ابدأ التداول بالذكاء<br/>
-            <span className="gradient-text">الحين.</span>
+            {t('ابدأ التداول بالذكاء', 'Start trading smarter')}<br/>
+            <span className="gradient-text">{t('الحين.', 'now.')}</span>
           </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>لا بطاقة، لا التزامات — 14 يوم مجاناً</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>{t('لا بطاقة، لا التزامات — 14 يوم مجاناً', 'No card, no commitments — 14 days free')}</p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/register" className="btn-primary" style={{ padding: '13px 32px', fontSize: '15px' }}>ابدأ مجاناً الآن ←</Link>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '13px 24px', fontSize: '15px' }}>شوف الإشارات</Link>
+            <Link href="/register" className="btn-primary" style={{ padding: '13px 32px', fontSize: '15px' }}>{t('ابدأ مجاناً الآن ←', 'Start free now →')}</Link>
+            <Link href="/dashboard" className="btn-ghost" style={{ padding: '13px 24px', fontSize: '15px' }}>{t('شوف الإشارات', 'View signals')}</Link>
           </div>
         </div>
       </section>
@@ -365,13 +370,13 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                 <Logo size={42}/>
               </div>
-              <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: '220px' }}>منصة إشارات تداول مبنية على استراتيجيات محسوبة وبيانات حقيقية.</p>
+              <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: '220px' }}>{t('منصة إشارات تداول مبنية على استراتيجيات محسوبة وبيانات حقيقية.', 'A trading signals platform built on calculated strategies and real data.')}</p>
             </div>
             <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
               {[
-                { title: 'المنتج',  links: [['الإشارات','/dashboard'],['نتائج الباك تست','/backtest-results'],['الأسعار','/subscribe']] },
-                { title: 'الحساب', links: [['تسجيل','/register'],['دخول','/login']] },
-                { title: 'تواصل',  links: [['تلقرام','https://t.me/Devel100_bot'],['القناة','https://t.me/DevilAISignals']] },
+                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
+                { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
+                { title: t('تواصل', 'Contact'),  links: [[t('تلقرام','Telegram'),'https://t.me/Devel100_bot'],[t('القناة','Channel'),'https://t.me/DevilAISignals']] },
               ].map((col,i) => (
                 <div key={i}>
                   <div style={{ color: 'var(--text)', fontWeight: 700, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>{col.title}</div>
@@ -389,7 +394,7 @@ export default function Home() {
           </div>
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <span style={{ color: 'var(--dim)', fontSize: '12px' }}>© 2026 DevelBot</span>
-            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>للأغراض التعليمية فقط — التداول ينطوي على مخاطر.</span>
+            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>{t('للأغراض التعليمية فقط — التداول ينطوي على مخاطر.', 'For educational purposes only — trading involves risk.')}</span>
           </div>
         </div>
       </footer>

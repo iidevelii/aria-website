@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useLang } from '../layout'
 
 // ── Indicators ───────────────────────────────────────────
 function ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
@@ -14,19 +15,19 @@ function divCalc(c: number[], rs: number[], lb=20): 'bullish'|'bearish'|null { i
 function pdCalc(vols: number[], c: number[]): 'pump'|'dump'|null { if(vols.length<22)return null;const avg=vols.slice(-21,-1).reduce((a,b)=>a+b,0)/20,chg=(c[c.length-1]-c[c.length-2])/c[c.length-2]*100;if(vols[vols.length-1]>avg*3){if(chg>3)return'pump';if(chg<-3)return'dump'}return null }
 
 // ── Pattern Detection ────────────────────────────────────
-type Pat = { type: string; emoji: string; bullish: boolean|null; confidence: number; desc: string }
+type Pat = { type: string; emoji: string; bullish: boolean|null; confidence: number; desc: { ar: string; en: string } }
 type Pv  = { idx: number; val: number }
 function pivH(hi: number[], n=5): Pv[] { const r:Pv[]=[];for(let i=n;i<hi.length-n;i++)if(hi[i]===Math.max(...hi.slice(i-n,i+n+1)))r.push({idx:i,val:hi[i]});return r }
 function pivL(lo: number[], n=5): Pv[] { const r:Pv[]=[];for(let i=n;i<lo.length-n;i++)if(lo[i]===Math.min(...lo.slice(i-n,i+n+1)))r.push({idx:i,val:lo[i]});return r }
 function detectPat(hi: number[], lo: number[], c: number[]): Pat[] {
   const ph=pivH(hi),pl=pivL(lo),res:Pat[]=[]
-  if(pl.length>=2){const[a,b]=[pl[pl.length-2],pl[pl.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Bottom',emoji:'W',bullish:true,confidence:Math.round((1-s/0.03)*90),desc:'قاع مزدوج'})}
-  if(ph.length>=2){const[a,b]=[ph[ph.length-2],ph[ph.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Top',emoji:'M',bullish:false,confidence:Math.round((1-s/0.03)*90),desc:'قمة مزدوجة'})}
-  if(ph.length>=3){const[ls,hd,rs]=ph.slice(-3);if(hd.val>ls.val&&hd.val>rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Head & Shoulders',emoji:'⛰️',bullish:false,confidence:Math.round((1-sd/0.05)*80),desc:'رأس وكتفان هبوطي'})}}
-  if(pl.length>=3){const[ls,hd,rs]=pl.slice(-3);if(hd.val<ls.val&&hd.val<rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Inv H&S',emoji:'🏔️',bullish:true,confidence:Math.round((1-sd/0.05)*80),desc:'رأس وكتفان صعودي'})}}
-  if(c.length>=30){const pole=(c[c.length-15]-c[c.length-25])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bull Flag',emoji:'🚩',bullish:true,confidence:Math.min(90,Math.round(pole*4)),desc:`بول فلاق +${pole.toFixed(1)}%`})}
-  if(c.length>=30){const pole=(c[c.length-25]-c[c.length-15])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bear Flag',emoji:'🏴',bullish:false,confidence:Math.min(90,Math.round(pole*4)),desc:`بير فلاق -${pole.toFixed(1)}%`})}
-  if(c.length>=60){const cs=c[c.length-50],ce=c[c.length-5],mid=Math.min(...c.slice(-45,-5));const s=Math.abs(cs-ce)/((cs+ce)/2),d=(Math.min(cs,ce)-mid)/Math.min(cs,ce);if(s<0.05&&d>0.10)res.push({type:'Cup & Handle',emoji:'☕',bullish:true,confidence:Math.round((1-s/0.05)*85),desc:'كوب وعروة صعودي'})}
+  if(pl.length>=2){const[a,b]=[pl[pl.length-2],pl[pl.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Bottom',emoji:'W',bullish:true,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قاع مزدوج',en:'Double bottom'}})}
+  if(ph.length>=2){const[a,b]=[ph[ph.length-2],ph[ph.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Top',emoji:'M',bullish:false,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قمة مزدوجة',en:'Double top'}})}
+  if(ph.length>=3){const[ls,hd,rs]=ph.slice(-3);if(hd.val>ls.val&&hd.val>rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Head & Shoulders',emoji:'⛰️',bullish:false,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان هبوطي',en:'Bearish head & shoulders'}})}}
+  if(pl.length>=3){const[ls,hd,rs]=pl.slice(-3);if(hd.val<ls.val&&hd.val<rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Inv H&S',emoji:'🏔️',bullish:true,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان صعودي',en:'Bullish inverse head & shoulders'}})}}
+  if(c.length>=30){const pole=(c[c.length-15]-c[c.length-25])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bull Flag',emoji:'🚩',bullish:true,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بول فلاق +${pole.toFixed(1)}%`,en:`Bull flag +${pole.toFixed(1)}%`}})}
+  if(c.length>=30){const pole=(c[c.length-25]-c[c.length-15])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bear Flag',emoji:'🏴',bullish:false,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بير فلاق -${pole.toFixed(1)}%`,en:`Bear flag -${pole.toFixed(1)}%`}})}
+  if(c.length>=60){const cs=c[c.length-50],ce=c[c.length-5],mid=Math.min(...c.slice(-45,-5));const s=Math.abs(cs-ce)/((cs+ce)/2),d=(Math.min(cs,ce)-mid)/Math.min(cs,ce);if(s<0.05&&d>0.10)res.push({type:'Cup & Handle',emoji:'☕',bullish:true,confidence:Math.round((1-s/0.05)*85),desc:{ar:'كوب وعروة صعودي',en:'Bullish cup & handle'}})}
   return res.sort((a,b)=>b.confidence-a.confidence).slice(0,2)
 }
 
@@ -84,8 +85,9 @@ function RsiArc({ v }: { v: number }) {
 
 // ── Score Badge ───────────────────────────────────────────
 function ScoreBadge({ v }: { v: number }) {
+  const { t } = useLang()
   const abs = Math.abs(v)
-  const label = abs >= 75 ? (v > 0 ? 'شراء قوي' : 'بيع قوي') : abs >= 50 ? (v > 0 ? 'شراء' : 'بيع') : abs >= 25 ? (v > 0 ? 'تصاعدي' : 'تنازلي') : 'محايد'
+  const label = abs >= 75 ? (v > 0 ? t('شراء قوي', 'Strong Buy') : t('بيع قوي', 'Strong Sell')) : abs >= 50 ? (v > 0 ? t('شراء', 'Buy') : t('بيع', 'Sell')) : abs >= 25 ? (v > 0 ? t('تصاعدي', 'Bullish') : t('تنازلي', 'Bearish')) : t('محايد', 'Neutral')
   const color = v >= 50 ? '#00e664' : v <= -50 ? '#ff4455' : v > 0 ? '#00c4ef' : v < 0 ? '#f5c842' : '#606778'
   const bg = v >= 50 ? 'rgba(0,230,100,0.1)' : v <= -50 ? 'rgba(255,68,85,0.1)' : v > 0 ? 'rgba(0,196,239,0.1)' : v < 0 ? 'rgba(245,200,66,0.1)' : 'rgba(96,103,120,0.1)'
   return (
@@ -98,6 +100,7 @@ function ScoreBadge({ v }: { v: number }) {
 
 // ── Coin Card ─────────────────────────────────────────────
 function CoinCard({ d, tf }: { d: PairData; tf: string }) {
+  const { t } = useLang()
   const sym = d.symbol.replace('USDT','')
   const isUp = d.chg24h >= 0
   const hasPat = d.patterns.length > 0
@@ -180,8 +183,8 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
         <Spark data={d.closes.slice(-30)} up={isUp} />
         {hasPat && (
           <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:'9px', color:'var(--muted)' }}>{topPat.desc}</div>
-            <div style={{ fontSize:'10px', fontWeight:700, color:'var(--purple)' }}>{topPat.confidence}% ثقة</div>
+            <div style={{ fontSize:'9px', color:'var(--muted)' }}>{t(topPat.desc.ar, topPat.desc.en)}</div>
+            <div style={{ fontSize:'10px', fontWeight:700, color:'var(--purple)' }}>{t(`${topPat.confidence}% ثقة`, `${topPat.confidence}% confidence`)}</div>
           </div>
         )}
       </div>
@@ -193,6 +196,7 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
 type Tab = 'all' | 'bull' | 'bear' | 'div' | 'pump' | 'patterns'
 
 export default function ScannerPage() {
+  const { t, lang } = useLang()
   const [tf, setTf]         = useState<typeof TFS[number]>('4h')
   const [data, setData]     = useState<PairData[]>([])
   const [loading, setLoading] = useState(false)
@@ -263,12 +267,12 @@ export default function ScannerPage() {
   const mins = Math.floor(countdown/60), secs = countdown%60
 
   const TABS: {id:Tab; label:string; count:number; color:string}[] = [
-    { id:'all',      label:'الكل',        count:data.length, color:'var(--muted)' },
-    { id:'bull',     label:'صعودي ▲',     count:bull,        color:'#00e664' },
-    { id:'bear',     label:'هبوطي ▼',     count:bear,        color:'#ff4455' },
-    { id:'div',      label:'تباعد',       count:divN,        color:'var(--cyan)' },
-    { id:'pump',     label:'Pump/Dump',   count:pumpN,       color:'var(--yellow)' },
-    { id:'patterns', label:'نماذج',       count:patN,        color:'var(--purple)' },
+    { id:'all',      label:t('الكل','All'),           count:data.length, color:'var(--muted)' },
+    { id:'bull',     label:t('صعودي ▲','Bullish ▲'),  count:bull,        color:'#00e664' },
+    { id:'bear',     label:t('هبوطي ▼','Bearish ▼'),  count:bear,        color:'#ff4455' },
+    { id:'div',      label:t('تباعد','Divergence'),   count:divN,        color:'var(--cyan)' },
+    { id:'pump',     label:'Pump/Dump',               count:pumpN,       color:'var(--yellow)' },
+    { id:'patterns', label:t('نماذج','Patterns'),     count:patN,        color:'var(--purple)' },
   ]
 
   return (
@@ -279,8 +283,8 @@ export default function ScannerPage() {
         <div style={{ maxWidth:'1400px', margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', height:'56px', gap:'12px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <h1 style={{ fontSize:'16px', fontWeight:900, margin:0, letterSpacing:'-0.02em' }}>Market Scanner</h1>
-            {lastScan && <span style={{ fontSize:'11px', color:'var(--muted)' }}>آخر مسح {lastScan.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}</span>}
-            {loading && <span style={{ fontSize:'11px', color:'var(--cyan)', animation:'pulse 1s infinite' }}>● مسح {progress}%</span>}
+            {lastScan && <span style={{ fontSize:'11px', color:'var(--muted)' }}>{t('آخر مسح', 'Last scan')} {lastScan.toLocaleTimeString(lang==='ar'?'ar-SA':'en-US',{hour:'2-digit',minute:'2-digit'})}</span>}
+            {loading && <span style={{ fontSize:'11px', color:'var(--cyan)', animation:'pulse 1s infinite' }}>{t(`● مسح ${progress}%`, `● Scanning ${progress}%`)}</span>}
           </div>
           <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
             {/* TF */}
@@ -293,9 +297,9 @@ export default function ScannerPage() {
             {/* Sort */}
             <select value={sort} onChange={e => setSort(e.target.value as any)}
               style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:'7px', padding:'6px 10px', color:'var(--text)', fontSize:'11px', fontFamily:'inherit', fontWeight:600 }}>
-              <option value="score">ترتيب: Score</option>
-              <option value="rsi">ترتيب: RSI</option>
-              <option value="chg">ترتيب: 24h%</option>
+              <option value="score">{t('ترتيب: Score', 'Sort: Score')}</option>
+              <option value="rsi">{t('ترتيب: RSI', 'Sort: RSI')}</option>
+              <option value="chg">{t('ترتيب: 24h%', 'Sort: 24h%')}</option>
             </select>
             {/* Countdown */}
             {!loading && (
@@ -305,7 +309,7 @@ export default function ScannerPage() {
             )}
             <button onClick={() => scan()} disabled={loading}
               style={{ padding:'7px 16px', background:'var(--cyan)', color:'#000', border:'none', borderRadius:'7px', fontWeight:800, fontSize:'12px', cursor:loading?'not-allowed':'pointer', opacity:loading?0.5:1, fontFamily:'inherit' }}>
-              {loading ? `${progress}%` : '↺ مسح'}
+              {loading ? `${progress}%` : t('↺ مسح', '↺ Scan')}
             </button>
           </div>
         </div>
@@ -338,14 +342,14 @@ export default function ScannerPage() {
         {data.length === 0 && !loading ? (
           <div style={{ textAlign:'center', padding:'80px 0' }}>
             <div style={{ fontSize:'48px', marginBottom:'16px' }}>📡</div>
-            <div style={{ fontWeight:800, fontSize:'18px', marginBottom:'8px' }}>جاهز للمسح</div>
-            <div style={{ color:'var(--muted)', fontSize:'13px', marginBottom:'20px' }}>اضغط "مسح" لفحص {PAIRS.length} عملة وتحليل المؤشرات</div>
-            <button onClick={() => scan()} style={{ padding:'12px 28px', background:'var(--cyan)', color:'#000', border:'none', borderRadius:'10px', fontWeight:800, fontSize:'14px', cursor:'pointer', fontFamily:'inherit' }}>▶ ابدأ المسح</button>
+            <div style={{ fontWeight:800, fontSize:'18px', marginBottom:'8px' }}>{t('جاهز للمسح', 'Ready to scan')}</div>
+            <div style={{ color:'var(--muted)', fontSize:'13px', marginBottom:'20px' }}>{t(`اضغط "مسح" لفحص ${PAIRS.length} عملة وتحليل المؤشرات`, `Press "Scan" to analyze ${PAIRS.length} coins and their indicators`)}</div>
+            <button onClick={() => scan()} style={{ padding:'12px 28px', background:'var(--cyan)', color:'#000', border:'none', borderRadius:'10px', fontWeight:800, fontSize:'14px', cursor:'pointer', fontFamily:'inherit' }}>{t('▶ ابدأ المسح', '▶ Start scan')}</button>
           </div>
         ) : (
           <>
             {filtered.length === 0 && data.length > 0 && (
-              <div style={{ textAlign:'center', padding:'60px', color:'var(--muted)' }}>لا توجد عملات تطابق هذا الفلتر حالياً</div>
+              <div style={{ textAlign:'center', padding:'60px', color:'var(--muted)' }}>{t('لا توجد عملات تطابق هذا الفلتر حالياً', 'No coins currently match this filter')}</div>
             )}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'12px' }}>
               {filtered.map(d => <CoinCard key={d.symbol} d={d} tf={tf} />)}

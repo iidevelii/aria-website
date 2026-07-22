@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
+import { useLang } from '../layout'
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
 function _rsi(c: number[], p=14) { if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}const ag=g/p,al=l/p;return al===0?100:100-100/(1+ag/al) }
@@ -111,6 +112,7 @@ function evalStrategy(r: Result, conds: Condition[], logic: Logic): boolean {
 }
 
 export default function StrategyBuilderPage() {
+  const { t, lang } = useLang()
   const [conditions, setConditions] = useState<Condition[]>([newCond()])
   const [logic, setLogic] = useState<Logic>('AND')
   const [stratName, setStratName] = useState('')
@@ -126,14 +128,52 @@ export default function StrategyBuilderPage() {
   const remCond = (id: string) => setConditions(cs => cs.filter(c => c.id !== id))
   const updCond = (id: string, field: string, val: string) => setConditions(cs => cs.map(c => c.id===id?{...c,[field]:val}:c))
 
+  const indicatorLabel = (id: string): string => {
+    const map: Record<string, [string, string]> = {
+      rsi: ['RSI', 'RSI'],
+      adx: ['ADX', 'ADX'],
+      score: ['Score', 'Score'],
+      bb: ['Bollinger %', 'Bollinger %'],
+      chg: ['تغير 24h %', '24h Change %'],
+      macd: ['MACD', 'MACD'],
+      st: ['Supertrend', 'Supertrend'],
+    }
+    const pair = map[id]
+    return pair ? t(pair[0], pair[1]) : id
+  }
+
+  const enumOptionLabel = (indicatorId: string, value: string): string => {
+    const map: Record<string, Record<string, [string, string]>> = {
+      macd: { bullish: ['صعودي', 'Bullish'], bearish: ['هبوطي', 'Bearish'] },
+      st: { up: ['صاعد ▲', 'Up ▲'], down: ['هابط ▼', 'Down ▼'] },
+    }
+    const pair = map[indicatorId]?.[value]
+    return pair ? t(pair[0], pair[1]) : value
+  }
+
+  const opLabel = (v: string): string => v === 'between' ? t('بين', 'between') : v
+
+  const presetLabel = (id: string): string => {
+    const map: Record<string, [string, string]> = {
+      buy: ['إشارة شراء', 'Buy Signal'],
+      sell: ['إشارة بيع', 'Sell Signal'],
+      strong: ['فرصة قوية', 'Strong Opportunity'],
+      oversold: ['ارتداد محتمل', 'Potential Rebound'],
+    }
+    const pair = map[id]
+    return pair ? t(pair[0], pair[1]) : id
+  }
+
+  const pairCountLabel = (value: number, label: string): string => value === 999 ? t('الكل', 'All') : label
+
   const loadPreset = (p: Strategy) => {
     setConditions(p.conditions.map(c => ({ ...c, id: Date.now() + c.id })))
     setLogic(p.logic)
-    setStratName(p.name)
+    setStratName(presetLabel(p.id))
   }
 
   const saveStrat = () => {
-    if (!stratName.trim()) { alert('أدخل اسم الاستراتيجية'); return }
+    if (!stratName.trim()) { alert(t('أدخل اسم الاستراتيجية', 'Please enter a strategy name')); return }
     const s: Strategy = { id: Date.now().toString(), name: stratName, conditions, logic, createdAt: new Date().toISOString() }
     const next = [s, ...loadStrats()]; saveStrats(next); setSaved(next)
   }
@@ -182,8 +222,8 @@ export default function StrategyBuilderPage() {
       <div style={{ background: 'linear-gradient(135deg, rgba(0,196,239,0.06) 0%, rgba(107,31,255,0.06) 100%)', borderBottom: '1px solid var(--border)', padding: '28px 32px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 4px' }}>منشئ الاستراتيجيات</h1>
-            <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0 }}>صمّم شروطك التقنية واكتشف أفضل الفرص من جميع عملات Binance</p>
+            <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 4px' }}>{t('منشئ الاستراتيجيات', 'Strategy Builder')}</h1>
+            <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0 }}>{t('صمّم شروطك التقنية واكتشف أفضل الفرص من جميع عملات Binance', 'Design your technical conditions and discover the best opportunities across all Binance pairs')}</p>
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {PRESETS.map(p => (
@@ -191,7 +231,7 @@ export default function StrategyBuilderPage() {
                 style={{ padding: '8px 16px', borderRadius: '9px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='var(--cyan)'; e.currentTarget.style.color='var(--cyan)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text)' }}>
-                {p.name}
+                {presetLabel(p.id)}
               </button>
             ))}
           </div>
@@ -206,7 +246,7 @@ export default function StrategyBuilderPage() {
           {/* Conditions Card */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 800, fontSize: '14px' }}>الشروط</span>
+              <span style={{ fontWeight: 800, fontSize: '14px' }}>{t('الشروط', 'Conditions')}</span>
               <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '8px', padding: '3px', gap: '2px' }}>
                 {(['AND','OR'] as const).map(l => (
                   <button key={l} onClick={() => setLogic(l)}
@@ -229,18 +269,18 @@ export default function StrategyBuilderPage() {
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <select value={c.indicator} onChange={e => updCond(c.id, 'indicator', e.target.value)}
                           style={{ flex: 1, minWidth: '120px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '7px', padding: '8px 10px', color: 'var(--text)', fontSize: '12px', fontFamily: 'inherit', fontWeight: 600 }}>
-                          {INDICATORS.map(ind => <option key={ind.id} value={ind.id}>{ind.label}</option>)}
+                          {INDICATORS.map(ind => <option key={ind.id} value={ind.id}>{indicatorLabel(ind.id)}</option>)}
                         </select>
 
                         {def?.type === 'number' && (<>
                           <select value={c.operator} onChange={e => updCond(c.id, 'operator', e.target.value)}
                             style={{ width: '68px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '7px', padding: '8px 6px', color: 'var(--text)', fontSize: '13px', fontFamily: 'var(--mono)' }}>
-                            {NUM_OPS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                            {NUM_OPS.map(o => <option key={o.v} value={o.v}>{opLabel(o.v)}</option>)}
                           </select>
                           <input type="number" value={c.value} onChange={e => updCond(c.id, 'value', e.target.value)}
                             style={{ width: '62px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '7px', padding: '8px', color: 'var(--cyan)', fontSize: '13px', fontFamily: 'var(--mono)', fontWeight: 700, textAlign: 'center' }}/>
                           {c.operator === 'between' && <>
-                            <span style={{ color: 'var(--muted)', fontSize: '12px' }}>و</span>
+                            <span style={{ color: 'var(--muted)', fontSize: '12px' }}>{t('و', 'and')}</span>
                             <input type="number" value={c.value2||''} onChange={e => updCond(c.id, 'value2', e.target.value)}
                               style={{ width: '62px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '7px', padding: '8px', color: 'var(--cyan)', fontSize: '13px', fontFamily: 'var(--mono)', fontWeight: 700, textAlign: 'center' }}/>
                           </>}
@@ -249,7 +289,7 @@ export default function StrategyBuilderPage() {
                         {def?.type === 'enum' && (
                           <select value={c.value} onChange={e => updCond(c.id, 'value', e.target.value)}
                             style={{ flex: 1, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '7px', padding: '8px 10px', color: 'var(--text)', fontSize: '12px', fontFamily: 'inherit' }}>
-                            {def.options?.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                            {def.options?.map(o => <option key={o.v} value={o.v}>{enumOptionLabel(def.id, o.v)}</option>)}
                           </select>
                         )}
 
@@ -265,7 +305,7 @@ export default function StrategyBuilderPage() {
                 style={{ width: '100%', padding: '10px', background: 'transparent', border: '1.5px dashed var(--border)', color: 'var(--muted)', borderRadius: '9px', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600, marginTop: '4px', transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor='var(--cyan)'; e.currentTarget.style.color='var(--cyan)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--muted)' }}>
-                + إضافة شرط
+                {t('+ إضافة شرط', '+ Add condition')}
               </button>
             </div>
           </div>
@@ -274,34 +314,34 @@ export default function StrategyBuilderPage() {
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>الإطار الزمني</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{t('الإطار الزمني', 'Timeframe')}</div>
                 <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '8px', padding: '3px', gap: '2px' }}>
-                  {TFS.map(t => (
-                    <button key={t} onClick={() => setTf(t)}
-                      style={{ flex: 1, padding: '6px 2px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, background: tf===t?'var(--cyan)':'transparent', color: tf===t?'#000':'var(--muted)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>{t}</button>
+                  {TFS.map(tfOpt => (
+                    <button key={tfOpt} onClick={() => setTf(tfOpt)}
+                      style={{ flex: 1, padding: '6px 2px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, background: tf===tfOpt?'var(--cyan)':'transparent', color: tf===tfOpt?'#000':'var(--muted)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>{tfOpt}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>عدد العملات</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{t('عدد العملات', 'Number of pairs')}</div>
                 <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: '8px', padding: '3px', gap: '2px' }}>
                   {PAIR_COUNTS.map(p => (
                     <button key={p.value} onClick={() => setPairCount(p.value)}
-                      style={{ flex: 1, padding: '6px 2px', borderRadius: '6px', fontSize: '10px', fontWeight: 700, background: pairCount===p.value?'var(--purple)':'transparent', color: pairCount===p.value?'#fff':'var(--muted)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>{p.label}</button>
+                      style={{ flex: 1, padding: '6px 2px', borderRadius: '6px', fontSize: '10px', fontWeight: 700, background: pairCount===p.value?'var(--purple)':'transparent', color: pairCount===p.value?'#fff':'var(--muted)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>{pairCountLabel(p.value, p.label)}</button>
                   ))}
                 </div>
               </div>
             </div>
             <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>اسم الاستراتيجية</div>
-              <input value={stratName} onChange={e => setStratName(e.target.value)} placeholder="مثال: استراتيجية RSI"
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{t('اسم الاستراتيجية', 'Strategy name')}</div>
+              <input value={stratName} onChange={e => setStratName(e.target.value)} placeholder={t('مثال: استراتيجية RSI', 'e.g. RSI Strategy')}
                 style={{ width: '100%', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 10px', color: 'var(--text)', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' }}/>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
               <button onClick={runScan} disabled={loading}
                 style={{ padding: '13px', background: loading?'var(--surface-2)':'var(--cyan)', color: loading?'var(--muted)':'#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '14px', cursor: loading?'not-allowed':'pointer', fontFamily: 'inherit', letterSpacing: '-0.01em', transition: 'all 0.2s' }}>
-                {loading ? `جارٍ المسح… ${progress}%` : '▶  ابدأ المسح'}
+                {loading ? `${t('جارٍ المسح…', 'Scanning…')} ${progress}%` : `▶  ${t('ابدأ المسح', 'Start scan')}`}
               </button>
               <button onClick={saveStrat}
                 style={{ padding: '13px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>💾</button>
@@ -312,7 +352,7 @@ export default function StrategyBuilderPage() {
                 <div style={{ height: '4px', background: 'var(--surface-2)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg,var(--cyan),var(--purple))', borderRadius: '4px', transition: 'width 0.4s ease' }}/>
                 </div>
-                <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--muted)', textAlign: 'center' }}>تم تحليل {results.length} من {totalPairs} عملة…</div>
+                <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--muted)', textAlign: 'center' }}>{t(`تم تحليل ${results.length} من ${totalPairs} عملة…`, `Analyzed ${results.length} of ${totalPairs} coins…`)}</div>
               </div>
             )}
           </div>
@@ -320,16 +360,16 @@ export default function StrategyBuilderPage() {
           {/* Saved Strategies */}
           {saved.length > 0 && (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', fontWeight: 800, fontSize: '13px' }}>المحفوظة</div>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', fontWeight: 800, fontSize: '13px' }}>{t('المحفوظة', 'Saved')}</div>
               {saved.map((s, i) => (
                 <div key={s.id} style={{ padding: '12px 20px', borderBottom: i < saved.length-1 ? '1px solid var(--border)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '13px' }}>{s.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{s.conditions.length} شرط · {s.logic}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{s.conditions.length} {t('شرط', 'conditions')} · {s.logic}</div>
                   </div>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    <button onClick={() => loadSaved(s)} style={{ background: 'rgba(0,196,239,0.08)', border: '1px solid rgba(0,196,239,0.2)', color: 'var(--cyan)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>تحميل</button>
-                    <button onClick={() => deleteSaved(s.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>حذف</button>
+                    <button onClick={() => loadSaved(s)} style={{ background: 'rgba(0,196,239,0.08)', border: '1px solid rgba(0,196,239,0.2)', color: 'var(--cyan)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>{t('تحميل', 'Load')}</button>
+                    <button onClick={() => deleteSaved(s.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
                   </div>
                 </div>
               ))}
@@ -342,10 +382,10 @@ export default function StrategyBuilderPage() {
           {results.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
               {[
-                { label: 'العملات المفحوصة', value: results.length,  color: 'var(--text)' },
-                { label: 'تطابق الشروط',     value: passed.length,   color: 'var(--cyan)' },
-                { label: 'نسبة التطابق',      value: `${results.length ? Math.round(passed.length/results.length*100) : 0}%`, color: passed.length>0?'#00e664':'var(--muted)' },
-                { label: 'الإطار الزمني',     value: tf,              color: 'var(--yellow)' },
+                { label: t('العملات المفحوصة', 'Coins scanned'), value: results.length,  color: 'var(--text)' },
+                { label: t('تطابق الشروط', 'Matched conditions'),     value: passed.length,   color: 'var(--cyan)' },
+                { label: t('نسبة التطابق', 'Match rate'),      value: `${results.length ? Math.round(passed.length/results.length*100) : 0}%`, color: passed.length>0?'#00e664':'var(--muted)' },
+                { label: t('الإطار الزمني', 'Timeframe'),     value: tf,              color: 'var(--yellow)' },
               ].map(s => (
                 <div key={s.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 600 }}>{s.label}</div>
@@ -359,16 +399,16 @@ export default function StrategyBuilderPage() {
             {results.length === 0 ? (
               <div style={{ padding: '64px 32px', textAlign: 'center' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-                <div style={{ fontWeight: 800, fontSize: '16px', marginBottom: '6px' }}>ابدأ بتحديد شروطك</div>
-                <div style={{ color: 'var(--muted)', fontSize: '13px' }}>أضف الشروط التقنية ثم اضغط "ابدأ المسح" لاكتشاف الفرص</div>
+                <div style={{ fontWeight: 800, fontSize: '16px', marginBottom: '6px' }}>{t('ابدأ بتحديد شروطك', 'Start by defining your conditions')}</div>
+                <div style={{ color: 'var(--muted)', fontSize: '13px' }}>{t('أضف الشروط التقنية ثم اضغط "ابدأ المسح" لاكتشاف الفرص', 'Add your technical conditions then click "Start scan" to discover opportunities')}</div>
               </div>
             ) : (
               <>
                 <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontWeight: 800, fontSize: '14px' }}>النتائج</span>
+                  <span style={{ fontWeight: 800, fontSize: '14px' }}>{t('النتائج', 'Results')}</span>
                   {passed.length > 0 && (
                     <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: '#00e664', border: '1px solid rgba(0,230,100,0.2)' }}>
-                      {passed.length} فرصة مطابقة
+                      {passed.length} {t('فرصة مطابقة', 'matching opportunities')}
                     </span>
                   )}
                 </div>
@@ -376,8 +416,8 @@ export default function StrategyBuilderPage() {
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                     <thead>
                       <tr>
-                        {['العملة','السعر','24h%','RSI','ADX','Supertrend','MACD','Score','الحالة'].map(h => (
-                          <th key={h} style={{ padding: '11px 16px', textAlign: 'right', fontSize: '10px', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{h}</th>
+                        {[t('العملة','Coin'), t('السعر','Price'), '24h%', 'RSI', 'ADX', 'Supertrend', 'MACD', 'Score', t('الحالة','Status')].map(h => (
+                          <th key={h} style={{ padding: '11px 16px', textAlign: lang==='en' ? 'left' : 'right', fontSize: '10px', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -395,12 +435,12 @@ export default function StrategyBuilderPage() {
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 700, color: r.chg>=0?'#00e664':'#ff4455' }}>{r.chg>=0?'+':''}{r.chg.toFixed(2)}%</td>
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', color: r.rsi>=70?'#ff4455':r.rsi<=30?'var(--cyan)':'var(--text)' }}>{r.rsi.toFixed(1)}</td>
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', color: r.adx>25?'var(--yellow)':'var(--muted)' }}>{r.adx.toFixed(1)}</td>
-                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.st==='up'?'#00e664':'#ff4455' }}>{r.st==='up'?'▲ صاعد':'▼ هابط'}</td>
+                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.st==='up'?'#00e664':'#ff4455' }}>{r.st==='up'?`▲ ${t('صاعد','Up')}`:`▼ ${t('هابط','Down')}`}</td>
                           <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.macd?'#00e664':'#ff4455' }}>{r.macd?'▲':'▼'}</td>
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '13px', fontWeight: 900, color: r.score>=50?'#00e664':r.score<=-50?'#ff4455':r.score>0?'var(--cyan)':'var(--muted)' }}>{r.score>0?'+':''}{r.score}</td>
                           <td style={{ padding: '12px 16px' }}>
                             {r.passed
-                              ? <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: '#00e664', border: '1px solid rgba(0,230,100,0.2)', whiteSpace: 'nowrap' }}>✓ مطابق</span>
+                              ? <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: '#00e664', border: '1px solid rgba(0,230,100,0.2)', whiteSpace: 'nowrap' }}>{`✓ ${t('مطابق','Matched')}`}</span>
                               : <span style={{ fontSize: '11px', color: 'var(--dim)' }}>—</span>
                             }
                           </td>

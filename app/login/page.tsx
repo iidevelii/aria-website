@@ -2,9 +2,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useLang } from '../layout'
 
 export default function Login() {
   const router = useRouter()
+  const { t } = useLang()
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,10 +27,10 @@ export default function Login() {
         localStorage.setItem('user_id', data.user_id)
         router.push('/dashboard')
       } else {
-        setError(data.detail || 'خطأ في الدخول')
+        setError(data.detail || t('خطأ في الدخول', 'Login error'))
       }
     } catch {
-      setError('تعذر الاتصال بالسيرفر')
+      setError(t('تعذر الاتصال بالسيرفر', 'Could not connect to the server'))
     }
     setLoading(false)
   }
@@ -46,8 +48,8 @@ export default function Login() {
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
             <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
           </Link>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>مرحباً بعودتك</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>سجّل دخولك للوصول لإشاراتك</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>{t('مرحباً بعودتك', 'Welcome back')}</h1>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('سجّل دخولك للوصول لإشاراتك', 'Log in to access your signals')}</p>
         </div>
 
         {/* Card */}
@@ -60,7 +62,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label className="label">الايميل</label>
+              <label className="label">{t('الايميل', 'Email')}</label>
               <input
                 type="email" required
                 className="input"
@@ -70,7 +72,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="label">كلمة السر</label>
+              <label className="label">{t('كلمة السر', 'Password')}</label>
               <input
                 type="password" required
                 className="input"
@@ -80,28 +82,28 @@ export default function Login() {
               />
             </div>
             <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', marginTop: '8px', opacity: loading ? 0.6 : 1 }}>
-              {loading ? 'جاري الدخول...' : 'دخول ←'}
+              {loading ? t('جاري الدخول...', 'Logging in...') : t('دخول ←', 'Login →')}
             </button>
           </form>
 
           <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
             <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-              ما عندك حساب؟{' '}
+              {t('ما عندك حساب؟', "Don't have an account?")}{' '}
               <div style={{ textAlign: 'left', marginTop: '-8px' }}>
   <Link href="/forgot-password" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>
-    نسيت كلمة المرور؟
+    {t('نسيت كلمة المرور؟', 'Forgot your password?')}
   </Link>
 </div>
-              <Link href="/register" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>سجّل مجاناً</Link>
+              <Link href="/register" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('سجّل مجاناً', 'Sign up free')}</Link>
             </p>
           </div>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
           <Link href="/activate" style={{ color: '#00c4ef', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
-            🔑 تفعيل برقم التحويل
+            🔑 {t('تفعيل برقم التحويل', 'Activate with transfer number')}
           </Link>
-          <Link href="/dashboard" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>تصفح بدون تسجيل ←</Link>
+          <Link href="/dashboard" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>{t('تصفح بدون تسجيل ←', 'Browse without signing in →')}</Link>
         </div>
       </div>
     </div>

@@ -2,8 +2,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { useLang } from '../layout'
 
 function ChartView() {
+  const { t } = useLang()
   const searchParams = useSearchParams()
   const symbol = searchParams.get('symbol') || 'BTCUSDT'
   const entry = parseFloat(searchParams.get('entry') || '0')
@@ -56,15 +58,15 @@ function ChartView() {
 
       // خطوط
       if (entry > 0) {
-        series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'دخول' })
+        series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('دخول', 'Entry') })
       }
       if (tp > 0) {
-        series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'هدف' })
+        series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
       }
       if (sl > 0) {
-        series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'وقف' })
+        series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
       }
-      curLineRef.current = series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: 'الحالي' })
+      curLineRef.current = series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: t('الحالي', 'Current') })
 
       chart.timeScale().fitContent()
     }
@@ -116,7 +118,7 @@ function ChartView() {
           {currentPrice > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: live ? '#00e664' : '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-              {live && <span style={{ fontSize: '10px', color: '#00e664', fontWeight: 700 }}>لايف</span>}
+              {live && <span style={{ fontSize: '10px', color: '#00e664', fontWeight: 700 }}>{t('لايف', 'Live')}</span>}
               <span style={{ fontFamily: 'monospace', fontSize: '20px', fontWeight: 900 }}>${currentPrice.toLocaleString()}</span>
               <span style={{ fontWeight: 800, fontSize: '16px', color: pct >= 0 ? '#00e664' : '#ff5555', background: pct >= 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', padding: '4px 10px', borderRadius: '8px' }}>
                 {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%

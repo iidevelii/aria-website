@@ -1,22 +1,25 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import { useLang } from '../layout'
 
 type Message = { role: 'user' | 'assistant'; content: string; ts: Date }
 
 const API = 'https://web-production-97af6.up.railway.app'
 
-const QUICK = [
-  'كيف أقرأ إشارة LONG بشكل صحيح؟',
-  'ما الفرق بين Spot v11 و Futures v13؟',
-  'كيف أستخدم RSI في التداول؟',
-  'ما هو ADX وكيف أفسره؟',
-  'متى أدخل صفقة وفق الاستراتيجية؟',
-  'كيف أحدد حجم الصفقة المناسب؟',
-  'ما هو Supertrend وكيف يعمل؟',
-  'كيف أقرأ تباعد RSI (Divergence)؟',
+const QUICK: [string, string][] = [
+  ['كيف أقرأ إشارة LONG بشكل صحيح؟', 'How do I read a LONG signal correctly?'],
+  ['ما الفرق بين Spot v11 و Futures v13؟', "What's the difference between Spot v11 and Futures v13?"],
+  ['كيف أستخدم RSI في التداول؟', 'How do I use RSI in trading?'],
+  ['ما هو ADX وكيف أفسره؟', 'What is ADX and how do I interpret it?'],
+  ['متى أدخل صفقة وفق الاستراتيجية؟', 'When should I enter a trade according to the strategy?'],
+  ['كيف أحدد حجم الصفقة المناسب؟', 'How do I determine the right position size?'],
+  ['ما هو Supertrend وكيف يعمل؟', 'What is Supertrend and how does it work?'],
+  ['كيف أقرأ تباعد RSI (Divergence)؟', 'How do I read RSI divergence?'],
 ]
 
-const WELCOME = `مرحباً! أنا **Devel**، مساعد التداول الذكي من DevelBot.
+function getWelcome(t: (ar: string, en: string) => string) {
+  return t(
+    `مرحباً! أنا **Devel**، مساعد التداول الذكي من DevelBot.
 
 يمكنني مساعدتك في:
 - 📊 قراءة وتفسير الإشارات
@@ -24,7 +27,18 @@ const WELCOME = `مرحباً! أنا **Devel**، مساعد التداول ال
 - 🎯 استراتيجيات إدارة المخاطر
 - 🤔 الإجابة على أسئلتك عن التداول
 
-كيف يمكنني مساعدتك اليوم؟`
+كيف يمكنني مساعدتك اليوم؟`,
+    `Hello! I'm **Devel**, DevelBot's smart trading assistant.
+
+I can help you with:
+- 📊 Reading and interpreting signals
+- 📈 Explaining technical indicators
+- 🎯 Risk management strategies
+- 🤔 Answering your trading questions
+
+How can I help you today?`
+  )
+}
 
 function Avatar({ role }: { role: 'user' | 'assistant' }) {
   return (
@@ -51,6 +65,7 @@ function TypingDot() {
 }
 
 function Bubble({ msg, last }: { msg: Message; last: boolean }) {
+  const { lang } = useLang()
   const isAI = msg.role === 'assistant'
   const parts = msg.content.split(/(\*\*[^*]+\*\*)/g)
 
@@ -70,7 +85,7 @@ function Bubble({ msg, last }: { msg: Message; last: boolean }) {
             : <span key={i}>{p}</span>
         )}
         <div style={{ fontSize: '10px', marginTop: '6px', opacity: 0.5, textAlign: 'left' }}>
-          {msg.ts.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+          {msg.ts.toLocaleTimeString(lang === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
       {!isAI && <Avatar role="user" />}
@@ -79,8 +94,9 @@ function Bubble({ msg, last }: { msg: Message; last: boolean }) {
 }
 
 export default function AIAssistantPage() {
+  const { t } = useLang()
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: WELCOME, ts: new Date() }
+    { role: 'assistant', content: getWelcome(t), ts: new Date() }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -113,7 +129,7 @@ export default function AIAssistantPage() {
       const aiMsg: Message = { role: 'assistant', content: data.response || data.error, ts: new Date() }
       setMessages(prev => [...prev, aiMsg])
     } catch (e: any) {
-      setError('حدث خطأ في الاتصال — تحقق من الاتصال بالإنترنت')
+      setError(t('حدث خطأ في الاتصال — تحقق من الاتصال بالإنترنت', 'A connection error occurred — check your internet connection'))
     } finally {
       setLoading(false)
     }
@@ -124,7 +140,7 @@ export default function AIAssistantPage() {
   }
 
   const clear = () => {
-    setMessages([{ role: 'assistant', content: WELCOME, ts: new Date() }])
+    setMessages([{ role: 'assistant', content: getWelcome(t), ts: new Date() }])
     setError('')
   }
 
@@ -139,22 +155,22 @@ export default function AIAssistantPage() {
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#00c4ef,#6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#fff' }}>D</div>
               <div>
                 <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em' }}>Devel</div>
-                <div style={{ fontSize: '11px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><span className="live-dot"/>مساعد تداول ذكي</div>
+                <div style={{ fontSize: '11px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><span className="live-dot"/>{t('مساعد تداول ذكي', 'Smart trading assistant')}</div>
               </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={clear} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', padding: '7px 14px', borderRadius: '7px', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>مسح المحادثة</button>
+            <button onClick={clear} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', padding: '7px 14px', borderRadius: '7px', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('مسح المحادثة', 'Clear conversation')}</button>
           </div>
         </div>
 
         {/* Quick prompts */}
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
-          {QUICK.map((q, i) => (
-            <button key={i} onClick={() => send(q)} disabled={loading} style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--muted)', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+          {QUICK.map(([ar, en], i) => (
+            <button key={i} onClick={() => send(t(ar, en))} disabled={loading} style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--muted)', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget.style.borderColor = 'var(--cyan)'); (e.currentTarget.style.color = 'var(--cyan)') }}
               onMouseLeave={e => { (e.currentTarget.style.borderColor = 'var(--border)'); (e.currentTarget.style.color = 'var(--muted)') }}
-            >{q}</button>
+            >{t(ar, en)}</button>
           ))}
         </div>
 
@@ -177,7 +193,7 @@ export default function AIAssistantPage() {
           {/* Input */}
           <div style={{ padding: '14px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
             <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
-              placeholder="اسأل Devel عن التداول..." rows={1} disabled={loading}
+              placeholder={t('اسأل Devel عن التداول...', 'Ask Devel about trading...')} rows={1} disabled={loading}
               style={{ flex: 1, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '10px 14px', color: 'var(--text)', fontSize: '13px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: 1.5, minHeight: '42px', maxHeight: '120px', transition: 'border-color 0.15s' }}
               onFocus={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
               onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
@@ -189,7 +205,7 @@ export default function AIAssistantPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--dim)', marginTop: '12px' }}>
-          ⚠️ Devel تقدم تحليلاً تعليمياً فقط — ليست نصيحة مالية
+          {t('⚠️ Devel تقدم تحليلاً تعليمياً فقط — ليست نصيحة مالية', '⚠️ Devel provides educational analysis only — not financial advice')}
         </p>
       </div>
     </div>

@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useLang } from '../layout'
 
 export default function ForgotPassword() {
+  const { t } = useLang()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -19,9 +21,9 @@ export default function ForgotPassword() {
         body: JSON.stringify({ email })
       })
       if (res.ok) setSent(true)
-      else setError('حدث خطأ — حاول مجدداً')
+      else setError(t('حدث خطأ — حاول مجدداً', 'Something went wrong — please try again'))
     } catch {
-      setError('تعذر الاتصال بالسيرفر')
+      setError(t('تعذر الاتصال بالسيرفر', 'Could not connect to the server'))
     }
     setLoading(false)
   }
@@ -30,17 +32,17 @@ export default function ForgotPassword() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>نسيت كلمة المرور؟</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>أدخل إيميلك وراح نرسل لك رابط الاستعادة</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>{t('نسيت كلمة المرور؟', 'Forgot your password?')}</h1>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('أدخل إيميلك وراح نرسل لك رابط الاستعادة', 'Enter your email and we\'ll send you a reset link')}</p>
         </div>
         <div className="glass-card">
           {sent ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
-              <h2 style={{ color: 'var(--cyan)', marginBottom: '12px' }}>تم الإرسال!</h2>
-              <p style={{ color: 'var(--muted)', fontSize: '15px' }}>تحقق من إيميلك واضغط على الرابط</p>
+              <h2 style={{ color: 'var(--cyan)', marginBottom: '12px' }}>{t('تم الإرسال!', 'Sent!')}</h2>
+              <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('تحقق من إيميلك واضغط على الرابط', 'Check your email and click the link')}</p>
               <Link href="/login" style={{ display: 'inline-block', marginTop: '24px', color: 'var(--cyan)', textDecoration: 'none' }}>
-                رجوع لتسجيل الدخول
+                {t('رجوع لتسجيل الدخول', 'Back to login')}
               </Link>
             </div>
           ) : (
@@ -51,17 +53,17 @@ export default function ForgotPassword() {
                 </div>
               )}
               <div>
-                <label className="label">الإيميل</label>
+                <label className="label">{t('الإيميل', 'Email')}</label>
                 <input type="email" required className="input" value={email}
                   onChange={e => setEmail(e.target.value)} placeholder="your@email.com" />
               </div>
               <button type="submit" disabled={loading} className="btn-primary"
                 style={{ width: '100%', opacity: loading ? 0.6 : 1 }}>
-                {loading ? 'جاري الإرسال...' : 'إرسال رابط الاستعادة'}
+                {loading ? t('جاري الإرسال...', 'Sending...') : t('إرسال رابط الاستعادة', 'Send reset link')}
               </button>
               <div style={{ textAlign: 'center' }}>
                 <Link href="/login" style={{ color: 'var(--muted)', fontSize: '14px', textDecoration: 'none' }}>
-                  رجوع لتسجيل الدخول
+                  {t('رجوع لتسجيل الدخول', 'Back to login')}
                 </Link>
               </div>
             </form>

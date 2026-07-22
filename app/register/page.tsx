@@ -2,9 +2,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useLang } from '../layout'
 
 export default function Register() {
   const router = useRouter()
+  const { t } = useLang()
   const [form, setForm] = useState({ email: '', username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,10 +27,10 @@ export default function Register() {
         localStorage.setItem('user_id', data.user_id)
         router.push('/dashboard')
       } else {
-        setError(data.detail || 'حدث خطأ')
+        setError(data.detail || t('حدث خطأ', 'Something went wrong'))
       }
     } catch {
-      setError('تعذر الاتصال بالسيرفر')
+      setError(t('تعذر الاتصال بالسيرفر', 'Could not connect to the server'))
     }
     setLoading(false)
   }
@@ -49,11 +51,11 @@ export default function Register() {
 
           <div className="badge" style={{ marginBottom: '20px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88', display: 'inline-block' }}></span>
-            14 يوم تجربة مجانية — بدون بطاقة
+            {t('14 يوم تجربة مجانية — بدون بطاقة', '14-day free trial — no card required')}
           </div>
 
-          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>انشئ حسابك</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>ابدأ رحلتك مع DevelBot مجاناً</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>{t('انشئ حسابك', 'Create your account')}</h1>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('ابدأ رحلتك مع DevelBot مجاناً', 'Start your journey with DevelBot for free')}</p>
         </div>
 
         <div className="glass-card">
@@ -65,33 +67,33 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label className="label">الايميل</label>
+              <label className="label">{t('الايميل', 'Email')}</label>
               <input type="email" required className="input" value={form.email}
                 onChange={e => setForm({...form, email: e.target.value})} placeholder="your@email.com"/>
             </div>
             <div>
-              <label className="label">اسم المستخدم</label>
+              <label className="label">{t('اسم المستخدم', 'Username')}</label>
               <input type="text" required className="input" value={form.username}
                 onChange={e => setForm({...form, username: e.target.value})} placeholder="username"/>
             </div>
             <div>
-              <label className="label">كلمة السر</label>
+              <label className="label">{t('كلمة السر', 'Password')}</label>
               <input type="password" required className="input" value={form.password}
                 onChange={e => setForm({...form, password: e.target.value})} placeholder="••••••••"/>
             </div>
 
             <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', marginTop: '8px', opacity: loading ? 0.6 : 1 }}>
-              {loading ? 'جاري التسجيل...' : 'انشاء الحساب ←'}
+              {loading ? t('جاري التسجيل...', 'Registering...') : t('انشاء الحساب ←', 'Create account →')}
             </button>
           </form>
 
           {/* Features */}
           <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {[
-              { icon: '✓', text: 'كامل الاشارات' },
-              { icon: '✓', text: 'ربط التلقرام' },
-              { icon: '✓', text: '14 يوم مجاناً' },
-              { icon: '✓', text: 'بدون بطاقة' },
+              { icon: '✓', text: t('كامل الاشارات', 'Full signals') },
+              { icon: '✓', text: t('ربط التلقرام', 'Telegram integration') },
+              { icon: '✓', text: t('14 يوم مجاناً', '14 days free') },
+              { icon: '✓', text: t('بدون بطاقة', 'No card needed') },
             ].map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
                 <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>{f.icon}</span>
@@ -102,14 +104,14 @@ export default function Register() {
 
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
             <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-              عندك حساب؟{' '}
-              <Link href="/login" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>سجّل دخول</Link>
+              {t('عندك حساب؟', 'Already have an account?')}{' '}
+              <Link href="/login" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('سجّل دخول', 'Log in')}</Link>
             </p>
           </div>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/dashboard" style={{ color: '#374151', fontSize: '13px', textDecoration: 'none' }}>تصفح بدون تسجيل ←</Link>
+          <Link href="/dashboard" style={{ color: '#374151', fontSize: '13px', textDecoration: 'none' }}>{t('تصفح بدون تسجيل ←', 'Browse without signing up →')}</Link>
         </p>
       </div>
     </div>

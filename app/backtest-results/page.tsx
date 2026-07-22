@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLang } from '../layout'
 
 type CoinRow = {
   symbol: string; trades: number; wins: number; losses: number
@@ -21,11 +22,12 @@ type BacktestData = {
 }
 
 function StatusBadge({ status }: { status: CoinRow['status'] }) {
+  const { t } = useLang()
   const map = {
-    active:             { text: '✅ نشطة',        bg: 'rgba(0,230,100,0.12)',  color: 'var(--green)' },
-    blacklisted:        { text: '🚫 مستبعدة',     bg: 'rgba(255,68,85,0.12)',  color: 'var(--red)' },
-    insufficient_data:  { text: '⏳ بيانات قليلة', bg: 'rgba(251,191,36,0.12)', color: 'var(--yellow)' },
-    no_signal:          { text: '— بدون إشارة',   bg: 'transparent',           color: 'var(--muted)' },
+    active:             { text: t('✅ نشطة', '✅ Active'),                 bg: 'rgba(0,230,100,0.12)',  color: 'var(--green)' },
+    blacklisted:        { text: t('🚫 مستبعدة', '🚫 Blacklisted'),         bg: 'rgba(255,68,85,0.12)',  color: 'var(--red)' },
+    insufficient_data:  { text: t('⏳ بيانات قليلة', '⏳ Insufficient Data'), bg: 'rgba(251,191,36,0.12)', color: 'var(--yellow)' },
+    no_signal:          { text: t('— بدون إشارة', '— No Signal'),         bg: 'transparent',           color: 'var(--muted)' },
   }[status]
   return (
     <span style={{ background: map.bg, color: map.color, borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -44,6 +46,7 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 }
 
 function MarketSection({ data, title, emoji }: { data: MarketData; title: string; emoji: string }) {
+  const { t, lang } = useLang()
   const [sortBy, setSortBy] = useState<'trades' | 'winRate' | 'pf' | 'netPct'>('trades')
   const tested = data.coins.filter(c => c.trades > 0)
   const sorted = [...tested].sort((a, b) => (b[sortBy] ?? -Infinity) - (a[sortBy] ?? -Infinity))
@@ -56,11 +59,11 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        <StatCard label="عملات مُختبَرة" value={`${data.universe}`} />
-        <StatCard label="إجمالي الصفقات" value={`${data.summary.totalTrades}`} />
-        <StatCard label="نسبة النجاح" value={`${data.summary.winRate}%`} color={data.summary.winRate >= 60 ? 'var(--green)' : 'var(--yellow)'} />
+        <StatCard label={t('عملات مُختبَرة', 'Coins Tested')} value={`${data.universe}`} />
+        <StatCard label={t('إجمالي الصفقات', 'Total Trades')} value={`${data.summary.totalTrades}`} />
+        <StatCard label={t('نسبة النجاح', 'Win Rate')} value={`${data.summary.winRate}%`} color={data.summary.winRate >= 60 ? 'var(--green)' : 'var(--yellow)'} />
         <StatCard label="Profit Factor" value={data.summary.pf ? `${data.summary.pf}` : '—'} color="var(--cyan)" />
-        <StatCard label="صافي %" value={`${data.summary.netPct >= 0 ? '+' : ''}${data.summary.netPct}%`} color={data.summary.netPct >= 0 ? 'var(--green)' : 'var(--red)'} />
+        <StatCard label={t('صافي %', 'Net %')} value={`${data.summary.netPct >= 0 ? '+' : ''}${data.summary.netPct}%`} color={data.summary.netPct >= 0 ? 'var(--green)' : 'var(--red)'} />
       </div>
 
       <div style={{
@@ -80,29 +83,29 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
               return (
                 <div key={st.side} style={{ background: 'var(--surface)', border: `1px solid ${isBetter ? color + '55' : 'var(--border)'}`, borderRadius: '14px', padding: '16px', position: 'relative' }}>
                   {isBetter && (
-                    <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>الأكثر ربحاً</span>
+                    <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>{t('الأكثر ربحاً', 'Most Profitable')}</span>
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                     <span style={{ fontSize: '15px', fontWeight: 900, color }}>{st.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>({st.trades} صفقة)</span>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>({st.trades} {t('صفقة', 'trades')})</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '12px' }}>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontWeight: 800, fontSize: '16px' }}>{st.winRate}%</div>
-                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>نسبة الفوز</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('نسبة الفوز', 'Win Rate')}</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--green)' }}>{st.wins}</div>
-                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>رابحة</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('رابحة', 'Wins')}</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--red)' }}>{st.losses}</div>
-                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>خاسرة</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('خاسرة', 'Losses')}</div>
                     </div>
                   </div>
                   <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                     <span style={{ color: 'var(--muted)' }}>PF: {st.pf ?? '—'}</span>
-                    <span style={{ fontWeight: 700, color: st.netPct >= 0 ? 'var(--green)' : 'var(--red)' }}>{st.netPct >= 0 ? '+' : ''}{st.netPct}% صافي</span>
+                    <span style={{ fontWeight: 700, color: st.netPct >= 0 ? 'var(--green)' : 'var(--red)' }}>{t(`${st.netPct >= 0 ? '+' : ''}${st.netPct}% صافي`, `Net: ${st.netPct >= 0 ? '+' : ''}${st.netPct}%`)}</span>
                   </div>
                 </div>
               )
@@ -113,16 +116,16 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
 
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <span style={{ fontWeight: 700, fontSize: '14px' }}>نتائج كل عملة ({tested.length} من {data.coins.length})</span>
+          <span style={{ fontWeight: 700, fontSize: '14px' }}>{t(`نتائج كل عملة (${tested.length} من ${data.coins.length})`, `Results per coin (${tested.length} of ${data.coins.length})`)}</span>
           <div style={{ display: 'flex', gap: '6px' }}>
-            {([['trades', 'عدد الصفقات'], ['winRate', 'نسبة النجاح'], ['pf', 'Profit Factor'], ['netPct', 'صافي %']] as const).map(([key, label]) => (
+            {([['trades', 'عدد الصفقات', 'Trades'], ['winRate', 'نسبة النجاح', 'Win Rate'], ['pf', 'Profit Factor', 'Profit Factor'], ['netPct', 'صافي %', 'Net %']] as const).map(([key, label, labelEn]) => (
               <button key={key} onClick={() => setSortBy(key)}
                 style={{
                   padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer',
                   border: 'none', fontFamily: 'inherit',
                   background: sortBy === key ? 'var(--cyan)' : 'var(--surface-2)',
                   color: sortBy === key ? '#000' : 'var(--muted)',
-                }}>{label}</button>
+                }}>{t(label, labelEn)}</button>
             ))}
           </div>
         </div>
@@ -130,13 +133,13 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ position: 'sticky', top: 0, background: 'var(--surface)', borderBottom: '1px solid var(--border)', color: 'var(--muted)' }}>
-                <th style={{ padding: '10px 16px', textAlign: 'right', fontSize: '11px' }}>العملة</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>صفقات</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>رابحة/خاسرة</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>نسبة النجاح</th>
+                <th style={{ padding: '10px 16px', textAlign: lang === 'en' ? 'left' : 'right', fontSize: '11px' }}>{t('العملة', 'Coin')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>{t('صفقات', 'Trades')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>{t('رابحة/خاسرة', 'Wins/Losses')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>{t('نسبة النجاح', 'Win Rate')}</th>
                 <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>Profit Factor</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>صافي %</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>الحالة</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>{t('صافي %', 'Net %')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center', fontSize: '11px' }}>{t('الحالة', 'Status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -166,6 +169,7 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
 }
 
 export default function BacktestResults() {
+  const { t } = useLang()
   const [data, setData] = useState<BacktestData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -182,10 +186,10 @@ export default function BacktestResults() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h1 style={{ fontSize: '30px', fontWeight: 900, marginBottom: '6px' }}>📊 نتائج الباك تست التاريخي</h1>
-            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{data?.period || 'آخر 365 يوم'} — بيانات Binance حقيقية، لكل عملة على حدة</p>
+            <h1 style={{ fontSize: '30px', fontWeight: 900, marginBottom: '6px' }}>{t('📊 نتائج الباك تست التاريخي', '📊 Historical Backtest Results')}</h1>
+            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{data?.period || t('آخر 365 يوم', 'Last 365 days')} — {t('بيانات Binance حقيقية، لكل عملة على حدة', 'Real Binance data, coin by coin')}</p>
           </div>
-          <Link href="/dashboard" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)', textDecoration: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700 }}>← الداشبورد</Link>
+          <Link href="/dashboard" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)', textDecoration: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700 }}>{t('← الداشبورد', '← Dashboard')}</Link>
         </div>
 
         {/* ── إخلاء مسؤولية صريح — إلزامي، مو اختياري ── */}
@@ -196,23 +200,27 @@ export default function BacktestResults() {
         }}>
           <span style={{ fontSize: '20px' }}>📈</span>
           <div style={{ fontSize: '13px', lineHeight: 1.8, color: 'var(--text)' }}>
-            <strong>لو كنت مشترك معنا خلال آخر 365 يوم، هذي تقريباً النتائج اللي كانت طالعة لك — بمحاكاة دقيقة على بيانات Binance الحقيقية لكل صفقة.</strong>
+            <strong>{t(
+              'لو كنت مشترك معنا خلال آخر 365 يوم، هذي تقريباً النتائج اللي كانت طالعة لك — بمحاكاة دقيقة على بيانات Binance الحقيقية لكل صفقة.',
+              'If you had been subscribed with us over the last 365 days, these are roughly the results you would have seen — based on an accurate simulation using real Binance data for every trade.'
+            )}</strong>
             <br />
-            بكل شفافية: هذي أرقام محاكاة (باك تست) على بيانات تاريخية من تشغيلة واحدة، مو صفقات حية نُفِّذت فعلياً، وما تحتسب رسوم
-            التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate بالفيوتشر). السوق يتغير باستمرار والأداء الفعلي
-            ممكن يختلف عن الماضي — لكنها مؤشر قوي على الاستراتيجية اللي يشتغل فيها البوت كل يوم، ونراجعها بشكل دوري لنحافظ على جودتها.
+            {t(
+              'بكل شفافية: هذي أرقام محاكاة (باك تست) على بيانات تاريخية من تشغيلة واحدة، مو صفقات حية نُفِّذت فعلياً، وما تحتسب رسوم التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate بالفيوتشر). السوق يتغير باستمرار والأداء الفعلي ممكن يختلف عن الماضي — لكنها مؤشر قوي على الاستراتيجية اللي يشتغل فيها البوت كل يوم، ونراجعها بشكل دوري لنحافظ على جودتها.',
+              'In full transparency: these are simulated (backtested) numbers from a single run on historical data — not live trades that were actually executed — and they do not account for trading fees, price slippage, or futures funding rates. Markets are constantly changing and actual performance may differ from the past — but this is a strong indicator of the strategy the bot runs every day, and we review it periodically to maintain its quality.'
+            )}
           </div>
         </div>
 
-        {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '60px 0' }}>جاري التحميل...</p>}
-        {!loading && !data && <p style={{ textAlign: 'center', color: 'var(--red)', padding: '60px 0' }}>تعذّر تحميل البيانات</p>}
+        {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '60px 0' }}>{t('جاري التحميل...', 'Loading...')}</p>}
+        {!loading && !data && <p style={{ textAlign: 'center', color: 'var(--red)', padding: '60px 0' }}>{t('تعذّر تحميل البيانات', 'Failed to load data')}</p>}
 
         {data && (
           <>
-            <MarketSection data={data.futures} title="الفيوتشر" emoji="🔵" />
+            <MarketSection data={data.futures} title={t('الفيوتشر', 'Futures')} emoji="🔵" />
 
             {data.spotStrategies.map((s, i) => (
-              <MarketSection key={s.key || i} data={s} title={`استراتيجية ${i + 1}`} emoji={i === 0 ? '🥇' : '🥈'} />
+              <MarketSection key={s.key || i} data={s} title={t(`استراتيجية ${i + 1}`, `Strategy ${i + 1}`)} emoji={i === 0 ? '🥇' : '🥈'} />
             ))}
           </>
         )}
