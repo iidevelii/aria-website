@@ -77,34 +77,35 @@ function TickerBar() {
 
 // ── Nav Config ────────────────────────────────────────────
 const NAV = [
-  { href:'/dashboard',        label:'الداشبورد',   icon:Icons.dashboard },
-  { href:'/scanner',          label:'السكانر',     icon:Icons.scanner },
-  { href:'/strategy-builder', label:'ستراتيجي',    icon:Icons.strategy },
-  { href:'/paper-trading',    label:'التداول',      icon:Icons.paper },
-  { href:'/coin-tracker',     label:'تتبع العملات',icon:Icons.tracker },
-  { href:'/ai-assistant',     label:'مساعد AI',    icon:Icons.ai },
-  { href:'/backtest-results', label:'نتائج الباك تست', icon:Icons.backtest },
-  { href:'/subscribe',        label:'اشتراك',      icon:Icons.subscribe },
+  { href:'/dashboard',        label:'الداشبورد',       labelEn:'Dashboard',       icon:Icons.dashboard },
+  { href:'/scanner',          label:'السكانر',         labelEn:'Scanner',         icon:Icons.scanner },
+  { href:'/strategy-builder', label:'ستراتيجي',        labelEn:'Strategy',        icon:Icons.strategy },
+  { href:'/paper-trading',    label:'التداول',          labelEn:'Paper Trading',   icon:Icons.paper },
+  { href:'/coin-tracker',     label:'تتبع العملات',    labelEn:'Coin Tracker',    icon:Icons.tracker },
+  { href:'/ai-assistant',     label:'مساعد AI',        labelEn:'AI Assistant',    icon:Icons.ai },
+  { href:'/backtest-results', label:'نتائج الباك تست', labelEn:'Backtest Results',icon:Icons.backtest },
+  { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
 ]
 
 // ── Help Content ──────────────────────────────────────────
-const PAGE_HELP: Record<string,{title:string;sections:{icon:string;heading:string;body:string}[]}> = {
-  '/dashboard':        {title:'دليل الداشبورد',sections:[{icon:'📡',heading:'الإشارات النشطة',body:'آخر إشارات الشراء والبيع من البوت مع سعر الدخول، الهدف، ووقف الخسارة.'},{icon:'📊',heading:'الإحصائيات',body:'معدل الربح (Win Rate) وعامل الربح (Profit Factor) من جميع الصفقات المغلقة.'},{icon:'🎯',heading:'نوع الإشارة',body:'SPOT = تداول فوري. FUTURES = عقود آجلة مع رافعة.'}]},
-  '/scanner':          {title:'دليل السكانر',sections:[{icon:'🔍',heading:'كيف يعمل',body:'يفحص عشرات العملات ويحسب RSI وMACD وADX وSupertrend ويعطي score من -100 إلى +100.'},{icon:'📈',heading:'Score',body:'+60 وأكثر = شراء قوي. -60 وأقل = بيع قوي.'},{icon:'💥',heading:'Pump & Dump',body:'حجم أكثر من 3× المعدل مع تغير سعر أكبر من 3%.'}]},
-  '/strategy-builder': {title:'دليل منشئ الاستراتيجيات',sections:[{icon:'⚙️',heading:'بناء الشروط',body:'اختر مؤشراً ثم حدد الشرط (أكبر من، أصغر من، بين قيمتين).'},{icon:'🔗',heading:'AND vs OR',body:'AND = جميع الشروط. OR = شرط واحد يكفي.'},{icon:'▶',heading:'التشغيل',body:'اضغط "ابدأ المسح" لفحص جميع العملات.'}]},
-  '/paper-trading':    {title:'دليل محفظة التداول',sections:[{icon:'💰',heading:'الرصيد',body:'محفظة تداول تجريبية (محاكاة) — ابدأ برصيد افتراضي وجرّب استراتيجياتك بدون مخاطرة حقيقية.'},{icon:'📋',heading:'فتح صفقة',body:'اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.'},{icon:'⏱',heading:'التحديث',body:'الأسعار تتحدث كل 15 ثانية — تُغلق الصفقات تلقائياً عند TP/SL.'}]},
-  '/coin-tracker':     {title:'دليل تتبع العملات',sections:[{icon:'🔔',heading:'إنشاء تنبيه',body:'أضف عملة وحدد نوع التنبيه: السعر فوق/تحت قيمة، أو نسبة تغير 24h.'},{icon:'⚡',heading:'التشغيل',body:'يُفحص التنبيه كل 30 ثانية.'},{icon:'📋',heading:'التبويبات',body:'النشطة: لم تتحقق. المُشغَّلة: تحققت.'}]},
-  '/ai-assistant':     {title:'دليل المساعد الذكي',sections:[{icon:'🤖',heading:'ما يستطيع فعله',body:'شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.'},{icon:'⚠️',heading:'تنبيه',body:'تحليل تعليمي فقط — ليس نصيحة مالية.'}]},
-  '/api-docs':         {title:'دليل API',sections:[{icon:'🔗',heading:'Base URL',body:`جميع الطلبات ترسل لـ ${API}`},{icon:'📋',heading:'الصيغة',body:'Content-Type: application/json'}]},
+const PAGE_HELP: Record<string,{title:[string,string];sections:{icon:string;heading:[string,string];body:[string,string]}[]}> = {
+  '/dashboard':        {title:['دليل الداشبورد','Dashboard Guide'],sections:[{icon:'📡',heading:['الإشارات النشطة','Active Signals'],body:['آخر إشارات الشراء والبيع من البوت مع سعر الدخول، الهدف، ووقف الخسارة.','The bot\'s latest buy/sell signals with entry price, target, and stop loss.']},{icon:'📊',heading:['الإحصائيات','Statistics'],body:['معدل الربح (Win Rate) وعامل الربح (Profit Factor) من جميع الصفقات المغلقة.','Win Rate and Profit Factor computed from all closed trades.']},{icon:'🎯',heading:['نوع الإشارة','Signal Type'],body:['SPOT = تداول فوري. FUTURES = عقود آجلة مع رافعة.','SPOT = instant trading. FUTURES = leveraged contracts.']}]},
+  '/scanner':          {title:['دليل السكانر','Scanner Guide'],sections:[{icon:'🔍',heading:['كيف يعمل','How it works'],body:['يفحص عشرات العملات ويحسب RSI وMACD وADX وSupertrend ويعطي score من -100 إلى +100.','Scans dozens of coins, computes RSI/MACD/ADX/Supertrend, and gives a score from -100 to +100.']},{icon:'📈',heading:['Score','Score'],body:['+60 وأكثر = شراء قوي. -60 وأقل = بيع قوي.','+60 or higher = strong buy. -60 or lower = strong sell.']},{icon:'💥',heading:['Pump & Dump','Pump & Dump'],body:['حجم أكثر من 3× المعدل مع تغير سعر أكبر من 3%.','Volume over 3× average with a price move greater than 3%.']}]},
+  '/strategy-builder': {title:['دليل منشئ الاستراتيجيات','Strategy Builder Guide'],sections:[{icon:'⚙️',heading:['بناء الشروط','Building conditions'],body:['اختر مؤشراً ثم حدد الشرط (أكبر من، أصغر من، بين قيمتين).','Pick an indicator, then set the condition (greater than, less than, between two values).']},{icon:'🔗',heading:['AND vs OR','AND vs OR'],body:['AND = جميع الشروط. OR = شرط واحد يكفي.','AND = all conditions must match. OR = one condition is enough.']},{icon:'▶',heading:['التشغيل','Running it'],body:['اضغط "ابدأ المسح" لفحص جميع العملات.','Click "Start Scan" to check every coin.']}]},
+  '/paper-trading':    {title:['دليل محفظة التداول','Paper Trading Guide'],sections:[{icon:'💰',heading:['الرصيد','Balance'],body:['محفظة تداول تجريبية (محاكاة) — ابدأ برصيد افتراضي وجرّب استراتيجياتك بدون مخاطرة حقيقية.','A simulated trading portfolio — start with a virtual balance and test your strategies with no real risk.']},{icon:'📋',heading:['فتح صفقة','Opening a trade'],body:['اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.','Pick the coin, direction (LONG/SHORT), leverage (1-20×), and size.']},{icon:'⏱',heading:['التحديث','Updates'],body:['الأسعار تتحدث كل 15 ثانية — تُغلق الصفقات تلقائياً عند TP/SL.','Prices refresh every 15 seconds — trades close automatically at TP/SL.']}]},
+  '/coin-tracker':     {title:['دليل تتبع العملات','Coin Tracker Guide'],sections:[{icon:'🔔',heading:['إنشاء تنبيه','Creating an alert'],body:['أضف عملة وحدد نوع التنبيه: السعر فوق/تحت قيمة، أو نسبة تغير 24h.','Add a coin and set the alert type: price above/below a value, or 24h change percentage.']},{icon:'⚡',heading:['التشغيل','How it runs'],body:['يُفحص التنبيه كل 30 ثانية.','Alerts are checked every 30 seconds.']},{icon:'📋',heading:['التبويبات','Tabs'],body:['النشطة: لم تتحقق. المُشغَّلة: تحققت.','Active: not yet triggered. Triggered: already fired.']}]},
+  '/ai-assistant':     {title:['دليل المساعد الذكي','AI Assistant Guide'],sections:[{icon:'🤖',heading:['ما يستطيع فعله','What it can do'],body:['شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.','Explaining indicators, interpreting signals, and risk-management tips.']},{icon:'⚠️',heading:['تنبيه','Notice'],body:['تحليل تعليمي فقط — ليس نصيحة مالية.','Educational analysis only — not financial advice.']}]},
+  '/api-docs':         {title:['دليل API','API Guide'],sections:[{icon:'🔗',heading:['Base URL','Base URL'],body:[`جميع الطلبات ترسل لـ ${API}`,`All requests are sent to ${API}`]},{icon:'📋',heading:['الصيغة','Format'],body:['Content-Type: application/json','Content-Type: application/json']}]},
 }
 
 function HelpModal({path,onClose}:{path:string;onClose:()=>void}) {
+  const { t } = useLang()
   const help=PAGE_HELP[path]; if(!help) return null
   return (
     <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
       <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'16px',width:'100%',maxWidth:'500px',maxHeight:'85vh',overflow:'auto'}}>
         <div style={{padding:'18px 22px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <span style={{fontWeight:800,fontSize:'15px'}}>{help.title}</span>
+          <span style={{fontWeight:800,fontSize:'15px'}}>{t(...help.title)}</span>
           <button onClick={onClose} style={{background:'transparent',border:'none',color:'var(--muted)',fontSize:'18px',cursor:'pointer'}}>✕</button>
         </div>
         <div style={{padding:'18px 22px',display:'flex',flexDirection:'column',gap:'14px'}}>
@@ -112,8 +113,8 @@ function HelpModal({path,onClose}:{path:string;onClose:()=>void}) {
             <div key={i} style={{display:'flex',gap:'12px',alignItems:'flex-start'}}>
               <div style={{width:'34px',height:'34px',borderRadius:'8px',background:'var(--surface-2)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'17px',flexShrink:0}}>{s.icon}</div>
               <div>
-                <div style={{fontWeight:700,fontSize:'13px',marginBottom:'3px'}}>{s.heading}</div>
-                <div style={{fontSize:'12px',color:'var(--muted)',lineHeight:1.6}}>{s.body}</div>
+                <div style={{fontWeight:700,fontSize:'13px',marginBottom:'3px'}}>{t(...s.heading)}</div>
+                <div style={{fontSize:'12px',color:'var(--muted)',lineHeight:1.6}}>{t(...s.body)}</div>
               </div>
             </div>
           ))}
@@ -138,7 +139,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
   theme:string; toggleTheme:()=>void; user:any; pathname:string;
   helpOpen:boolean; setHelpOpen:(v:boolean)=>void; collapsed:boolean; setCollapsed:(v:boolean)=>void
 }) {
-  const { lang, setLang } = useLang()
+  const { lang, setLang, t } = useLang()
   const logout=()=>{localStorage.removeItem('token');localStorage.removeItem('user_id');window.location.href='/'}
   const isApp = !PUBLIC.includes(pathname)
   if (!isApp) return null
@@ -153,7 +154,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
       overflow:'hidden',
     }}>
       {/* Logo — يرجّع للصفحة الرئيسية */}
-      <Link href="/" title="الصفحة الرئيسية" style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start', textDecoration:'none'}}>
+      <Link href="/" title={t('الصفحة الرئيسية','Homepage')} style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start', textDecoration:'none'}}>
         <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
       </Link>
 
@@ -162,7 +163,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
         {NAV.filter(l => l.href !== '/paper-trading' || user?.is_admin).map(l=>{
           const active=pathname===l.href
           return (
-            <Link key={l.href} href={l.href} title={collapsed?l.label:undefined} style={{
+            <Link key={l.href} href={l.href} title={collapsed?t(l.label,l.labelEn):undefined} style={{
               display:'flex', alignItems:'center', gap:'10px',
               padding: collapsed?'10px 0':'9px 12px',
               justifyContent: collapsed?'center':'flex-start',
@@ -177,7 +178,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
               onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}}
             >
               <span style={{flexShrink:0,display:'flex'}}>{l.icon}</span>
-              {!collapsed && l.label}
+              {!collapsed && t(l.label,l.labelEn)}
             </Link>
           )
         })}
@@ -187,21 +188,21 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
       <div style={{borderTop:'1px solid var(--border)',padding:'8px 6px',display:'flex',flexDirection:'column',gap:'4px'}}>
         {/* Help */}
         {PAGE_HELP[pathname] && (
-          <button onClick={()=>setHelpOpen(!helpOpen)} title="مساعدة"
+          <button onClick={()=>setHelpOpen(!helpOpen)} title={t('مساعدة','Help')}
             style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
             onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
             onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
             <span style={{display:'flex',flexShrink:0}}>{Icons.help}</span>
-            {!collapsed && 'مساعدة'}
+            {!collapsed && t('مساعدة','Help')}
           </button>
         )}
         {/* Theme */}
-        <button onClick={toggleTheme} title="الثيم"
+        <button onClick={toggleTheme} title={t('الثيم','Theme')}
           style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
           onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
           onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
           <span style={{display:'flex',flexShrink:0}}>{theme==='dark'?Icons.sun:Icons.moon}</span>
-          {!collapsed && (theme==='dark'?'وضع النهار':'وضع الليل')}
+          {!collapsed && (theme==='dark'?t('وضع النهار','Light Mode'):t('وضع الليل','Dark Mode'))}
         </button>
         {/* Language */}
         <button onClick={()=>setLang(lang==='ar'?'en':'ar')} title="Language / اللغة"
@@ -225,12 +226,12 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
                 </div>
               </div>
             )}
-            <button onClick={logout} title="خروج"
+            <button onClick={logout} title={t('خروج','Logout')}
               style={{display:'flex',alignItems:'center',gap:'8px',padding:collapsed?'7px 0':'7px 10px',justifyContent:collapsed?'center':'flex-start',borderRadius:'7px',background:'rgba(255,68,85,0.06)',border:'1px solid rgba(255,68,85,0.15)',color:'#ff7070',cursor:'pointer',fontFamily:'inherit',fontSize:'11px',fontWeight:600,width:'100%',transition:'all 0.15s'}}
               onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,68,85,0.12)'}}
               onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,68,85,0.06)'}}>
               <span style={{display:'flex',flexShrink:0}}>{Icons.logout}</span>
-              {!collapsed && 'تسجيل الخروج'}
+              {!collapsed && t('تسجيل الخروج','Logout')}
             </button>
           </div>
         )}
@@ -240,7 +241,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
           onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)'}}
           onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
           <span style={{display:'flex',transform:collapsed?'rotate(180deg)':'rotate(0deg)',transition:'transform 0.2s'}}>{Icons.menu}</span>
-          {!collapsed && 'طي القائمة'}
+          {!collapsed && t('طي القائمة','Collapse')}
         </button>
       </div>
     </aside>
@@ -249,20 +250,21 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
 
 // ── Top bar for app pages ─────────────────────────────────
 function TopBar({pathname,user}:{pathname:string;user:any}) {
-  const pageNames: Record<string,string> = {
-    '/dashboard':'الداشبورد','/scanner':'السكانر','/strategy-builder':'منشئ الاستراتيجيات',
-    '/paper-trading':'التداول الحقيقي','/coin-tracker':'تتبع العملات','/ai-assistant':'مساعد AI',
-    '/api-docs':'توثيق API','/subscribe':'الاشتراك',
+  const { t } = useLang()
+  const pageNames: Record<string,[string,string]> = {
+    '/dashboard':['الداشبورد','Dashboard'],'/scanner':['السكانر','Scanner'],'/strategy-builder':['منشئ الاستراتيجيات','Strategy Builder'],
+    '/paper-trading':['التداول الحقيقي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
+    '/api-docs':['توثيق API','API Docs'],'/subscribe':['الاشتراك','Subscribe'],'/backtest-results':['نتائج الباك تست','Backtest Results'],
   }
   const name=pageNames[pathname]
   if(!name) return null
   return (
     <div style={{height:'48px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 20px',background:'var(--surface)'}}>
-      <span style={{fontWeight:800,fontSize:'15px',letterSpacing:'-0.02em'}}>{name}</span>
+      <span style={{fontWeight:800,fontSize:'15px',letterSpacing:'-0.02em'}}>{t(name[0],name[1])}</span>
       {user && (
         <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
           <div style={{width:'7px',height:'7px',borderRadius:'50%',background:'var(--green)',animation:'pulse 2s infinite'}}/>
-          <span style={{fontSize:'11px',color:'var(--muted)',fontWeight:600}}>مباشر</span>
+          <span style={{fontSize:'11px',color:'var(--muted)',fontWeight:600}}>{t('مباشر','Live')}</span>
         </div>
       )}
     </div>

@@ -131,18 +131,18 @@ function ChartView() {
         {entry > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
             <div style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#00d4ff', marginBottom: '6px', fontWeight: 700 }}>سعر الدخول</div>
+              <div style={{ fontSize: '11px', color: '#00d4ff', marginBottom: '6px', fontWeight: 700 }}>{t('سعر الدخول', 'Entry Price')}</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px' }}>${entry.toLocaleString()}</div>
             </div>
             <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#00e664', marginBottom: '6px', fontWeight: 700 }}>الهدف</div>
+              <div style={{ fontSize: '11px', color: '#00e664', marginBottom: '6px', fontWeight: 700 }}>{t('الهدف', 'Target')}</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#00e664' }}>${tp.toLocaleString()}</div>
-              {toTargetPct !== null && <div style={{ fontSize: '11px', color: 'rgba(0,230,100,0.7)', marginTop: '4px' }}>باقي {Math.abs(toTargetPct).toFixed(2)}%</div>}
+              {toTargetPct !== null && <div style={{ fontSize: '11px', color: 'rgba(0,230,100,0.7)', marginTop: '4px' }}>{t('باقي', 'Remaining')} {Math.abs(toTargetPct).toFixed(2)}%</div>}
             </div>
             <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#ff5555', marginBottom: '6px', fontWeight: 700 }}>الوقف</div>
+              <div style={{ fontSize: '11px', color: '#ff5555', marginBottom: '6px', fontWeight: 700 }}>{t('الوقف', 'Stop')}</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#ff5555' }}>${sl.toLocaleString()}</div>
-              {toStopPct !== null && <div style={{ fontSize: '11px', color: 'rgba(255,85,85,0.7)', marginTop: '4px' }}>باقي {Math.abs(toStopPct).toFixed(2)}%</div>}
+              {toStopPct !== null && <div style={{ fontSize: '11px', color: 'rgba(255,85,85,0.7)', marginTop: '4px' }}>{t('باقي', 'Remaining')} {Math.abs(toStopPct).toFixed(2)}%</div>}
             </div>
           </div>
         )}
@@ -154,9 +154,9 @@ function ChartView() {
               <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '4px', transition: 'width 0.6s ease' }}/>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
-              <span style={{ color: '#ff5555' }}>وقف</span>
-              <span style={{ color: barColor, fontWeight: 700 }}>{progress.toFixed(0)}% نحو الهدف</span>
-              <span style={{ color: '#00e664' }}>هدف</span>
+              <span style={{ color: '#ff5555' }}>{t('وقف', 'Stop')}</span>
+              <span style={{ color: barColor, fontWeight: 700 }}>{t(`${progress.toFixed(0)}% نحو الهدف`, `${progress.toFixed(0)}% to Target`)}</span>
+              <span style={{ color: '#00e664' }}>{t('هدف', 'Target')}</span>
             </div>
           </div>
         )}
@@ -171,9 +171,16 @@ function ChartView() {
   )
 }
 
+function ChartFallback() {
+  const { t } = useLang()
+  return (
+    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00d4ff', fontWeight: 700 }}>{t('جاري التحميل...', 'Loading...')}</div>
+  )
+}
+
 export default function ChartPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#050508', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00d4ff', fontWeight: 700 }}>جاري التحميل...</div>}>
+    <Suspense fallback={<ChartFallback />}>
       <ChartView />
     </Suspense>
   )

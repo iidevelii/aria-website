@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLang } from '../layout'
 
 export default function Stats() {
+  const { t, lang } = useLang()
   const [signals, setSignals] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeMonth, setActiveMonth] = useState('')
@@ -44,18 +46,20 @@ export default function Stats() {
     const diff = new Date(s.closed_at).getTime() - new Date(s.created_at).getTime()
     const hours = Math.floor(diff / 3600000)
     const mins = Math.floor((diff % 3600000) / 60000)
-    return `${hours}س ${mins}د`
+    return lang === 'ar' ? `${hours}س ${mins}د` : `${hours}h ${mins}m`
   }
 
   const monthName = (key: string) => {
     const [year, month] = key.split('-')
-    const names = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+    const namesAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+    const namesEn = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    const names = lang === 'ar' ? namesAr : namesEn
     return `${names[parseInt(month) - 1]} ${year}`
   }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: 'var(--cyan)', fontWeight: 700 }}>جاري التحميل...</div>
+      <div style={{ color: 'var(--cyan)', fontWeight: 700 }}>{t('جاري التحميل...', 'Loading...')}</div>
     </div>
   )
 
@@ -66,10 +70,10 @@ export default function Stats() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
-            <h1 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '4px' }}>📊 إحصائيات الصفقات</h1>
-            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>سجل كامل لجميع الصفقات</p>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '4px' }}>{t('📊 إحصائيات الصفقات', '📊 Trade Statistics')}</h1>
+            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{t('سجل كامل لجميع الصفقات', 'A complete record of all trades')}</p>
           </div>
-          <Link href="/dashboard" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)', textDecoration: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700 }}>← الداشبورد</Link>
+          <Link href="/dashboard" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)', textDecoration: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700 }}>{t('← الداشبورد', '← Dashboard')}</Link>
         </div>
 
         {/* Months Tabs */}
@@ -84,14 +88,14 @@ export default function Stats() {
         {/* Monthly Summary */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
-            { label: 'الصفقات', value: currentSignals.length, color: 'var(--text)' },
-            { label: 'رابحة', value: wins.length, color: 'var(--green)' },
-            { label: 'خاسرة', value: losses.length, color: 'var(--red)' },
-            { label: 'مفتوحة', value: open.length, color: 'var(--yellow)' },
-            { label: 'نسبة الفوز', value: `${winRate}%`, color: winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
-            { label: 'إجمالي الربح', value: `+${totalPnlWin.toFixed(1)}%`, color: 'var(--green)' },
-            { label: 'إجمالي الخسارة', value: `${totalPnlLoss.toFixed(1)}%`, color: 'var(--red)' },
-            { label: 'صافي الربح', value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+            { label: t('الصفقات', 'Trades'), value: currentSignals.length, color: 'var(--text)' },
+            { label: t('رابحة', 'Wins'), value: wins.length, color: 'var(--green)' },
+            { label: t('خاسرة', 'Losses'), value: losses.length, color: 'var(--red)' },
+            { label: t('مفتوحة', 'Open'), value: open.length, color: 'var(--yellow)' },
+            { label: t('نسبة الفوز', 'Win Rate'), value: `${winRate}%`, color: winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+            { label: t('إجمالي الربح', 'Total Profit'), value: `+${totalPnlWin.toFixed(1)}%`, color: 'var(--green)' },
+            { label: t('إجمالي الخسارة', 'Total Loss'), value: `${totalPnlLoss.toFixed(1)}%`, color: 'var(--red)' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div style={{ fontSize: '20px', fontWeight: 900, color: s.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.value}</div>
@@ -103,17 +107,21 @@ export default function Stats() {
         {/* Signals Table */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '15px' }}>
-            سجل الصفقات — {monthName(currentMonth)}
+            {t('سجل الصفقات', 'Trade Log')} — {monthName(currentMonth)}
           </div>
           {currentSignals.length === 0 ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>لا توجد صفقات في هذا الشهر</div>
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>{t('لا توجد صفقات في هذا الشهر', 'No trades this month')}</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted)' }}>
-                    {['العملة', 'الاتجاه', 'الدخول', 'الهدف', 'الوقف', 'الحالة', 'الربح/الخسارة', 'تاريخ الدخول', 'تاريخ الإغلاق', 'المدة', 'Score'].map(h => (
-                      <th key={h} style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+                    {([
+                      ['العملة', 'Coin'], ['الاتجاه', 'Direction'], ['الدخول', 'Entry'], ['الهدف', 'Target'],
+                      ['الوقف', 'Stop'], ['الحالة', 'Status'], ['الربح/الخسارة', 'P/L'], ['تاريخ الدخول', 'Entry Date'],
+                      ['تاريخ الإغلاق', 'Close Date'], ['المدة', 'Duration'], ['Score', 'Score'],
+                    ] as [string, string][]).map(([ar, en]) => (
+                      <th key={ar} style={{ padding: '12px 16px', textAlign: lang === 'en' ? 'left' : 'right', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t(ar, en)}</th>
                     ))}
                   </tr>
                 </thead>
@@ -131,17 +139,17 @@ export default function Stats() {
                       <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: 'var(--red)' }}>${s.sl}</td>
                       <td style={{ padding: '14px 16px' }}>
                         <span style={{ background: s.status === 'WIN' ? 'rgba(0,230,100,0.1)' : s.status === 'LOSS' ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)', color: s.status === 'WIN' ? 'var(--green)' : s.status === 'LOSS' ? 'var(--red)' : 'var(--yellow)', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700 }}>
-                          {s.status === 'WIN' ? '✓ ربح' : s.status === 'LOSS' ? '✗ خسارة' : '● مفتوحة'}
+                          {s.status === 'WIN' ? t('✓ ربح', '✓ Win') : s.status === 'LOSS' ? t('✗ خسارة', '✗ Loss') : t('● مفتوحة', '● Open')}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', fontWeight: 700, color: s.pnl_pct ? (parseFloat(s.pnl_pct) > 0 ? 'var(--green)' : 'var(--red)') : 'var(--muted)' }}>
                         {s.pnl_pct ? `${parseFloat(s.pnl_pct) > 0 ? '+' : ''}${parseFloat(s.pnl_pct).toFixed(2)}%` : '—'}
                       </td>
                       <td style={{ padding: '14px 16px', color: 'var(--muted)', fontFamily: 'monospace', fontSize: '12px' }}>
-                        {new Date(s.created_at).toLocaleDateString('ar-SA')} {new Date(s.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(s.created_at).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US')} {new Date(s.created_at).toLocaleTimeString(lang === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td style={{ padding: '14px 16px', color: 'var(--muted)', fontFamily: 'monospace', fontSize: '12px' }}>
-                        {s.closed_at ? `${new Date(s.closed_at).toLocaleDateString('ar-SA')} ${new Date(s.closed_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}` : '—'}
+                        {s.closed_at ? `${new Date(s.closed_at).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US')} ${new Date(s.closed_at).toLocaleTimeString(lang === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })}` : '—'}
                       </td>
                       <td style={{ padding: '14px 16px', color: 'var(--muted)', fontSize: '12px' }}>{getDuration(s)}</td>
                       <td style={{ padding: '14px 16px', color: 'var(--cyan)', fontWeight: 700 }}>{s.ai_score}</td>

@@ -1,17 +1,19 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useLang } from '../layout'
 
 const API = 'https://web-production-97af6.up.railway.app'
 
 export default function ActivatePage() {
+  const { t } = useLang()
   const [txid, setTxid]     = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
   const [msg, setMsg]       = useState('')
 
   const handleActivate = async () => {
-    const t = txid.trim()
-    if (!t) { setMsg('أدخل رقم التحويل'); setStatus('error'); return }
+    const txidValue = txid.trim()
+    if (!txidValue) { setMsg(t('أدخل رقم التحويل', 'Enter the transfer number')); setStatus('error'); return }
 
     setStatus('loading')
     setMsg('')
@@ -20,12 +22,12 @@ export default function ActivatePage() {
       const r = await fetch(`${API}/auth/txid-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ txid: t }),
+        body: JSON.stringify({ txid: txidValue }),
       })
       const data = await r.json()
 
       if (!r.ok) {
-        setMsg(data.detail || 'فشل التفعيل')
+        setMsg(data.detail || t('فشل التفعيل', 'Activation failed'))
         setStatus('error')
         return
       }
@@ -33,10 +35,10 @@ export default function ActivatePage() {
       localStorage.setItem('token',   data.token)
       localStorage.setItem('user_id', String(data.user_id))
       setStatus('ok')
-      setMsg(`مرحباً ${data.username || ''}! جاري التوجيه...`)
+      setMsg(t(`مرحباً ${data.username || ''}! جاري التوجيه...`, `Welcome ${data.username || ''}! Redirecting...`))
       setTimeout(() => { window.location.href = '/dashboard' }, 1500)
     } catch {
-      setMsg('حدث خطأ في الاتصال')
+      setMsg(t('حدث خطأ في الاتصال', 'A connection error occurred'))
       setStatus('error')
     }
   }
@@ -57,10 +59,10 @@ export default function ActivatePage() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '8px', color: 'var(--text)' }}>
-            تفعيل الحساب
+            {t('تفعيل الحساب', 'Activate Account')}
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-            أدخل رقم التحويل الذي استخدمته في بوت تلقرام
+            {t('أدخل رقم التحويل الذي استخدمته في بوت تلقرام', 'Enter the transfer number you used in the Telegram bot')}
           </p>
         </div>
 
@@ -70,10 +72,10 @@ export default function ActivatePage() {
           {/* Steps */}
           <div style={{ marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {([
-              ['1', 'افتح @Develpay_bot في تلقرام'],
-              ['2', 'ادفع واحصل على TXID'],
-              ['3', 'الصق TXID هنا لتفعيل حسابك'],
-            ] as [string, string][]).map(([n, t]) => (
+              ['1', 'افتح @Develpay_bot في تلقرام', 'Open @Develpay_bot on Telegram'],
+              ['2', 'ادفع واحصل على TXID', 'Pay and get your TXID'],
+              ['3', 'الصق TXID هنا لتفعيل حسابك', 'Paste the TXID here to activate your account'],
+            ] as [string, string, string][]).map(([n, ar, en]) => (
               <div key={n} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
                   width: '26px', height: '26px', borderRadius: '50%',
@@ -81,14 +83,14 @@ export default function ActivatePage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '12px', fontWeight: 700, color: 'white', flexShrink: 0,
                 }}>{n}</div>
-                <span style={{ color: 'var(--muted)', fontSize: '14px' }}>{t}</span>
+                <span style={{ color: 'var(--muted)', fontSize: '14px' }}>{t(ar, en)}</span>
               </div>
             ))}
           </div>
 
           {/* Input */}
           <div style={{ marginBottom: '16px' }}>
-            <label className="label">رقم التحويل (TXID)</label>
+            <label className="label">{t('رقم التحويل (TXID)', 'Transfer Number (TXID)')}</label>
             <input
               value={txid}
               onChange={e => setTxid(e.target.value)}
@@ -132,18 +134,18 @@ export default function ActivatePage() {
               cursor: status === 'loading' ? 'not-allowed' : 'pointer',
             }}
           >
-            {status === 'loading' ? '⏳ جاري التحقق...' : '✅ تفعيل الحساب'}
+            {status === 'loading' ? t('⏳ جاري التحقق...', '⏳ Verifying...') : t('✅ تفعيل الحساب', '✅ Activate Account')}
           </button>
 
           <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '12px', marginTop: '16px' }}>
-            كل رقم تحويل يفعّل حساباً واحداً فقط — لا مشاركة
+            {t('كل رقم تحويل يفعّل حساباً واحداً فقط — لا مشاركة', 'Each transfer number activates only one account — no sharing')}
           </p>
         </div>
 
         {/* Footer links */}
         <div style={{ textAlign: 'center', marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '24px' }}>
-          <Link href="/login"    style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>تسجيل الدخول</Link>
-          <Link href="/register" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>حساب جديد</Link>
+          <Link href="/login"    style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>{t('تسجيل الدخول', 'Login')}</Link>
+          <Link href="/register" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>{t('حساب جديد', 'New Account')}</Link>
         </div>
       </div>
     </div>

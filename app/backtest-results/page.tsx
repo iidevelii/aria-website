@@ -83,7 +83,7 @@ function MarketSection({ data, title, emoji }: { data: MarketData; title: string
               return (
                 <div key={st.side} style={{ background: 'var(--surface)', border: `1px solid ${isBetter ? color + '55' : 'var(--border)'}`, borderRadius: '14px', padding: '16px', position: 'relative' }}>
                   {isBetter && (
-                    <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>{t('الأكثر ربحاً', 'Most Profitable')}</span>
+                    <span style={{ position: 'absolute', top: '10px', [lang === 'en' ? 'right' : 'left']: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>{t('الأكثر ربحاً', 'Most Profitable')}</span>
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                     <span style={{ fontSize: '15px', fontWeight: 900, color }}>{st.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'}</span>

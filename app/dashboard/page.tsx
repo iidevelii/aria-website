@@ -569,7 +569,7 @@ export default function Dashboard() {
                   return (
                     <div key={st.side} className="card" style={{ padding: '16px', position: 'relative', border: isBetter ? `1px solid ${color}55` : undefined }}>
                       {isBetter && (
-                        <span style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>{t('الأكثر ربحاً', 'Most Profitable')}</span>
+                        <span style={{ position: 'absolute', top: '10px', [lang === 'en' ? 'right' : 'left']: '10px', fontSize: '10px', fontWeight: 800, color, background: `${color}20`, padding: '3px 8px', borderRadius: '6px' }}>{t('الأكثر ربحاً', 'Most Profitable')}</span>
                       )}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                         <span style={{ fontSize: '15px', fontWeight: 900, color }}>{st.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'}</span>
