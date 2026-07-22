@@ -9,6 +9,13 @@ type AuthCtx = { user: any; loading: boolean; refresh: () => void }
 const AuthContext = createContext<AuthCtx>({ user: null, loading: true, refresh: () => {} })
 export const useAuth = () => useContext(AuthContext)
 
+// ── Language Context ──────────────────────────────────────
+// t(ar, en) يرجّع النص المناسب حسب اللغة الحالية — بديل خفيف عن قاموس مفاتيح
+// كامل، مناسب أكثر لكود فيه نصوص عربية مكتوبة مباشرة داخل JSX بكل صفحة.
+type LangCtx = { lang: 'ar' | 'en'; setLang: (l: 'ar' | 'en') => void; t: (ar: string, en: string) => string }
+const LanguageContext = createContext<LangCtx>({ lang: 'ar', setLang: () => {}, t: (ar) => ar })
+export const useLang = () => useContext(LanguageContext)
+
 const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg', '/backtest-results']
 
 const API = 'https://web-production-97af6.up.railway.app'
@@ -131,6 +138,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
   theme:string; toggleTheme:()=>void; user:any; pathname:string;
   helpOpen:boolean; setHelpOpen:(v:boolean)=>void; collapsed:boolean; setCollapsed:(v:boolean)=>void
 }) {
+  const { lang, setLang } = useLang()
   const logout=()=>{localStorage.removeItem('token');localStorage.removeItem('user_id');window.location.href='/'}
   const isApp = !PUBLIC.includes(pathname)
   if (!isApp) return null
@@ -194,6 +202,14 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
           onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
           <span style={{display:'flex',flexShrink:0}}>{theme==='dark'?Icons.sun:Icons.moon}</span>
           {!collapsed && (theme==='dark'?'وضع النهار':'وضع الليل')}
+        </button>
+        {/* Language */}
+        <button onClick={()=>setLang(lang==='ar'?'en':'ar')} title="Language / اللغة"
+          style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:700,transition:'all 0.15s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
+          onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
+          <span style={{display:'flex',flexShrink:0,width:'15px',justifyContent:'center'}}>{lang==='ar'?'EN':'ع'}</span>
+          {!collapsed && (lang==='ar'?'English':'العربية')}
         </button>
         {/* User */}
         {user && (
@@ -261,6 +277,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   const [authLoading,setAuthLoading] = useState(true)
   const [helpOpen,setHelpOpen]   = useState(false)
   const [collapsed,setCollapsed] = useState(false)
+  const [lang,setLangState]      = useState<'ar'|'en'>('ar')
   const pathname = usePathname()
 
   const fetchUser = async () => {
@@ -272,9 +289,20 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
     setAuthLoading(false)
   }
 
+  const setLang = (l:'ar'|'en') => {
+    setLangState(l); localStorage.setItem('lang', l)
+    document.documentElement.setAttribute('lang', l)
+    document.documentElement.setAttribute('dir', l==='ar'?'rtl':'ltr')
+  }
+  const t = (ar:string, en:string) => lang==='en' ? en : ar
+
   useEffect(()=>{
     const saved=localStorage.getItem('theme')||'dark'
     setTheme(saved); document.documentElement.setAttribute('data-theme',saved)
+    const savedLang = (localStorage.getItem('lang') as 'ar'|'en') || 'ar'
+    setLangState(savedLang)
+    document.documentElement.setAttribute('lang', savedLang)
+    document.documentElement.setAttribute('dir', savedLang==='ar'?'rtl':'ltr')
     setMounted(true); fetchUser()
   },[])
 
@@ -289,7 +317,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   const sideW=collapsed?58:220
 
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={lang} dir={lang==='ar'?'rtl':'ltr'}>
       <head>
         <meta charSet="utf-8"/>
         <title>DevelBot — منصة إشارات التداول</title>
@@ -310,6 +338,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
         <meta name="twitter:image" content="https://devel-bot.space/logo.png"/>
       </head>
       <body style={{margin:0,padding:0,background:'var(--bg)',color:'var(--text)',visibility:mounted?'visible':'hidden'}}>
+        <LanguageContext.Provider value={{lang,setLang,t}}>
         <AuthContext.Provider value={{user,loading:authLoading,refresh:fetchUser}}>
 
           {/* Ticker — full width, fixed at top */}
@@ -342,11 +371,14 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
                   <img src="/logo.png" alt="DevelBot" style={{height:34,width:'auto',display:'block',borderRadius:'8px',background:'#fff',padding:'3px',flexShrink:0}}/>
                 </Link>
                 <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+                  <button onClick={()=>setLang(lang==='ar'?'en':'ar')} title="Language / اللغة" style={{minWidth:'32px',height:'32px',padding:'0 8px',borderRadius:'8px',border:'1px solid var(--border)',background:'transparent',cursor:'pointer',color:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'12px',fontWeight:700,fontFamily:'inherit'}}>
+                    {lang==='ar'?'EN':'ع'}
+                  </button>
                   <button onClick={toggleTheme} style={{width:'32px',height:'32px',borderRadius:'8px',border:'1px solid var(--border)',background:'transparent',cursor:'pointer',color:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                     {theme==='dark'?Icons.sun:Icons.moon}
                   </button>
-                  <Link href="/login" style={{color:'var(--muted)',textDecoration:'none',fontSize:'13px',padding:'7px 14px',borderRadius:'8px',fontWeight:600}}>دخول</Link>
-                  <Link href="/register" style={{background:'var(--cyan)',color:'#000',textDecoration:'none',fontWeight:800,fontSize:'13px',padding:'7px 18px',borderRadius:'8px'}}>مجاناً</Link>
+                  <Link href="/login" style={{color:'var(--muted)',textDecoration:'none',fontSize:'13px',padding:'7px 14px',borderRadius:'8px',fontWeight:600}}>{t('دخول','Login')}</Link>
+                  <Link href="/register" style={{background:'var(--cyan)',color:'#000',textDecoration:'none',fontWeight:800,fontSize:'13px',padding:'7px 18px',borderRadius:'8px'}}>{t('مجاناً','Free')}</Link>
                 </div>
               </header>
             )}
@@ -365,6 +397,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
             @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
           `}</style>
         </AuthContext.Provider>
+        </LanguageContext.Provider>
       </body>
     </html>
   )
