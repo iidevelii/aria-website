@@ -43,6 +43,7 @@ export default function Home() {
   const { t, lang, setLang } = useLang()
   const [btcPrice, setBtcPrice] = useState<string|null>(null)
   const [btcChg, setBtcChg] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT')
@@ -50,6 +51,8 @@ export default function Home() {
       .then(d => { setBtcPrice(parseFloat(d.lastPrice).toLocaleString()); setBtcChg(parseFloat(d.priceChangePercent)) })
       .catch(() => {})
   }, [])
+
+  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
@@ -59,8 +62,8 @@ export default function Home() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
           <Logo size={52}/>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {[[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']].map(([label,href]) => (
+        <div className="home-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {navLinks.map(([label,href]) => (
             <Link key={href} href={href} style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px', borderRadius: '6px', transition: 'color 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.color='var(--text)')}
               onMouseLeave={e => (e.currentTarget.style.color='var(--muted)')}
@@ -73,7 +76,37 @@ export default function Home() {
           <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>{t('دخول','Login')}</Link>
           <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('ابدأ مجاناً ←','Start free →')}</Link>
         </div>
+
+        {/* Mobile hamburger — hidden on desktop via CSS */}
+        <button
+          className="home-nav-toggle"
+          onClick={() => setMobileMenuOpen(v => !v)}
+          aria-label={t('القائمة','Menu')}
+          style={{ display: 'none', width: '38px', height: '38px', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', cursor: 'pointer' }}
+        >
+          {mobileMenuOpen ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          )}
+        </button>
       </nav>
+
+      {/* Mobile dropdown panel */}
+      {mobileMenuOpen && (
+        <div className="home-nav-toggle" style={{ position: 'sticky', top: '72px', zIndex: 49, background: 'var(--surface)', borderBottom: '1px solid var(--border)', padding: '12px 20px', flexDirection: 'column', gap: '4px' }}>
+          {navLinks.map(([label,href]) => (
+            <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', textDecoration: 'none', fontSize: '14px', fontWeight: 600, padding: '11px 8px', borderBottom: '1px solid var(--border)' }}>{label}</Link>
+          ))}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+            <button onClick={() => setLang(lang==='ar'?'en':'ar')} style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 700, borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              {lang==='ar'?'English':'العربية'}
+            </button>
+            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('دخول','Login')}</Link>
+            <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('ابدأ مجاناً','Start free')}</Link>
+          </div>
+        </div>
+      )}
 
       {/* ══ HERO ══ */}
       <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
@@ -411,6 +444,10 @@ export default function Home() {
         @media (max-width: 768px) {
           section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
           h1 { font-size: 36px !important; }
+        }
+        @media (max-width: 860px) {
+          .home-nav-links { display: none !important; }
+          .home-nav-toggle { display: flex !important; }
         }
       `}</style>
     </div>

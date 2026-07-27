@@ -137,132 +137,153 @@ function AuthGate({children,user,loading,pathname}:{children:React.ReactNode;use
 }
 
 // ── Sidebar ───────────────────────────────────────────────
-function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed,setCollapsed}:{
+function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed,setCollapsed,isMobile,mobileOpen,setMobileOpen}:{
   theme:string; toggleTheme:()=>void; user:any; pathname:string;
   helpOpen:boolean; setHelpOpen:(v:boolean)=>void; collapsed:boolean; setCollapsed:(v:boolean)=>void
+  isMobile:boolean; mobileOpen:boolean; setMobileOpen:(v:boolean)=>void
 }) {
   const { lang, setLang, t } = useLang()
   const logout=()=>{localStorage.removeItem('token');localStorage.removeItem('user_id');window.location.href='/'}
   const isApp = !PUBLIC.includes(pathname)
   if (!isApp) return null
 
-  const W = collapsed ? 58 : 220
+  // على الجوال: القائمة دائماً بعرضها الكامل، تنسحب من الشاشة بدل ما تُطوى لأيقونات
+  const collapsedEff = isMobile ? false : collapsed
+  const W = collapsedEff ? 58 : 220
 
   return (
-    <aside style={{
-      position:'fixed', top:32, right:0, bottom:0, width:W, zIndex:9000,
-      background:'var(--surface)', borderLeft:'1px solid var(--border)',
-      display:'flex', flexDirection:'column', transition:'width 0.2s ease',
-      overflow:'hidden',
-    }}>
-      {/* Logo — يرجّع للصفحة الرئيسية */}
-      <Link href="/" title={t('الصفحة الرئيسية','Homepage')} style={{padding: collapsed?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsed?'center':'flex-start', textDecoration:'none'}}>
-        <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
-      </Link>
+    <>
+      {/* خلفية معتمة عند فتح القائمة بالجوال */}
+      {isMobile && mobileOpen && (
+        <div onClick={()=>setMobileOpen(false)} style={{position:'fixed',top:32,right:0,left:0,bottom:0,background:'rgba(0,0,0,0.6)',zIndex:8999}}/>
+      )}
+      <aside style={{
+        position:'fixed', top:32, right:0, bottom:0, width:W, zIndex:9000,
+        background:'var(--surface)', borderLeft:'1px solid var(--border)',
+        display:'flex', flexDirection:'column', transition:'width 0.2s ease, transform 0.25s ease',
+        overflow:'hidden',
+        transform: isMobile ? (mobileOpen ? 'translateX(0)' : 'translateX(100%)') : 'translateX(0)',
+      }}>
+        {/* Logo — يرجّع للصفحة الرئيسية */}
+        <Link href="/" title={t('الصفحة الرئيسية','Homepage')} onClick={()=>setMobileOpen(false)} style={{padding: collapsedEff?'14px 0':'14px 16px', display:'flex', alignItems:'center', gap:'10px', borderBottom:'1px solid var(--border)', justifyContent: collapsedEff?'center':'flex-start', textDecoration:'none'}}>
+          <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
+        </Link>
 
-      {/* Nav */}
-      <nav style={{flex:1,padding:'8px 6px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
-        {NAV.filter(l => l.href !== '/paper-trading' || user?.is_admin).map(l=>{
-          const active=pathname===l.href
-          return (
-            <Link key={l.href} href={l.href} title={collapsed?t(l.label,l.labelEn):undefined} style={{
-              display:'flex', alignItems:'center', gap:'10px',
-              padding: collapsed?'10px 0':'9px 12px',
-              justifyContent: collapsed?'center':'flex-start',
-              borderRadius:'8px', textDecoration:'none',
-              background: active?'rgba(0,196,239,0.1)':'transparent',
-              color: active?'var(--cyan)':'var(--muted)',
-              fontWeight: active?700:500, fontSize:'13px',
-              transition:'all 0.15s', whiteSpace:'nowrap',
-              borderRight: active?'2px solid var(--cyan)':'2px solid transparent',
-            }}
-              onMouseEnter={e=>{if(!active){e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}}
-              onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}}
-            >
-              <span style={{flexShrink:0,display:'flex'}}>{l.icon}</span>
-              {!collapsed && t(l.label,l.labelEn)}
-            </Link>
-          )
-        })}
-      </nav>
+        {/* Nav */}
+        <nav style={{flex:1,padding:'8px 6px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
+          {NAV.filter(l => l.href !== '/paper-trading' || user?.is_admin).map(l=>{
+            const active=pathname===l.href
+            return (
+              <Link key={l.href} href={l.href} onClick={()=>setMobileOpen(false)} title={collapsedEff?t(l.label,l.labelEn):undefined} style={{
+                display:'flex', alignItems:'center', gap:'10px',
+                padding: collapsedEff?'10px 0':'9px 12px',
+                justifyContent: collapsedEff?'center':'flex-start',
+                borderRadius:'8px', textDecoration:'none',
+                background: active?'rgba(0,196,239,0.1)':'transparent',
+                color: active?'var(--cyan)':'var(--muted)',
+                fontWeight: active?700:500, fontSize:'13px',
+                transition:'all 0.15s', whiteSpace:'nowrap',
+                borderRight: active?'2px solid var(--cyan)':'2px solid transparent',
+              }}
+                onMouseEnter={e=>{if(!active){e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}}
+                onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}}
+              >
+                <span style={{flexShrink:0,display:'flex'}}>{l.icon}</span>
+                {!collapsedEff && t(l.label,l.labelEn)}
+              </Link>
+            )
+          })}
+        </nav>
 
-      {/* Bottom */}
-      <div style={{borderTop:'1px solid var(--border)',padding:'8px 6px',display:'flex',flexDirection:'column',gap:'4px'}}>
-        {/* Help */}
-        {PAGE_HELP[pathname] && (
-          <button onClick={()=>setHelpOpen(!helpOpen)} title={t('مساعدة','Help')}
-            style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
+        {/* Bottom */}
+        <div style={{borderTop:'1px solid var(--border)',padding:'8px 6px',display:'flex',flexDirection:'column',gap:'4px'}}>
+          {/* Help */}
+          {PAGE_HELP[pathname] && (
+            <button onClick={()=>setHelpOpen(!helpOpen)} title={t('مساعدة','Help')}
+              style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsedEff?'9px 0':'9px 12px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
+              onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
+              <span style={{display:'flex',flexShrink:0}}>{Icons.help}</span>
+              {!collapsedEff && t('مساعدة','Help')}
+            </button>
+          )}
+          {/* Theme */}
+          <button onClick={toggleTheme} title={t('الثيم','Theme')}
+            style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsedEff?'9px 0':'9px 12px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
             onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
             onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
-            <span style={{display:'flex',flexShrink:0}}>{Icons.help}</span>
-            {!collapsed && t('مساعدة','Help')}
+            <span style={{display:'flex',flexShrink:0}}>{theme==='dark'?Icons.sun:Icons.moon}</span>
+            {!collapsedEff && (theme==='dark'?t('وضع النهار','Light Mode'):t('وضع الليل','Dark Mode'))}
           </button>
-        )}
-        {/* Theme */}
-        <button onClick={toggleTheme} title={t('الثيم','Theme')}
-          style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:500,transition:'all 0.15s'}}
-          onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
-          <span style={{display:'flex',flexShrink:0}}>{theme==='dark'?Icons.sun:Icons.moon}</span>
-          {!collapsed && (theme==='dark'?t('وضع النهار','Light Mode'):t('وضع الليل','Dark Mode'))}
-        </button>
-        {/* Language */}
-        <button onClick={()=>setLang(lang==='ar'?'en':'ar')} title="Language / اللغة"
-          style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:700,transition:'all 0.15s'}}
-          onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
-          <span style={{display:'flex',flexShrink:0,width:'15px',justifyContent:'center'}}>{lang==='ar'?'EN':'ع'}</span>
-          {!collapsed && (lang==='ar'?'English':'العربية')}
-        </button>
-        {/* User */}
-        {user && (
-          <div style={{display:'flex',flexDirection:'column',gap:'4px',padding:collapsed?'6px 0':'6px 12px',alignItems:collapsed?'center':'flex-start'}}>
-            {!collapsed && (
-              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
-                <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'linear-gradient(135deg,#00c4ef33,#6b1fff33)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,color:'var(--cyan)'}}>
-                  {user.username?.[0]?.toUpperCase()}
+          {/* Language */}
+          <button onClick={()=>setLang(lang==='ar'?'en':'ar')} title="Language / اللغة"
+            style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsedEff?'9px 0':'9px 12px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:700,transition:'all 0.15s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}
+            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}>
+            <span style={{display:'flex',flexShrink:0,width:'15px',justifyContent:'center'}}>{lang==='ar'?'EN':'ع'}</span>
+            {!collapsedEff && (lang==='ar'?'English':'العربية')}
+          </button>
+          {/* User */}
+          {user && (
+            <div style={{display:'flex',flexDirection:'column',gap:'4px',padding:collapsedEff?'6px 0':'6px 12px',alignItems:collapsedEff?'center':'flex-start'}}>
+              {!collapsedEff && (
+                <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
+                  <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'linear-gradient(135deg,#00c4ef33,#6b1fff33)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,color:'var(--cyan)'}}>
+                    {user.username?.[0]?.toUpperCase()}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:'12px',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.username}</div>
+                    {user.is_admin && <div style={{fontSize:'9px',color:'var(--yellow)',fontWeight:800}}>ADMIN</div>}
+                  </div>
                 </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:'12px',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.username}</div>
-                  {user.is_admin && <div style={{fontSize:'9px',color:'var(--yellow)',fontWeight:800}}>ADMIN</div>}
-                </div>
-              </div>
-            )}
-            <button onClick={logout} title={t('خروج','Logout')}
-              style={{display:'flex',alignItems:'center',gap:'8px',padding:collapsed?'7px 0':'7px 10px',justifyContent:collapsed?'center':'flex-start',borderRadius:'7px',background:'rgba(255,68,85,0.06)',border:'1px solid rgba(255,68,85,0.15)',color:'#ff7070',cursor:'pointer',fontFamily:'inherit',fontSize:'11px',fontWeight:600,width:'100%',transition:'all 0.15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,68,85,0.12)'}}
-              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,68,85,0.06)'}}>
-              <span style={{display:'flex',flexShrink:0}}>{Icons.logout}</span>
-              {!collapsed && t('تسجيل الخروج','Logout')}
+              )}
+              <button onClick={logout} title={t('خروج','Logout')}
+                style={{display:'flex',alignItems:'center',gap:'8px',padding:collapsedEff?'7px 0':'7px 10px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'7px',background:'rgba(255,68,85,0.06)',border:'1px solid rgba(255,68,85,0.15)',color:'#ff7070',cursor:'pointer',fontFamily:'inherit',fontSize:'11px',fontWeight:600,width:'100%',transition:'all 0.15s'}}
+                onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,68,85,0.12)'}}
+                onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,68,85,0.06)'}}>
+                <span style={{display:'flex',flexShrink:0}}>{Icons.logout}</span>
+                {!collapsedEff && t('تسجيل الخروج','Logout')}
+              </button>
+            </div>
+          )}
+          {/* Collapse toggle — يظهر بسطح المكتب بس، بالجوال القائمة دايم كاملة العرض */}
+          {!isMobile && (
+            <button onClick={()=>setCollapsed(!collapsed)}
+              style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsedEff?'9px 0':'9px 12px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',marginTop:'2px',transition:'all 0.15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)'}}
+              onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
+              <span style={{display:'flex',transform:collapsedEff?'rotate(180deg)':'rotate(0deg)',transition:'transform 0.2s'}}>{Icons.menu}</span>
+              {!collapsedEff && t('طي القائمة','Collapse')}
             </button>
-          </div>
-        )}
-        {/* Collapse toggle */}
-        <button onClick={()=>setCollapsed(!collapsed)}
-          style={{display:'flex',alignItems:'center',gap:'10px',padding:collapsed?'9px 0':'9px 12px',justifyContent:collapsed?'center':'flex-start',borderRadius:'8px',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',marginTop:'2px',transition:'all 0.15s'}}
-          onMouseEnter={e=>{e.currentTarget.style.background='var(--surface-2)'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
-          <span style={{display:'flex',transform:collapsed?'rotate(180deg)':'rotate(0deg)',transition:'transform 0.2s'}}>{Icons.menu}</span>
-          {!collapsed && t('طي القائمة','Collapse')}
-        </button>
-      </div>
-    </aside>
+          )}
+        </div>
+      </aside>
+    </>
   )
 }
 
 // ── Top bar for app pages ─────────────────────────────────
-function TopBar({pathname,user}:{pathname:string;user:any}) {
+function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:any;isMobile:boolean;onMenuClick:()=>void}) {
   const { t } = useLang()
   const pageNames: Record<string,[string,string]> = {
     '/dashboard':['الداشبورد','Dashboard'],'/scanner':['السكانر','Scanner'],'/strategy-builder':['منشئ الاستراتيجيات','Strategy Builder'],
     '/paper-trading':['التداول الحقيقي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
     '/api-docs':['توثيق API','API Docs'],'/subscribe':['الاشتراك','Subscribe'],'/backtest-results':['نتائج الباك تست','Backtest Results'],
+    '/settings':['الإعدادات','Settings'],
   }
   const name=pageNames[pathname]
-  if(!name) return null
+  if(!name && !isMobile) return null
   return (
     <div style={{height:'48px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 20px',background:'var(--surface)'}}>
-      <span style={{fontWeight:800,fontSize:'15px',letterSpacing:'-0.02em'}}>{t(name[0],name[1])}</span>
+      <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+        {isMobile && (
+          <button onClick={onMenuClick} aria-label={t('القائمة','Menu')}
+            style={{width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center',background:'transparent',border:'1px solid var(--border)',borderRadius:'7px',color:'var(--text)',cursor:'pointer',flexShrink:0}}>
+            {Icons.menu}
+          </button>
+        )}
+        {name && <span style={{fontWeight:800,fontSize:'15px',letterSpacing:'-0.02em'}}>{t(name[0],name[1])}</span>}
+      </div>
       {user && (
         <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
           <div style={{width:'7px',height:'7px',borderRadius:'50%',background:'var(--green)',animation:'pulse 2s infinite'}}/>
@@ -282,7 +303,18 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   const [helpOpen,setHelpOpen]   = useState(false)
   const [collapsed,setCollapsed] = useState(false)
   const [lang,setLangState]      = useState<'ar'|'en'>('ar')
+  const [isMobile,setIsMobile]   = useState(false)
+  const [mobileNavOpen,setMobileNavOpen] = useState(false)
   const pathname = usePathname()
+
+  useEffect(()=>{
+    const check=()=>setIsMobile(window.innerWidth <= 860)
+    check()
+    window.addEventListener('resize',check)
+    return ()=>window.removeEventListener('resize',check)
+  },[])
+
+  useEffect(()=>{setMobileNavOpen(false)},[pathname])
 
   const fetchUser = async () => {
     const token=localStorage.getItem('token'), userId=localStorage.getItem('user_id')
@@ -355,17 +387,18 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
             theme={theme} toggleTheme={toggleTheme} user={user}
             pathname={pathname} helpOpen={helpOpen} setHelpOpen={setHelpOpen}
             collapsed={collapsed} setCollapsed={setCollapsed}
+            isMobile={isMobile} mobileOpen={mobileNavOpen} setMobileOpen={setMobileNavOpen}
           />
 
           {/* Main content */}
           <div style={{
             marginTop:'32px',
-            marginRight: isApp ? sideW+'px' : 0,
+            marginRight: isApp && !isMobile ? sideW+'px' : 0,
             minHeight:'calc(100vh - 32px)',
             transition:'margin-right 0.2s ease',
             display:'flex', flexDirection:'column',
           }}>
-            {isApp && <TopBar pathname={pathname} user={user}/>}
+            {isApp && <TopBar pathname={pathname} user={user} isMobile={isMobile} onMenuClick={()=>setMobileNavOpen(true)}/>}
 
             {/* Public header (login/register/etc) — الرئيسية "/" مستثناة لأن
                 page.tsx عندها نافبار كامل خاص فيها، عرضهم مع بعض يسبب هيدر مكرر */}

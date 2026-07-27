@@ -293,7 +293,7 @@ export default function StrategyBuilderPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '28px 32px', display: 'grid', gridTemplateColumns: '380px 1fr', gap: '24px', alignItems: 'flex-start' }}>
+      <div className="sb-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '28px 32px', display: 'grid', gridTemplateColumns: '380px 1fr', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* ─── Builder Panel ─── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -470,7 +470,7 @@ export default function StrategyBuilderPage() {
         {/* ─── Results ─── */}
         <div>
           {results.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
+            <div className="sb-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
               {[
                 { label: t('العملات المفحوصة', 'Coins scanned'), value: results.length,  color: 'var(--text)' },
                 { label: t('تطابق الشروط', 'Matched conditions'),     value: passed.length,   color: 'var(--cyan)' },
@@ -544,6 +544,13 @@ export default function StrategyBuilderPage() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 860px) {
+          .sb-grid { grid-template-columns: 1fr !important; padding: 20px 16px !important; }
+          .sb-stats { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </div>
   )
 }

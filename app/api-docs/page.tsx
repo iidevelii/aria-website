@@ -172,7 +172,7 @@ function CodeBlock({ code }: { code: string }) {
 function ParamRow({ p }: { p: { name: string; type: string; required: boolean; desc: string; descEn: string } }) {
   const { t } = useLang()
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '130px 80px 60px 1fr', gap: '10px', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', alignItems: 'start', fontSize: '12px' }}>
+    <div className="param-row" style={{ display: 'grid', gridTemplateColumns: '130px 80px 60px 1fr', gap: '10px', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', alignItems: 'start', fontSize: '12px' }}>
       <code style={{ color: MC.kw, fontFamily: 'var(--mono)' }}>{p.name}</code>
       <span style={{ color: MC.string }}>{p.type}</span>
       <span style={{ color: p.required?'#ff4455':'var(--muted)', fontWeight: 700, fontSize: '10px', paddingTop: '1px' }}>{p.required?t('مطلوب','Required'):t('اختياري','Optional')}</span>
@@ -314,6 +314,13 @@ export default function ApiDocsPage() {
           {t('DevelBot API — للأسئلة تواصل عبر تلقرام', 'DevelBot API — for questions, reach us on Telegram')}
         </p>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .param-row { grid-template-columns: 1fr 1fr !important; row-gap: 4px !important; }
+          .param-row > span:last-child { grid-column: 1 / -1 !important; }
+        }
+      `}</style>
     </div>
   )
 }
