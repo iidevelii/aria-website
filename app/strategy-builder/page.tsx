@@ -1,6 +1,8 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useLang } from '../layout'
+
+const API = 'https://web-production-97af6.up.railway.app'
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
 function _rsi(c: number[], p=14) { if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}const ag=g/p,al=l/p;return al===0?100:100-100/(1+ag/al) }
@@ -38,6 +40,10 @@ type Condition = { id: string; indicator: string; operator: string; value: strin
 type Logic = 'AND' | 'OR'
 type Strategy = { id: string; name: string; conditions: Condition[]; logic: Logic; createdAt: string }
 type Result = { symbol: string; price: number; chg: number; rsi: number; adx: number; st: string; macd: boolean; bb: number; score: number; passed: boolean }
+type CustomAlert = {
+  id: number; name: string; conditions: Condition[]; logic: Logic
+  timeframe: string; pair_count: number; active: boolean
+}
 
 const INDICATORS = [
   { id: 'rsi',   label: 'RSI',         type: 'number' },
@@ -123,6 +129,55 @@ export default function StrategyBuilderPage() {
   const [progress, setProgress] = useState(0)
   const [totalPairs, setTotalPairs] = useState(0)
   const [saved, setSaved] = useState<Strategy[]>(() => { try { return loadStrats() } catch { return [] } })
+
+  const [customAlerts, setCustomAlerts] = useState<CustomAlert[]>([])
+  const [activating, setActivating] = useState(false)
+  const [activateMsg, setActivateMsg] = useState('')
+
+  const loadCustomAlerts = async () => {
+    const uid = localStorage.getItem('user_id')
+    if (!uid) return
+    try {
+      const r = await fetch(`${API}/custom-alerts?user_id=${uid}`)
+      if (r.ok) setCustomAlerts(await r.json())
+    } catch {}
+  }
+
+  useEffect(() => { loadCustomAlerts() }, [])
+
+  const activateOnTelegram = async () => {
+    const uid = localStorage.getItem('user_id')
+    if (!uid) { setActivateMsg(t('سجّل دخولك عشان تفعّل التنبيه على تلقرام', 'Log in to activate Telegram alerts')); return }
+    if (!stratName.trim()) { setActivateMsg(t('أدخل اسم الاستراتيجية أولاً', 'Enter a strategy name first')); return }
+    setActivating(true); setActivateMsg('')
+    try {
+      const r = await fetch(`${API}/custom-alerts`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: Number(uid), name: stratName, conditions, logic, timeframe: tf, pair_count: pairCount }),
+      })
+      const d = await r.json()
+      if (r.ok) { setActivateMsg(t('✅ تم التفعيل — راح توصلك تنبيهات على تلقرام', '✅ Activated — you\'ll get alerts on Telegram')); loadCustomAlerts() }
+      else setActivateMsg(d.detail || t('تعذّر التفعيل', 'Could not activate'))
+    } catch { setActivateMsg(t('تعذّر التفعيل', 'Could not activate')) }
+    setActivating(false)
+  }
+
+  const toggleAlert = async (id: number, active: boolean) => {
+    try {
+      await fetch(`${API}/custom-alerts/${id}/toggle`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      })
+      setCustomAlerts(cs => cs.map(a => a.id === id ? { ...a, active } : a))
+    } catch {}
+  }
+
+  const deleteAlert = async (id: number) => {
+    try {
+      await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE' })
+      setCustomAlerts(cs => cs.filter(a => a.id !== id))
+    } catch {}
+  }
 
   const addCond = () => setConditions(cs => [...cs, newCond()])
   const remCond = (id: string) => setConditions(cs => cs.filter(c => c.id !== id))
@@ -347,6 +402,15 @@ export default function StrategyBuilderPage() {
                 style={{ padding: '13px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>💾</button>
             </div>
 
+            <button onClick={activateOnTelegram} disabled={activating}
+              style={{ width: '100%', marginTop: '8px', padding: '11px', background: 'transparent', border: '1px solid rgba(0,196,239,0.3)', color: 'var(--cyan)', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: activating ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              {activating ? t('جاري التفعيل...', 'Activating...') : `📲 ${t('فعّل على تلقرام', 'Activate on Telegram')}`}
+            </button>
+            {activateMsg && <div style={{ fontSize: '11.5px', color: activateMsg.startsWith('✅') ? '#00e664' : '#ff4455', marginTop: '8px' }}>{activateMsg}</div>}
+            <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', lineHeight: 1.6 }}>
+              {t('البوت يراقب هذي الشروط تلقائياً ويرسل لك تنبيه خاص على تلقرام أول ما تنطبق على أي عملة — لازم يكون حسابك مربوط بتلقرام من صفحة الإعدادات.', 'The bot monitors these conditions automatically and sends you a private Telegram alert whenever a coin matches — your account must be linked to Telegram from the Settings page.')}
+            </div>
+
             {loading && (
               <div style={{ marginTop: '12px' }}>
                 <div style={{ height: '4px', background: 'var(--surface-2)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -370,6 +434,32 @@ export default function StrategyBuilderPage() {
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button onClick={() => loadSaved(s)} style={{ background: 'rgba(0,196,239,0.08)', border: '1px solid rgba(0,196,239,0.2)', color: 'var(--cyan)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>{t('تحميل', 'Load')}</button>
                     <button onClick={() => deleteSaved(s.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Active Telegram Custom Alerts */}
+          {customAlerts.length > 0 && (
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', fontWeight: 800, fontSize: '13px' }}>
+                📲 {t('التنبيهات المفعّلة على تلقرام', 'Active Telegram Alerts')}
+              </div>
+              {customAlerts.map((a, i) => (
+                <div key={a.id} style={{ padding: '12px 20px', borderBottom: i < customAlerts.length - 1 ? '1px solid var(--border)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{a.name}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+                      {a.conditions.length} {t('شرط', 'conditions')} · {a.logic} · {a.timeframe} · {t('أعلى', 'top')} {a.pair_count}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                    <button onClick={() => toggleAlert(a.id, !a.active)}
+                      style={{ background: a.active ? 'rgba(0,230,100,0.1)' : 'var(--surface-2)', border: `1px solid ${a.active ? 'rgba(0,230,100,0.25)' : 'var(--border)'}`, color: a.active ? '#00e664' : 'var(--muted)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
+                      {a.active ? t('مفعّل', 'Active') : t('موقّف', 'Paused')}
+                    </button>
+                    <button onClick={() => deleteAlert(a.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
                   </div>
                 </div>
               ))}
