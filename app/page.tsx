@@ -254,7 +254,7 @@ export default function Home() {
             <h2 className="section-title">{t('كل إشارة تجيك فوراً', 'Every signal reaches you instantly')}</h2>
             <p className="section-sub">{t('بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك — الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.', 'As soon as an opportunity is found, the bot sends full details to your Telegram — pair, side, entry, target, stop loss, leverage, and Score.')}</p>
             <div style={{ marginTop: '28px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a href="https://t.me/Devel100_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
+              <a href="https://t.me/Develpay_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
               <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>{t('سجّل للحصول على الكود', 'Sign up to get your code')}</Link>
             </div>
           </div>
@@ -322,7 +322,7 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
               { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ — بدون بطاقة ائتمان، 14 يوم تجربة كاملة', 'An account in seconds — no credit card, 14 days full trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
-              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('أرسل كود التفعيل لـ @DevelBot وابدأ استقبال الإشارات فوراً', 'Send your activation code to @DevelBot and start receiving signals instantly'), href: 'https://t.me/Devel100_bot', cta: t('فتح ↗', 'Open ↗') },
+              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot، ادفع، وفعّل حسابك — بعدها توصلك كل الإشارات على تلقرام فوراً', 'Open @Develpay_bot, pay, and activate your account — every signal then reaches you on Telegram instantly'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
               { n: '03', title: t('تداول بثقة', 'Trade with confidence'), desc: t('كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', 'Every signal arrives with the strategy, entry, target, stop loss, and leverage'), href: '/dashboard', cta: t('الإشارات ←', 'Signals →') },
             ].map((s,i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
@@ -409,7 +409,7 @@ export default function Home() {
               {[
                 { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
                 { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
-                { title: t('تواصل', 'Contact'),  links: [[t('تلقرام','Telegram'),'https://t.me/Devel100_bot'],[t('القناة','Channel'),'https://t.me/DevilAISignals']] },
+                { title: t('تواصل', 'Contact'),  links: [[t('تلقرام','Telegram'),'https://t.me/Develpay_bot'],[t('القناة','Channel'),'https://t.me/DevilAISignals']] },
               ].map((col,i) => (
                 <div key={i}>
                   <div style={{ color: 'var(--text)', fontWeight: 700, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>{col.title}</div>
