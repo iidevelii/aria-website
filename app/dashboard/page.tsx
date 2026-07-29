@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useLang } from '../layout'
 
 const API = 'https://web-production-97af6.up.railway.app'
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 function fmt(p: number | string) {
   const n = parseFloat(String(p))
@@ -303,7 +304,7 @@ export default function Dashboard() {
     ;(async () => {
       try {
         if (uid) {
-          const r = await fetch(`${API}/user/${uid}`)
+          const r = await fetch(`${API}/user/${uid}`, { headers: authHeaders() })
           if (r.ok) setUser(await r.json())
         }
         const [sr, tr, cr, nr] = await Promise.all([

@@ -319,7 +319,11 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   const fetchUser = async () => {
     const token=localStorage.getItem('token'), userId=localStorage.getItem('user_id')
     if(token&&userId){
-      try{const r=await fetch(`${API}/user/${userId}`);const d=await r.json();if(d.username)setUser(d);else setUser(null)}
+      try{
+        const r=await fetch(`${API}/user/${userId}`,{headers:{Authorization:`Bearer ${token}`}})
+        if(r.status===401){localStorage.removeItem('token');localStorage.removeItem('user_id');setUser(null);setAuthLoading(false);return}
+        const d=await r.json();if(d.username)setUser(d);else setUser(null)
+      }
       catch{setUser(null)}
     }else setUser(null)
     setAuthLoading(false)

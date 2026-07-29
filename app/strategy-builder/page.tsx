@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLang } from '../layout'
 
 const API = 'https://web-production-97af6.up.railway.app'
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
 function _rsi(c: number[], p=14) { if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}const ag=g/p,al=l/p;return al===0?100:100-100/(1+ag/al) }
@@ -138,7 +139,7 @@ export default function StrategyBuilderPage() {
     const uid = localStorage.getItem('user_id')
     if (!uid) return
     try {
-      const r = await fetch(`${API}/custom-alerts?user_id=${uid}`)
+      const r = await fetch(`${API}/custom-alerts?user_id=${uid}`, { headers: authHeaders() })
       if (r.ok) setCustomAlerts(await r.json())
     } catch {}
   }
@@ -152,7 +153,7 @@ export default function StrategyBuilderPage() {
     setActivating(true); setActivateMsg('')
     try {
       const r = await fetch(`${API}/custom-alerts`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ user_id: Number(uid), name: stratName, conditions, logic, timeframe: tf, pair_count: pairCount }),
       })
       const d = await r.json()
@@ -165,7 +166,7 @@ export default function StrategyBuilderPage() {
   const toggleAlert = async (id: number, active: boolean) => {
     try {
       await fetch(`${API}/custom-alerts/${id}/toggle`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ active }),
       })
       setCustomAlerts(cs => cs.map(a => a.id === id ? { ...a, active } : a))
@@ -174,7 +175,7 @@ export default function StrategyBuilderPage() {
 
   const deleteAlert = async (id: number) => {
     try {
-      await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE' })
+      await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE', headers: authHeaders() })
       setCustomAlerts(cs => cs.filter(a => a.id !== id))
     } catch {}
   }

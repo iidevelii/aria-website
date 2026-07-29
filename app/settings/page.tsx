@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useLang } from '../layout'
 
 const API = 'https://web-production-97af6.up.railway.app'
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 type UserData = {
   id: number; email: string; username: string; telegram_id: string | null
@@ -56,7 +57,7 @@ export default function SettingsPage() {
     const uid = localStorage.getItem('user_id')
     if (!uid) { setLoading(false); return }
     try {
-      const r = await fetch(`${API}/user/${uid}`)
+      const r = await fetch(`${API}/user/${uid}`, { headers: authHeaders() })
       if (r.ok) setUser(await r.json())
     } catch {}
     setLoading(false)
@@ -69,7 +70,7 @@ export default function SettingsPage() {
     setSaving(true)
     try {
       await fetch(`${API}/user/${user.id}/notify-prefs`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ prefs }),
       })
       setUser({ ...user, notify_prefs: prefs })
@@ -84,7 +85,7 @@ export default function SettingsPage() {
     setLinking(true)
     try {
       const r = await fetch(`${API}/link-telegram/start`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ user_id: user.id }),
       })
       const d = await r.json()
@@ -100,7 +101,7 @@ export default function SettingsPage() {
     setBlError('')
     try {
       const r = await fetch(`${API}/user/${user.id}/blacklist`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ action: 'add', symbol }),
       })
       const d = await r.json()
@@ -113,7 +114,7 @@ export default function SettingsPage() {
     if (!user) return
     try {
       const r = await fetch(`${API}/user/${user.id}/blacklist`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ action: 'remove', symbol }),
       })
       const d = await r.json()
