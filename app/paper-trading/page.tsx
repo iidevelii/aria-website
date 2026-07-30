@@ -24,7 +24,7 @@ type Portfolio = {
   positions: Position[]
 }
 
-const INIT: Portfolio = { balance: 311000, initialBalance: 311000, positions: [] }
+const INIT: Portfolio = { balance: 10000, initialBalance: 10000, positions: [] }
 const PORTFOLIO_KEY = 'trading_portfolio'
 
 const PAIRS = [
@@ -141,7 +141,8 @@ export default function PaperTradingPage() {
     if (!pos) return
     const cur = prices[pos.symbol] || pos.entry
     const pnl = calcPnl(pos, cur)
-    const newPositions = portfolio.positions.map(p=>p.id===id?{...p,status:'LOSS' as const,pnl,closePrice:cur,closedAt:new Date().toISOString()}:p)
+    const status: 'WIN' | 'LOSS' = pnl >= 0 ? 'WIN' : 'LOSS'
+    const newPositions = portfolio.positions.map(p=>p.id===id?{...p,status,pnl,closePrice:cur,closedAt:new Date().toISOString()}:p)
     const totalPnl = newPositions.filter(p=>p.status!=='OPEN').reduce((acc,p)=>acc+(p.pnl||0),0)
     const next = { ...portfolio, positions: newPositions, balance: portfolio.initialBalance + totalPnl }
     setPortfolio(next); save(next)

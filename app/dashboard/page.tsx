@@ -184,7 +184,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
       </div>
 
       {/* ── Price Grid ── */}
-      <div style={{
+      <div className="signal-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '8px',
@@ -332,6 +332,7 @@ export default function Dashboard() {
   const winRate = (wins + losses) > 0 ? Math.round((wins / (wins + losses)) * 100) : 0
   const totalPnlWin = signals.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const totalPnlLoss = signals.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+  const netPnl = totalPnlWin + totalPnlLoss
   const mins = Math.floor(nextScan / 60)
   const secs = nextScan % 60
 
@@ -414,7 +415,7 @@ export default function Dashboard() {
             { label: t('الرابحة', 'Wins'), value: wins, color: '#00e664' },
             { label: t('الخاسرة', 'Losses'), value: losses, color: '#ff5555' },
             { label: t('نسبة الفوز', 'Win Rate'), value: `${winRate}%`, color: winRate >= 60 ? '#00e664' : '#fbbf24' },
-            { label: t('صافي الربح', 'Net Profit'), value: `+${totalPnlWin.toFixed(1)}%`, color: '#00e664' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? '#00e664' : '#ff5555' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -440,7 +441,7 @@ export default function Dashboard() {
 
         {/* ── OVERVIEW ── */}
         {tab === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
+          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
               {/* Latest signal */}
@@ -475,7 +476,7 @@ export default function Dashboard() {
                           <div style={{ fontSize: '28px', fontWeight: 900, color: '#00c4ef' }}>{s.ai_score}<span style={{ fontSize: '13px', color: 'var(--muted)' }}>/100</span></div>
                         </div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                      <div className="signal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                         <div className="price-box" style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '4px' }}>{t('دخول', 'Entry')}</div>
                           <div style={{ fontFamily: 'monospace', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>${fmt(s.entry)}</div>
@@ -711,6 +712,9 @@ export default function Dashboard() {
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
         @media (max-width: 640px) {
           .signal-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 900px) {
+          .overview-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

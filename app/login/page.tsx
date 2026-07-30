@@ -86,16 +86,14 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
+          <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--border)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <p style={{ color: 'var(--muted)', fontSize: '14px', margin: 0 }}>
               {t('ما عندك حساب؟', "Don't have an account?")}{' '}
-              <div style={{ textAlign: 'left', marginTop: '-8px' }}>
-  <Link href="/forgot-password" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>
-    {t('نسيت كلمة المرور؟', 'Forgot your password?')}
-  </Link>
-</div>
               <Link href="/register" style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('سجّل مجاناً', 'Sign up free')}</Link>
             </p>
+            <Link href="/forgot-password" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>
+              {t('نسيت كلمة المرور؟', 'Forgot your password?')}
+            </Link>
           </div>
         </div>
 

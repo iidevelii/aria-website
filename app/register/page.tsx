@@ -45,13 +45,12 @@ export default function Register() {
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #00d4ff, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '18px', color: '#fff' }}>A</div>
-            <span style={{ fontWeight: 900, fontSize: '20px', color: 'var(--text)' }}>Devel<span style={{ color: 'var(--cyan)' }}>Bot</span></span>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
           </Link>
 
           <div className="badge" style={{ marginBottom: '20px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88', display: 'inline-block' }}></span>
-            {t('14 يوم تجربة مجانية — بدون بطاقة', '14-day free trial — no card required')}
+            {t('30 يوم تجربة مجانية — بدون بطاقة', '30-day free trial — no card required')}
           </div>
 
           <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>{t('انشئ حسابك', 'Create your account')}</h1>
@@ -92,7 +91,7 @@ export default function Register() {
             {[
               { icon: '✓', text: t('كامل الاشارات', 'Full signals') },
               { icon: '✓', text: t('ربط التلقرام', 'Telegram integration') },
-              { icon: '✓', text: t('14 يوم مجاناً', '14 days free') },
+              { icon: '✓', text: t('30 يوم مجاناً', '30 days free') },
               { icon: '✓', text: t('بدون بطاقة', 'No card needed') },
             ].map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
@@ -111,7 +110,7 @@ export default function Register() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/dashboard" style={{ color: '#374151', fontSize: '13px', textDecoration: 'none' }}>{t('تصفح بدون تسجيل ←', 'Browse without signing up →')}</Link>
+          <Link href="/backtest-results" style={{ color: 'var(--muted)', fontSize: '13px', textDecoration: 'none' }}>{t('شوف نتائج حقيقية بدون تسجيل ←', 'See real results without signing up →')}</Link>
         </p>
       </div>
     </div>

@@ -7,6 +7,7 @@ export default function Stats() {
   const { t, lang } = useLang()
   const [signals, setSignals] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [activeMonth, setActiveMonth] = useState('')
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export default function Stats() {
         setSignals(Array.isArray(d) ? d : [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => { setLoadError(true); setLoading(false) })
   }, [])
 
   // تجميع الصفقات حسب الشهر
@@ -60,6 +61,13 @@ export default function Stats() {
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ color: 'var(--cyan)', fontWeight: 700 }}>{t('جاري التحميل...', 'Loading...')}</div>
+    </div>
+  )
+
+  if (loadError) return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
+      <div style={{ fontSize: '32px' }}>⚠️</div>
+      <div>{t('تعذّر تحميل البيانات — تحقق من اتصالك وحاول مرة ثانية', 'Failed to load data — check your connection and try again')}</div>
     </div>
   )
 

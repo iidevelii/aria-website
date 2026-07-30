@@ -360,7 +360,6 @@ export default function ScannerPage() {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        :root { --purple: #6b1fff; --yellow: #f5c842; --mono: 'SF Mono','Fira Code',monospace; }
       `}</style>
     </div>
   )
