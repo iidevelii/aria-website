@@ -176,6 +176,7 @@ export default function BacktestResults() {
   const [data, setData] = useState<BacktestData | null>(null)
   const [loading, setLoading] = useState(true)
   const [equity, setEquity] = useState<EquityCurveData | null>(null)
+  const [spotEquity, setSpotEquity] = useState<EquityCurveData | null>(null)
 
   useEffect(() => {
     fetch('/backtest-results.json')
@@ -185,6 +186,10 @@ export default function BacktestResults() {
     fetch('/trend-equity-curve.json')
       .then(r => r.json())
       .then(d => setEquity(d))
+      .catch(() => {})
+    fetch('/spot-equity-curve.json')
+      .then(r => r.json())
+      .then(d => setSpotEquity(d))
       .catch(() => {})
   }, [])
 
@@ -243,6 +248,23 @@ export default function BacktestResults() {
         {data && (
           <>
             <MarketSection data={data.futures} title={t('الفيوتشر', 'Futures')} emoji="🔵" />
+
+            {spotEquity && (
+              <div style={{ marginBottom: '8px' }}>
+                <EquityCurve
+                  points={spotEquity.points}
+                  netPct={spotEquity.netPct}
+                  totalTrades={spotEquity.totalTrades}
+                  label={`🟡 ${t('منحنى السبوت — SMC_MTF', 'Spot Equity Curve — SMC_MTF')}`}
+                />
+                <p style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '-8px', marginBottom: '32px', lineHeight: 1.7 }}>
+                  {t(
+                    `⚠️ نفس المبدأ: إعادة تشغيل حقيقية بنفس إعدادات البوت الحي (SL 0.3×ATR / TP 2.0R) على عيّنة ${spotEquity.universe} عملة/365 يوم — ${spotEquity.totalTrades} صفقة حقيقية فقط (تردد السبوت أقل بطبيعته من الفيوتشر). الجدول بالأسفل مبني على عيّنة أوسع (462 عملة).`,
+                    `⚠️ Same principle: a real re-run using the exact live bot settings (SL 0.3×ATR / TP 2.0R) on a ${spotEquity.universe}-coin/365-day sample — only ${spotEquity.totalTrades} real trades (spot is naturally lower-frequency than futures). The table below comes from a broader 462-coin sample.`
+                  )}
+                </p>
+              </div>
+            )}
 
             {data.spotStrategies.map((s, i) => (
               <MarketSection key={s.key || i} data={s} title={t(`استراتيجية ${i + 1}`, `Strategy ${i + 1}`)} emoji={i === 0 ? '🥇' : '🥈'} />
