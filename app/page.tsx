@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from './layout'
+import LiveChartDemo from './LiveChartDemo'
+import SleepingWalletArt from './SleepingWalletArt'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -179,6 +181,14 @@ export default function Home() {
             <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('هذه بيانات توضيحية', 'This is sample data')}</span>
             <Link href="/dashboard" style={{ fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('الإشارات الحقيقية ←', 'Real signals →')}</Link>
           </div>
+        </div>
+      </section>
+
+      {/* ══ شارت حي + الفلوس تشتغل وأنت نايم ══ */}
+      <section className="section">
+        <div className="hero-visuals-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '32px', alignItems: 'stretch' }}>
+          <LiveChartDemo />
+          <SleepingWalletArt />
         </div>
       </section>
 
@@ -443,6 +453,7 @@ export default function Home() {
         }
         @media (max-width: 768px) {
           section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           h1 { font-size: 36px !important; }
         }
         @media (max-width: 860px) {
