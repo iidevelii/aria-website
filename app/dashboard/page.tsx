@@ -405,6 +405,12 @@ export default function Dashboard() {
         </div>
       )}
 
+      {user?.is_admin && (
+        <div style={{ background: 'rgba(107,31,255,0.06)', borderBottom: '1px solid rgba(107,31,255,0.12)', padding: '10px 24px', textAlign: 'center' }}>
+          <Link href="/admin" style={{ color: 'var(--purple)', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>🛠 {t('لوحة تحكم الأدمن', 'Admin Panel')}</Link>
+        </div>
+      )}
+
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
         {/* Stats row */}
