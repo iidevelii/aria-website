@@ -44,7 +44,22 @@ type Result = { symbol: string; price: number; chg: number; rsi: number; adx: nu
 type CustomAlert = {
   id: number; name: string; conditions: Condition[]; logic: Logic
   timeframe: string; pair_count: number; active: boolean
+  alert_type?: string; pattern_type?: string | null
 }
+
+const PATTERN_TYPES: { id: string; label: [string, string] }[] = [
+  { id: 'double_top',             label: ['قمة مزدوجة', 'Double Top'] },
+  { id: 'double_bottom',          label: ['قاع مزدوج', 'Double Bottom'] },
+  { id: 'triple_top',             label: ['قمة ثلاثية', 'Triple Top'] },
+  { id: 'triple_bottom',          label: ['قاع ثلاثي', 'Triple Bottom'] },
+  { id: 'head_shoulders',         label: ['رأس وكتفين', 'Head & Shoulders'] },
+  { id: 'inverse_head_shoulders', label: ['رأس وكتفين معكوس', 'Inverse Head & Shoulders'] },
+  { id: 'ascending_triangle',     label: ['مثلث صاعد', 'Ascending Triangle'] },
+  { id: 'descending_triangle',    label: ['مثلث هابط', 'Descending Triangle'] },
+  { id: 'symmetrical_triangle',   label: ['مثلث متماثل', 'Symmetrical Triangle'] },
+  { id: 'rising_wedge',           label: ['وتد صاعد', 'Rising Wedge'] },
+  { id: 'falling_wedge',          label: ['وتد هابط', 'Falling Wedge'] },
+]
 
 const INDICATORS = [
   { id: 'rsi',   label: 'RSI',         type: 'number' },
@@ -178,6 +193,37 @@ export default function StrategyBuilderPage() {
       await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE', headers: authHeaders() })
       setCustomAlerts(cs => cs.filter(a => a.id !== id))
     } catch {}
+  }
+
+  const [patternType, setPatternType] = useState(PATTERN_TYPES[0].id)
+  const [patternTf, setPatternTf] = useState('1h')
+  const [patternPairCount, setPatternPairCount] = useState(100)
+  const [patternActivating, setPatternActivating] = useState(false)
+  const [patternMsg, setPatternMsg] = useState('')
+
+  const patternLabel = (id: string): string => {
+    const p = PATTERN_TYPES.find(x => x.id === id)
+    return p ? t(p.label[0], p.label[1]) : id
+  }
+
+  const activatePatternOnTelegram = async () => {
+    const uid = localStorage.getItem('user_id')
+    if (!uid) { setPatternMsg(t('سجّل دخولك عشان تفعّل التنبيه على تلقرام', 'Log in to activate Telegram alerts')); return }
+    setPatternActivating(true); setPatternMsg('')
+    try {
+      const r = await fetch(`${API}/custom-alerts`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          user_id: Number(uid), name: `نمط: ${patternLabel(patternType)}`,
+          alert_type: 'pattern', pattern_type: patternType,
+          timeframe: patternTf, pair_count: patternPairCount,
+        }),
+      })
+      const d = await r.json()
+      if (r.ok) { setPatternMsg(t('✅ تم التفعيل — راح توصلك تنبيهات على تلقرام', '✅ Activated — you\'ll get alerts on Telegram')); loadCustomAlerts() }
+      else setPatternMsg(d.detail || t('تعذّر التفعيل', 'Could not activate'))
+    } catch { setPatternMsg(t('تعذّر التفعيل', 'Could not activate')) }
+    setPatternActivating(false)
   }
 
   const addCond = () => setConditions(cs => [...cs, newCond()])
@@ -422,6 +468,37 @@ export default function StrategyBuilderPage() {
             )}
           </div>
 
+          {/* Chart Pattern Alerts */}
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', fontWeight: 800, fontSize: '14px' }}>
+              📐 {t('تنبيهات أنماط الشارت', 'Chart Pattern Alerts')}
+            </div>
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <p style={{ color: 'var(--muted)', fontSize: '12px', margin: 0 }}>
+                {t('اختر نمط شارت كلاسيكي — البوت يرصده تلقائياً ويرسل لك تنبيه بعد التأكيد.', 'Pick a classic chart pattern — the bot detects it automatically and alerts you once confirmed.')}
+              </p>
+              <select value={patternType} onChange={e => setPatternType(e.target.value)}
+                style={{ width: '100%', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '10px', color: 'var(--text)', fontSize: '13px', fontFamily: 'inherit', fontWeight: 700 }}>
+                {PATTERN_TYPES.map(p => <option key={p.id} value={p.id}>{t(p.label[0], p.label[1])}</option>)}
+              </select>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <select value={patternTf} onChange={e => setPatternTf(e.target.value)}
+                  style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '9px', color: 'var(--text)', fontSize: '12px', fontFamily: 'inherit', fontWeight: 700 }}>
+                  {TFS.map(f => <option key={f} value={f}>{f}</option>)}
+                </select>
+                <select value={patternPairCount} onChange={e => setPatternPairCount(Number(e.target.value))}
+                  style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '9px', color: 'var(--text)', fontSize: '12px', fontFamily: 'inherit', fontWeight: 700 }}>
+                  {[30, 60, 100].map(n => <option key={n} value={n}>{t(`أعلى ${n}`, `Top ${n}`)}</option>)}
+                </select>
+              </div>
+              <button onClick={activatePatternOnTelegram} disabled={patternActivating}
+                style={{ width: '100%', padding: '11px', background: 'transparent', border: '1px solid rgba(0,196,239,0.3)', color: 'var(--cyan)', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: patternActivating ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                {patternActivating ? t('جاري التفعيل...', 'Activating...') : `📲 ${t('فعّل على تلقرام', 'Activate on Telegram')}`}
+              </button>
+              {patternMsg && <div style={{ fontSize: '11.5px', color: patternMsg.startsWith('✅') ? '#00e664' : '#ff4455' }}>{patternMsg}</div>}
+            </div>
+          </div>
+
           {/* Saved Strategies */}
           {saved.length > 0 && (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
@@ -452,7 +529,9 @@ export default function StrategyBuilderPage() {
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '13px' }}>{a.name}</div>
                     <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-                      {a.conditions.length} {t('شرط', 'conditions')} · {a.logic} · {a.timeframe} · {t('أعلى', 'top')} {a.pair_count}
+                      {a.alert_type === 'pattern'
+                        ? <>📐 {a.pattern_type ? patternLabel(a.pattern_type) : ''} · {a.timeframe} · {t('أعلى', 'top')} {a.pair_count}</>
+                        : <>{a.conditions.length} {t('شرط', 'conditions')} · {a.logic} · {a.timeframe} · {t('أعلى', 'top')} {a.pair_count}</>}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
