@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from '../layout'
+import EquityCurve from './EquityCurve'
+
+type EquityCurveData = { engine: string; universe: number; totalTrades: number; netPct: number; points: { t: string; cum: number }[] }
 
 type CoinRow = {
   symbol: string; trades: number; wins: number; losses: number
@@ -172,12 +175,17 @@ export default function BacktestResults() {
   const { t } = useLang()
   const [data, setData] = useState<BacktestData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [equity, setEquity] = useState<EquityCurveData | null>(null)
 
   useEffect(() => {
     fetch('/backtest-results.json')
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch('/trend-equity-curve.json')
+      .then(r => r.json())
+      .then(d => setEquity(d))
+      .catch(() => {})
   }, [])
 
   return (
@@ -214,6 +222,23 @@ export default function BacktestResults() {
 
         {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '60px 0' }}>{t('جاري التحميل...', 'Loading...')}</p>}
         {!loading && !data && <p style={{ textAlign: 'center', color: 'var(--red)', padding: '60px 0' }}>{t('تعذّر تحميل البيانات', 'Failed to load data')}</p>}
+
+        {equity && (
+          <div style={{ marginBottom: '8px' }}>
+            <EquityCurve
+              points={equity.points}
+              netPct={equity.netPct}
+              totalTrades={equity.totalTrades}
+              label={`🔵 ${t('منحنى الفيوتشر — TREND_MTF', 'Futures Equity Curve — TREND_MTF')}`}
+            />
+            <p style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '-8px', marginBottom: '32px', lineHeight: 1.7 }}>
+              {t(
+                `⚠️ هذا المنحنى مبني من إعادة تشغيل حقيقية بنفس إعدادات البوت الحي بالضبط (SL 0.6×ATR / TP 1.2R) على عيّنة ${equity.universe} عملة/365 يوم — ${equity.totalTrades} صفقة حقيقية بترتيبها الزمني الفعلي، مو أرقام تقديرية. الجدول والإحصائيات بالأسفل مبنية على عيّنة أوسع (${data?.futures.universe ?? 529} عملة) ولذلك أرقامها تختلف قليلاً عن هذا المنحنى.`,
+                `⚠️ This curve is built from a real re-run using the exact live bot settings (SL 0.6×ATR / TP 1.2R) on a ${equity.universe}-coin/365-day sample — ${equity.totalTrades} real trades in actual chronological order, not an estimate. The table and stats below come from a broader ${data?.futures.universe ?? 529}-coin sample, so the numbers differ slightly from this curve.`
+              )}
+            </p>
+          </div>
+        )}
 
         {data && (
           <>
