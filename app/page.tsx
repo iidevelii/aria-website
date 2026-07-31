@@ -26,9 +26,9 @@ function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
       <span className={side === 'LONG' ? 'pill-long' : 'pill-short'}>{side}</span>
       <span style={{ color: '#5a6272', fontFamily: 'var(--mono)', fontSize: '12px', flex: 1 }}>${entry}</span>
       <span style={{ color: '#00e664', fontFamily: 'var(--mono)', fontSize: '12px', minWidth: '72px', textAlign: 'left' }}>→ ${tp}</span>
-      <span style={{ color: '#00c4ef', fontWeight: 700, fontFamily: 'var(--mono)', minWidth: '38px', textAlign: 'right' }}>{score}</span>
-      <span style={{ color: side === 'LONG' ? '#00e664' : '#ff4455', fontFamily: 'var(--mono)', minWidth: '52px', textAlign: 'right' }}>{pct}</span>
-      <span style={{ color: '#2a2e38', fontSize: '11px', minWidth: '36px', textAlign: 'right' }}>{age}</span>
+      <span className="feed-col-narrow" style={{ color: '#00c4ef', fontWeight: 700, fontFamily: 'var(--mono)', minWidth: '38px', textAlign: 'right' }}>{score}</span>
+      <span className="feed-col-narrow" style={{ color: side === 'LONG' ? '#00e664' : '#ff4455', fontFamily: 'var(--mono)', minWidth: '52px', textAlign: 'right' }}>{pct}</span>
+      <span className="feed-col-narrow" style={{ color: '#2a2e38', fontSize: '11px', minWidth: '36px', textAlign: 'right' }}>{age}</span>
     </div>
   )
 }
@@ -128,7 +128,7 @@ export default function Home() {
       )}
 
       {/* ══ HERO ══ */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+      <section className="hero-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
         {/* Left — copy */}
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,230,100,0.08)', border: '1px solid rgba(0,230,100,0.18)', borderRadius: '6px', padding: '5px 12px', marginBottom: '28px' }}>
@@ -183,9 +183,9 @@ export default function Home() {
               <span style={{ minWidth: '42px' }}>{t('جانب', 'Side')}</span>
               <span style={{ flex: 1 }}>{t('دخول', 'Entry')}</span>
               <span style={{ minWidth: '72px' }}>{t('هدف', 'Target')}</span>
-              <span style={{ minWidth: '38px', textAlign: 'right' }}>Score</span>
-              <span style={{ minWidth: '52px', textAlign: 'right' }}>P&L</span>
-              <span style={{ minWidth: '36px', textAlign: 'right' }}>{t('وقت', 'Time')}</span>
+              <span className="feed-col-narrow" style={{ minWidth: '38px', textAlign: 'right' }}>Score</span>
+              <span className="feed-col-narrow" style={{ minWidth: '52px', textAlign: 'right' }}>P&L</span>
+              <span className="feed-col-narrow" style={{ minWidth: '36px', textAlign: 'right' }}>{t('وقت', 'Time')}</span>
             </div>
             <SigRow pair="INJ/USDT"    side="LONG"  entry="24.31"     tp="27.89"    score={82} pct="+11.2%" age="2h"  delay={0} />
             <SigRow pair="SOL/USDT"    side="LONG"  entry="162.40"    tp="186.50"   score={79} pct="+7.4%"  age="5h"  delay={0.08} />
@@ -280,7 +280,7 @@ export default function Home() {
 
       {/* ══ 02 · تلقرام ══ */}
       <section className="section">
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+        <div className="telegram-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           <div>
             <div className="section-eyebrow">{t('02 · تلقرام', '02 · Telegram')}</div>
             <h2 className="section-title">{t('كل إشارة تجيك فوراً', 'Every signal reaches you instantly')}</h2>
@@ -394,7 +394,7 @@ export default function Home() {
             <div className="section-eyebrow">{t('الأسعار', 'Pricing')}</div>
             <h2 className="section-title" style={{ textAlign: 'center' }}>{t('بسيط وشفاف', 'Simple and transparent')}</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '32px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('تجربة مجانية', 'Free trial')}</div>
               <div style={{ fontSize: '52px', fontWeight: 900, marginBottom: '4px', letterSpacing: '-0.03em' }}>$0</div>
@@ -513,7 +513,8 @@ export default function Home() {
           animation: sweepLine 4s linear infinite; opacity: .8; pointer-events: none;
         }
         @media (max-width: 768px) {
-          section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .telegram-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
           .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           .academy-teaser-card { grid-template-columns: 1fr !important; }
           .academy-teaser-card > div:last-child { height: 180px !important; order: -1; }
@@ -523,6 +524,12 @@ export default function Home() {
         @media (max-width: 860px) {
           .home-nav-links { display: none !important; }
           .home-nav-toggle { display: flex !important; }
+        }
+        @media (max-width: 560px) {
+          .pricing-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .feed-col-narrow { display: none !important; }
         }
       `}</style>
     </div>

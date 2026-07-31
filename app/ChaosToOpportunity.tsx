@@ -46,7 +46,7 @@ export default function ChaosToOpportunity() {
 
         <div ref={ref} style={{ position: 'relative', minHeight: '340px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* شبكة العملات الباهتة */}
-          <div style={{
+          <div className="chaos-ticker-grid" style={{
             position: 'absolute', inset: 0, display: 'grid',
             gridTemplateColumns: 'repeat(10, 1fr)', gap: '8px', padding: '8px',
             opacity: revealed ? 0.22 : 0.55, transition: 'opacity 1.2s ease 0.2s',
@@ -104,6 +104,12 @@ export default function ChaosToOpportunity() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          .chaos-ticker-grid { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+      `}</style>
     </section>
   )
 }
