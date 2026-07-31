@@ -48,26 +48,42 @@ function StatCard({ label, value, color }: { label: string; value: string; color
   )
 }
 
-function MarketSection({ data, title, emoji }: { data: MarketData; title: string; emoji: string }) {
+function MarketSection({ data, emoji, market }: { data: MarketData; emoji: string; market: [string, string] }) {
   const { t, lang } = useLang()
   const [sortBy, setSortBy] = useState<'trades' | 'winRate' | 'pf' | 'netPct'>('trades')
   const tested = data.coins.filter(c => c.trades > 0)
   const sorted = [...tested].sort((a, b) => (b[sortBy] ?? -Infinity) - (a[sortBy] ?? -Infinity))
 
+  const parenIdx = data.engine.indexOf('(')
+  const engineCode = parenIdx > -1 ? data.engine.slice(0, parenIdx).trim() : data.engine
+  const engineDesc = parenIdx > -1 ? data.engine.slice(parenIdx + 1, -1) : ''
+  const lowWinRate = data.summary.winRate < 55
+
   return (
     <div style={{ marginBottom: '48px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+      <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{t(market[0], market[1])}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
         <span style={{ fontSize: '24px' }}>{emoji}</span>
-        <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0 }}>{title}</h2>
+        <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0, fontFamily: 'var(--mono)' }}>{engineCode}</h2>
       </div>
+      {engineDesc && <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '0 0 16px' }}>{engineDesc}</p>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <StatCard label={t('عملات مُختبَرة', 'Coins Tested')} value={`${data.universe}`} />
         <StatCard label={t('إجمالي الصفقات', 'Total Trades')} value={`${data.summary.totalTrades}`} />
         <StatCard label={t('نسبة النجاح', 'Win Rate')} value={`${data.summary.winRate}%`} color={data.summary.winRate >= 60 ? 'var(--green)' : 'var(--yellow)'} />
         <StatCard label="Profit Factor" value={data.summary.pf ? `${data.summary.pf}` : '—'} color="var(--cyan)" />
         <StatCard label={t('صافي %', 'Net %')} value={`${data.summary.netPct >= 0 ? '+' : ''}${data.summary.netPct}%`} color={data.summary.netPct >= 0 ? 'var(--green)' : 'var(--red)'} />
       </div>
+
+      {lowWinRate && (
+        <p style={{ fontSize: '12px', color: 'var(--muted)', lineHeight: 1.7, marginBottom: '20px' }}>
+          💡 {t(
+            `نسبة النجاح هنا أقل من 55%، وهذا طبيعي لاستراتيجية أهدافها أبعد من وقف خسارتها (Risk/Reward). Profit Factor (${data.summary.pf}) وصافي الربح هم المقياس الأدق للجدوى، لا نسبة النجاح وحدها.`,
+            `The win rate here is under 55%, which is normal for a strategy whose targets are farther than its stop loss (Risk/Reward). Profit Factor (${data.summary.pf}) and net profit are the more accurate measure of viability, not win rate alone.`
+          )}
+        </p>
+      )}
 
       <div style={{
         background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.2)',
@@ -247,7 +263,7 @@ export default function BacktestResults() {
 
         {data && (
           <>
-            <MarketSection data={data.futures} title={t('الفيوتشر', 'Futures')} emoji="🔵" />
+            <MarketSection data={data.futures} emoji="🔵" market={['الفيوتشر', 'Futures']} />
 
             {spotEquity && (
               <div style={{ marginBottom: '8px' }}>
@@ -267,7 +283,7 @@ export default function BacktestResults() {
             )}
 
             {data.spotStrategies.map((s, i) => (
-              <MarketSection key={s.key || i} data={s} title={t(`استراتيجية ${i + 1}`, `Strategy ${i + 1}`)} emoji={i === 0 ? '🥇' : '🥈'} />
+              <MarketSection key={s.key || i} data={s} emoji="🟡" market={['السبوت', 'Spot']} />
             ))}
           </>
         )}

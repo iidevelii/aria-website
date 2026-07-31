@@ -21,7 +21,7 @@ export default function PerformancePreview() {
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px', textAlign: 'center' }}>
           <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('الأداء والشفافية', 'Performance & transparency')}</div>
-          <h2 className="section-title" style={{ textAlign: 'center' }}>{t('راجع الأرقام بنفسك، ما نطلب منك تصدّقنا', 'Check the numbers yourself, we don\'t ask you to just trust us')}</h2>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>{t('نتائج حقيقية موثّقة، بدون تجميل', 'Real, documented results, no embellishment')}</h2>
         </div>
 
         {data && data.points?.length > 1 && (
