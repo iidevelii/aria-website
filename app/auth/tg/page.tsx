@@ -1,12 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '../../layout';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app';
 
 export default function TgAuthPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const { refresh } = useAuth();
   const [status, setStatus] = useState<'loading' | 'error'>('loading');
   const [msg, setMsg] = useState('');
 
@@ -16,10 +18,11 @@ export default function TgAuthPage() {
 
     fetch(`${API}/auth/tg-verify?token=${token}`)
       .then(r => r.json())
-      .then(data => {
+      .then(async data => {
         if (data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('user_id', String(data.user_id));
+          await refresh();
           router.replace('/dashboard');
         } else {
           setStatus('error');

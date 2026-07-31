@@ -2,11 +2,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useLang } from '../layout'
+import { useLang, useAuth } from '../layout'
 
 export default function Register() {
   const router = useRouter()
   const { t } = useLang()
+  const { refresh } = useAuth()
   const [form, setForm] = useState({ email: '', username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,6 +26,7 @@ export default function Register() {
       if (res.ok) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user_id', data.user_id)
+        await refresh()
         router.push('/dashboard')
       } else {
         setError(data.detail || t('حدث خطأ', 'Something went wrong'))
