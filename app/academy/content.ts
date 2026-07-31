@@ -184,6 +184,13 @@ export const CHAPTERS: Chapter[] = [
               ['تقاطع خط الماكد مع خط الإشارة لأعلى = شراء، ولأسفل = بيع.', 'MACD line crossing the signal line upward = buy, downward = sell.'],
               ['تجاوز خط الماكد لخط الصفر لأعلى = سيطرة مشترين، ولأسفل = سيطرة بائعين.', 'MACD crossing above the zero line = buyer control, below = seller control.'],
             ] },
+          { id: 'adx', name: ['مؤشر ADX', 'Average Directional Index (ADX)'], diagram: 'adx-rising',
+            desc: ['يقيس قوة الاتجاه الحالي (بغض النظر عن اتجاهه صعوداً أو هبوطاً) برقم من 0 إلى 100.', "Measures the strength of the current trend (regardless of direction) on a 0-100 scale."],
+            points: [
+              ['فوق 25 = اتجاه قوي يستحق المتابعة، تحت 20 = سوق عرضي بلا اتجاه واضح.', 'Above 25 = a strong trend worth following, below 20 = a sideways market with no clear direction.'],
+              ['يُستخدم دائماً مع +DI و-DI لتحديد هل القوة صعودية أو هبوطية.', 'Always used alongside +DI and -DI to determine whether the strength is bullish or bearish.'],
+              ['سكانر DevelBot يستخدم ADX فوق 25 كشرط أساسي لتأكيد جودة أي فرصة قبل احتساب الـ Score.', "DevelBot's scanner uses an ADX above 25 as a core condition to confirm an opportunity's quality before calculating the Score."],
+            ] },
         ],
       },
       {
@@ -218,7 +225,7 @@ export const CHAPTERS: Chapter[] = [
         ],
       },
       {
-        id: 'oscillators', name: ['مؤشرات التذبذب', 'Oscillators'],
+        id: 'oscillators', name: ['مؤشرات التذبذب والتقلب', 'Oscillators & Volatility'],
         concepts: [
           { id: 'bollinger', name: ['بولنجر باند', 'Bollinger Bands'], diagram: 'bollinger',
             desc: ['حد علوي وسفلي حول متوسط متحرك بسيط (20) بمقدار انحرافين معياريين، يقيس التقلب.', 'Upper/lower bands around a 20-period SMA at two standard deviations, measures volatility.'],
@@ -226,6 +233,36 @@ export const CHAPTERS: Chapter[] = [
               ['تقارب الحدود = هدوء بالسوق وغالباً يسبق حركة قوية قادمة.', 'Narrow bands = low volatility, often preceding a strong move.'],
               ['تباعد الحدود = تقلب مرتفع واحتمال اقتراب السعر من ذروة الحركة.', 'Wide bands = high volatility, price may be nearing an extreme.'],
               ['يمكن استخدام الحد العلوي/السفلي كأهداف سعرية بدل نقاط دخول.', 'The bands can be used as price targets rather than entry points.'],
+            ] },
+          { id: 'atr', name: ['مؤشر ATR', 'Average True Range (ATR)'], diagram: 'atr-expand',
+            desc: ['يقيس متوسط مدى حركة السعر (تقلبه) خلال فترة معينة برقم مطلق بوحدة السعر، مو نسبة مئوية.', 'Measures the average range of price movement (volatility) over a period, as an absolute price value, not a percentage.'],
+            points: [
+              ['ارتفاع ATR = تقلب أعلى، انخفاضه = سوق هادئ.', 'Rising ATR = higher volatility, falling ATR = a calmer market.'],
+              ['أداة أساسية لتحديد وقف خسارة يتناسب مع تقلب العملة نفسها بدل رقم ثابت.', 'A core tool for setting a stop loss sized to that specific coin\'s own volatility instead of a fixed number.'],
+              ['استراتيجية DevelBot للفيوتشر تحسب وقف الخسارة كمضاعف من الـATR (0.6×ATR) بدل نسبة مئوية ثابتة.', "DevelBot's futures strategy calculates its stop loss as a multiple of ATR (0.6×ATR) instead of a fixed percentage."],
+            ] },
+        ],
+      },
+      {
+        id: 'smc', name: ['هيكل السوق الذكي (Smart Money Concepts)', 'Smart Money Concepts (SMC)'],
+        concepts: [
+          { id: 'market-structure', name: ['هيكل السوق', 'Market Structure'], diagram: 'market-structure',
+            desc: ['قراءة السوق كسلسلة قمم وقيعان: قمم وقيعان أعلى = اتجاه صاعد، وقمم وقيعان أدنى = اتجاه هابط.', 'Reading the market as a sequence of highs and lows: higher highs and higher lows = uptrend, lower highs and lower lows = downtrend.'],
+            points: [
+              ['كسر الهيكل (Break of Structure / BOS) = تأكيد استمرار الاتجاه الحالي.', 'A Break of Structure (BOS) confirms the current trend continuing.'],
+              ['تغيّر الطابع (Change of Character / CHoCH) = أول إشارة محتملة على انعكاس الاتجاه.', 'A Change of Character (CHoCH) is the first possible sign of a trend reversal.'],
+            ] },
+          { id: 'order-block', name: ['كتلة الأوامر (Order Block)', 'Order Block'], diagram: 'order-block',
+            desc: ['آخر شمعة معاكسة قبل حركة سعرية قوية، تمثّل منطقة تجمّع أوامر مؤسسية كبيرة.', 'The last opposing candle before a strong price move, marking a zone where large institutional orders likely clustered.'],
+            points: [
+              ['السعر غالباً يرجع لهذي المنطقة قبل ما يكمل بنفس اتجاه الحركة القوية.', 'Price often returns to this zone before continuing in the direction of the strong move.'],
+              ['تُستخدم كمنطقة دخول محتملة بدل الدخول مباشرة عند كسر السعر.', 'Used as a potential entry zone instead of entering right at the breakout.'],
+            ] },
+          { id: 'liquidity-grab', name: ['سحب السيولة (Liquidity Grab)', 'Liquidity Grab'], diagram: 'liquidity-grab',
+            desc: ['اختراق سريع ووهمي لمستوى دعم أو مقاومة لتحفيز أوامر وقف الخسارة، ثم انعكاس فوري بالاتجاه المعاكس.', 'A fast, fake break of a support/resistance level that triggers stop-loss orders, followed by an immediate reversal the other way.'],
+            points: [
+              ['يظهر عادة كذيل شمعة طويل يخترق المستوى ثم يغلق داخله مباشرة.', 'Usually shows up as a long candle wick that pierces the level then closes right back inside it.'],
+              ['استراتيجية DevelBot للسبوت (SMC_MTF) مبنية أساساً على رصد هذا النمط قبل الدخول.', "DevelBot's spot strategy (SMC_MTF) is built primarily on spotting this pattern before entering."],
             ] },
         ],
       },
