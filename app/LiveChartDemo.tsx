@@ -115,21 +115,38 @@ export default function LiveChartDemo() {
             </g>
           ))}
 
-          {/* الشموع — تظهر دفعة وحدة (فيد بسيط) بدل رسم متتابع مكلف على 46 عنصر */}
-          <g style={{ opacity: revealed ? 1 : 0, transition: 'opacity 0.8s ease 0.15s' }}>
-            {CANDLES.map((k, i) => {
-              const bull = k.c >= k.o
-              const color = bull ? 'var(--green)' : 'var(--red)'
-              const bodyTop = y(Math.max(k.o, k.c))
-              const bodyH = Math.max(2, Math.abs(y(k.o) - y(k.c)))
-              return (
-                <g key={i}>
-                  <line x1={x(i)} y1={y(k.h)} x2={x(i)} y2={y(k.l)} stroke={color} strokeWidth="1.5" opacity="0.85" />
-                  <rect x={x(i) - bodyW / 2} y={bodyTop} width={bodyW} height={bodyH} fill={color} opacity="0.9" rx="1" />
-                </g>
-              )
-            })}
+          {/* الشموع — تُرسم شمعة بعد شمعة (تأخير متدرج opacity/scaleY فقط، رخيص حتى مع 46 عنصر) */}
+          {CANDLES.map((k, i) => {
+            const bull = k.c >= k.o
+            const color = bull ? 'var(--green)' : 'var(--red)'
+            const bodyTop = y(Math.max(k.o, k.c))
+            const bodyH = Math.max(2, Math.abs(y(k.o) - y(k.c)))
+            const delay = 0.15 + i * 0.035
+            return (
+              <g key={i} style={{
+                opacity: revealed ? 1 : 0,
+                transform: revealed ? 'scaleY(1)' : 'scaleY(0.4)',
+                transformOrigin: `${x(i)}px ${y(min)}px`,
+                transformBox: 'fill-box',
+                transition: `opacity 0.35s ease ${delay}s, transform 0.35s ease ${delay}s`,
+              }}>
+                <line x1={x(i)} y1={y(k.h)} x2={x(i)} y2={y(k.l)} stroke={color} strokeWidth="1.5" opacity="0.85" />
+                <rect x={x(i) - bodyW / 2} y={bodyTop} width={bodyW} height={bodyH} fill={color} opacity="0.9" rx="1" />
+              </g>
+            )
+          })}
+
+          {/* شعاع مسح يتحرك من اليسار لليمين باستمرار بعد اكتمال الرسم (CSS transform فقط) */}
+          <g style={{ opacity: revealed ? 1 : 0, transition: `opacity 0.5s ease ${0.15 + N * 0.035 + 0.3}s` }}>
+            <rect className="chart-scan-beam" x={PAD_X} y={PAD_Y} width="40" height={H - PAD_Y * 2} fill="url(#scanGradient)" />
           </g>
+          <defs>
+            <linearGradient id="scanGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--cyan)" stopOpacity="0" />
+              <stop offset="50%" stopColor="var(--cyan)" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="var(--cyan)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
 
           {/* بادج "تحقق الهدف" عند أول شمعة تخترق TP */}
           {TP_IDX > 0 && (
@@ -154,6 +171,8 @@ export default function LiveChartDemo() {
       <style>{`
         @keyframes livePriceDotPulse { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.5); opacity: 0.5 } }
         .live-price-dot { transform-box: fill-box; transform-origin: center; animation: livePriceDotPulse 2s ease-in-out infinite; }
+        @keyframes chartScanBeam { 0% { transform: translateX(-40px); } 100% { transform: translateX(${W - PAD_X * 2}px); } }
+        .chart-scan-beam { animation: chartScanBeam 5s linear infinite; }
       `}</style>
     </div>
   )
