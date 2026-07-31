@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useLang } from './layout'
 import LiveChartDemo from './LiveChartDemo'
 import SleepingWalletArt from './SleepingWalletArt'
+import AcademyTeaser from './AcademyTeaser'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -54,7 +55,7 @@ export default function Home() {
       .catch(() => {})
   }, [])
 
-  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
+  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
@@ -191,6 +192,8 @@ export default function Home() {
           <SleepingWalletArt />
         </div>
       </section>
+
+      <AcademyTeaser />
 
       {/* ══ 01 · الداشبورد ══ */}
       <section className="section">
@@ -417,7 +420,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
               {[
-                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
+                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
                 { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
                 { title: t('تواصل', 'Contact'),  links: [[t('تلقرام','Telegram'),'https://t.me/Develpay_bot'],[t('القناة','Channel'),'https://t.me/DevilAISignals']] },
               ].map((col,i) => (
@@ -454,8 +457,11 @@ export default function Home() {
         @media (max-width: 768px) {
           section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
           .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .academy-teaser-card { grid-template-columns: 1fr !important; }
+          .academy-teaser-card > div:last-child { height: 180px !important; order: -1; }
           h1 { font-size: 36px !important; }
         }
+        .academy-teaser-card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(46,58,140,0.18); }
         @media (max-width: 860px) {
           .home-nav-links { display: none !important; }
           .home-nav-toggle { display: flex !important; }

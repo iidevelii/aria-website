@@ -16,7 +16,7 @@ type LangCtx = { lang: 'ar' | 'en'; setLang: (l: 'ar' | 'en') => void; t: (ar: s
 const LanguageContext = createContext<LangCtx>({ lang: 'ar', setLang: () => {}, t: (ar) => ar })
 export const useLang = () => useContext(LanguageContext)
 
-const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg', '/backtest-results']
+const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg', '/backtest-results', '/academy']
 
 const API = 'https://web-production-97af6.up.railway.app'
 
