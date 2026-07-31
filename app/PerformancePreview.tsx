@@ -21,11 +21,11 @@ export default function PerformancePreview() {
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px', textAlign: 'center' }}>
           <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('الأداء والشفافية', 'Performance & transparency')}</div>
-          <h2 className="section-title" style={{ textAlign: 'center' }}>{t('لا نطلب منك تصدّقنا — راجع الأرقام بنفسك', "We don't ask you to trust us — check the numbers yourself")}</h2>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>{t('راجع الأرقام بنفسك، ما نطلب منك تصدّقنا', 'Check the numbers yourself, we don\'t ask you to just trust us')}</h2>
         </div>
 
         {data && data.points?.length > 1 && (
-          <EquityCurve points={data.points} netPct={data.netPct} totalTrades={data.totalTrades} label={t('منحنى أداء استراتيجية Futures — بيانات حقيقية', 'Futures strategy equity curve — real data')} />
+          <EquityCurve points={data.points} netPct={data.netPct} totalTrades={data.totalTrades} label={t('منحنى أداء استراتيجية Futures (بيانات حقيقية)', 'Futures strategy equity curve (real data)')} />
         )}
 
         <div style={{ textAlign: 'center', marginTop: '20px' }}>

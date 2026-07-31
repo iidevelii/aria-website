@@ -147,7 +147,7 @@ export default function LiveChartDemo() {
         </svg>
 
         <div style={{ fontSize: '11px', color: 'var(--dim)', marginTop: '2px' }}>
-          {t('مثال توضيحي لآلية عمل إشارة (دخول → هدف/وقف) — مو بيانات سعر حقيقية.', 'An illustrative example of how a signal plays out (entry → target/stop) — not real price data.')}
+          {t('مثال توضيحي لآلية عمل إشارة (دخول → هدف/وقف)، مو بيانات سعر حقيقية.', 'An illustrative example of how a signal plays out (entry → target/stop), not real price data.')}
         </div>
       </div>
 

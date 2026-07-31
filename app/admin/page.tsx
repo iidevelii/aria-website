@@ -50,7 +50,7 @@ export default function AdminPage() {
       })
       const d = await r.json()
       if (r.ok) {
-        setMsg(t(`✅ تم التفعيل — الاشتراك ساري حتى ${d.subscription_end?.slice(0, 10)}`, `✅ Activated — subscription valid until ${d.subscription_end?.slice(0, 10)}`))
+        setMsg(t(`✅ تم التفعيل، الاشتراك ساري حتى ${d.subscription_end?.slice(0, 10)}`, `✅ Activated. Subscription valid until ${d.subscription_end?.slice(0, 10)}`))
         setIdentifier('')
       } else {
         setMsg(`⚠️ ${d.detail || t('تعذّر التفعيل', 'Could not activate')}`)

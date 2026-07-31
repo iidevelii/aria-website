@@ -26,7 +26,7 @@ export default function AcademyTeaser() {
                 {t('تعلّم التحليل الفني من الصفر', 'Learn technical analysis from scratch')}
               </h2>
               <p style={{ color: '#4a5178', fontSize: '15px', lineHeight: 1.7, margin: '0 0 20px', maxWidth: '480px' }}>
-                {t('أكاديمية DevelBot: الشموع اليابانية، النماذج السعرية، المؤشرات الفنية، الدعوم والمقاومات، وإدارة المخاطر — بالعربي، بأمثلة، ومربوط مباشرة بمميزات البوت.', "DevelBot Academy: Japanese candlesticks, chart patterns, technical indicators, support & resistance, and risk management — in Arabic, with examples, and linked directly to the bot's features.")}
+                {t('أكاديمية DevelBot: الشموع اليابانية، النماذج السعرية، المؤشرات الفنية، الدعوم والمقاومات، وإدارة المخاطر، بالعربي، بأمثلة، ومربوط مباشرة بمميزات البوت.', "DevelBot Academy: Japanese candlesticks, chart patterns, technical indicators, support & resistance, and risk management, in Arabic, with examples, and linked directly to the bot's features.")}
               </p>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '14px', color: '#2e3a8c' }}>
                 {t('ابدأ التعلم', 'Start learning')} {t('←', '→')}

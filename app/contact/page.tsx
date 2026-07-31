@@ -7,7 +7,7 @@ export default function ContactPage() {
   const channels = [
     {
       emoji: '💬', title: t('الدعم عبر تلقرام', 'Telegram Support'),
-      desc: t('لأي استفسار عن الحساب أو الاشتراك أو مشكلة تقنية — أسرع طريقة توصلنا فيها.', 'For any question about your account, subscription, or a technical issue — the fastest way to reach us.'),
+      desc: t('لأي استفسار عن الحساب أو الاشتراك أو مشكلة تقنية، أسرع طريقة توصلنا فيها.', 'For any question about your account, subscription, or a technical issue, the fastest way to reach us.'),
       href: 'https://t.me/devel_support', label: '@devel_support',
     },
     {

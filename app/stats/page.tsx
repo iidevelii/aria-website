@@ -67,7 +67,7 @@ export default function Stats() {
   if (loadError) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
       <div style={{ fontSize: '32px' }}>⚠️</div>
-      <div>{t('تعذّر تحميل البيانات — تحقق من اتصالك وحاول مرة ثانية', 'Failed to load data — check your connection and try again')}</div>
+      <div>{t('تعذّر تحميل البيانات، تحقق من اتصالك وحاول مرة ثانية', 'Failed to load data, check your connection and try again')}</div>
     </div>
   )
 
@@ -115,7 +115,7 @@ export default function Stats() {
         {/* Signals Table */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '15px' }}>
-            {t('سجل الصفقات', 'Trade Log')} — {monthName(currentMonth)}
+            {t('سجل الصفقات', 'Trade Log')} · {monthName(currentMonth)}
           </div>
           {currentSignals.length === 0 ? (
             <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>{t('لا توجد صفقات في هذا الشهر', 'No trades this month')}</div>

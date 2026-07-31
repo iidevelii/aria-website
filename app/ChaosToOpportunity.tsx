@@ -40,7 +40,7 @@ export default function ChaosToOpportunity() {
           <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('الفلترة الذكية', 'Smart filtering')}</div>
           <h2 className="section-title" style={{ textAlign: 'center' }}>{t('من مئات العملات، فرصة واحدة واضحة', 'From hundreds of coins, one clear opportunity')}</h2>
           <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>
-            {t('البوت يفحص السوق كامل باستمرار، ويستبعد كل شي غير مطابق لشروطك — إلى أن تبقى فرصة واحدة تستاهل انتباهك.', 'The bot continuously scans the whole market and rules out everything that doesn\'t match your criteria — until one opportunity worth your attention remains.')}
+            {t('البوت يفحص السوق كامل باستمرار، ويستبعد كل شي غير مطابق لشروطك، إلى أن تبقى فرصة واحدة تستاهل انتباهك.', 'The bot continuously scans the whole market and rules out everything that doesn\'t match your criteria, until one opportunity worth your attention remains.')}
           </p>
         </div>
 

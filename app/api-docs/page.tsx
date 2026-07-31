@@ -96,8 +96,8 @@ const ENDPOINTS: { section: string; emoji: string; items: Endpoint[] }[] = [
     items: [
       {
         method: 'GET', path: '/api/v1/scanner', title: 'نتائج السكانر', titleEn: 'Scanner results', auth: false,
-        desc: 'نتائج مسح السوق — يُحدَّث كل 30 دقيقة.',
-        descEn: 'Market scan results — updated every 30 minutes.',
+        desc: 'نتائج مسح السوق، يُحدَّث كل 30 دقيقة.',
+        descEn: 'Market scan results, updated every 30 minutes.',
         params: [
           { name: 'tf',        type: 'string', required: false, desc: 'التايم فريم: 15m,1h,4h,1d (افتراضي: 4h)', descEn: 'Timeframe: 15m,1h,4h,1d (default: 4h)' },
           { name: 'min_score', type: 'number', required: false, desc: 'أدنى Score للفلترة (مثال: 50)', descEn: 'Minimum score to filter by (e.g. 50)' },
@@ -257,7 +257,7 @@ export default function ApiDocsPage() {
             <h1 style={{ fontSize: '24px', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>REST API</h1>
             <span style={{ padding: '3px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,196,239,0.1)', color: 'var(--cyan)', border: '1px solid rgba(0,196,239,0.2)' }}>v1.0</span>
           </div>
-          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '0 0 16px' }}>{t(`توثيق الـ API الخاص بـ DevelBot — ${total} endpoint متاح`, `DevelBot API documentation — ${total} endpoints available`)}</p>
+          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '0 0 16px' }}>{t(`توثيق الـ API الخاص بـ DevelBot: ${total} endpoint متاح`, `DevelBot API documentation: ${total} endpoints available`)}</p>
 
           {/* Base URL */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '9px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -311,7 +311,7 @@ export default function ApiDocsPage() {
         )}
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--dim)', marginTop: '32px' }}>
-          {t('DevelBot API — للأسئلة تواصل عبر تلقرام', 'DevelBot API — for questions, reach us on Telegram')}
+          {t('DevelBot API، للأسئلة تواصل عبر تلقرام', 'DevelBot API. For questions, reach us on Telegram')}
         </p>
       </div>
 

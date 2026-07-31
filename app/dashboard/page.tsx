@@ -25,7 +25,7 @@ function fmtDate(raw: string | undefined) {
   const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
   const hr = d.getHours().toString().padStart(2, '0')
   const mn = d.getMinutes().toString().padStart(2, '0')
-  return `${day} ${months[d.getMonth()]} — ${hr}:${mn}`
+  return `${day} ${months[d.getMonth()]} · ${hr}:${mn}`
 }
 
 function TradingViewWidget({ symbol }: { symbol: string }) {

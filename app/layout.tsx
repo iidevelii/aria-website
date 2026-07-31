@@ -32,6 +32,7 @@ const Icons = {
   subscribe: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   settings:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
   backtest:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  academy:   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>,
   moon:      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   sun:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   logout:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
@@ -85,6 +86,7 @@ const NAV = [
   { href:'/coin-tracker',     label:'تتبع العملات',    labelEn:'Coin Tracker',    icon:Icons.tracker },
   { href:'/ai-assistant',     label:'مساعد AI',        labelEn:'AI Assistant',    icon:Icons.ai },
   { href:'/backtest-results', label:'نتائج الباك تست', labelEn:'Backtest Results',icon:Icons.backtest },
+  { href:'/academy',          label:'الأكاديمية',      labelEn:'Academy',         icon:Icons.academy },
   { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
   { href:'/settings',         label:'الإعدادات',       labelEn:'Settings',        icon:Icons.settings },
 ]
@@ -94,9 +96,9 @@ const PAGE_HELP: Record<string,{title:[string,string];sections:{icon:string;head
   '/dashboard':        {title:['دليل الداشبورد','Dashboard Guide'],sections:[{icon:'📡',heading:['الإشارات النشطة','Active Signals'],body:['آخر إشارات الشراء والبيع من البوت مع سعر الدخول، الهدف، ووقف الخسارة.','The bot\'s latest buy/sell signals with entry price, target, and stop loss.']},{icon:'📊',heading:['الإحصائيات','Statistics'],body:['معدل الربح (Win Rate) وعامل الربح (Profit Factor) من جميع الصفقات المغلقة.','Win Rate and Profit Factor computed from all closed trades.']},{icon:'🎯',heading:['نوع الإشارة','Signal Type'],body:['SPOT = تداول فوري. FUTURES = عقود آجلة مع رافعة.','SPOT = instant trading. FUTURES = leveraged contracts.']}]},
   '/scanner':          {title:['دليل السكانر','Scanner Guide'],sections:[{icon:'🔍',heading:['كيف يعمل','How it works'],body:['يفحص عشرات العملات ويحسب RSI وMACD وADX وSupertrend ويعطي score من -100 إلى +100.','Scans dozens of coins, computes RSI/MACD/ADX/Supertrend, and gives a score from -100 to +100.']},{icon:'📈',heading:['Score','Score'],body:['+60 وأكثر = شراء قوي. -60 وأقل = بيع قوي.','+60 or higher = strong buy. -60 or lower = strong sell.']},{icon:'💥',heading:['Pump & Dump','Pump & Dump'],body:['حجم أكثر من 3× المعدل مع تغير سعر أكبر من 3%.','Volume over 3× average with a price move greater than 3%.']}]},
   '/strategy-builder': {title:['دليل منشئ الاستراتيجيات','Strategy Builder Guide'],sections:[{icon:'⚙️',heading:['بناء الشروط','Building conditions'],body:['اختر مؤشراً ثم حدد الشرط (أكبر من، أصغر من، بين قيمتين).','Pick an indicator, then set the condition (greater than, less than, between two values).']},{icon:'🔗',heading:['AND vs OR','AND vs OR'],body:['AND = جميع الشروط. OR = شرط واحد يكفي.','AND = all conditions must match. OR = one condition is enough.']},{icon:'▶',heading:['التشغيل','Running it'],body:['اضغط "ابدأ المسح" لفحص جميع العملات.','Click "Start Scan" to check every coin.']}]},
-  '/paper-trading':    {title:['دليل محفظة التداول','Paper Trading Guide'],sections:[{icon:'💰',heading:['الرصيد','Balance'],body:['محفظة تداول تجريبية (محاكاة) — ابدأ برصيد افتراضي وجرّب استراتيجياتك بدون مخاطرة حقيقية.','A simulated trading portfolio — start with a virtual balance and test your strategies with no real risk.']},{icon:'📋',heading:['فتح صفقة','Opening a trade'],body:['اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.','Pick the coin, direction (LONG/SHORT), leverage (1-20×), and size.']},{icon:'⏱',heading:['التحديث','Updates'],body:['الأسعار تتحدث كل 15 ثانية — تُغلق الصفقات تلقائياً عند TP/SL.','Prices refresh every 15 seconds — trades close automatically at TP/SL.']}]},
+  '/paper-trading':    {title:['دليل محفظة التداول','Paper Trading Guide'],sections:[{icon:'💰',heading:['الرصيد','Balance'],body:['محفظة تداول تجريبية (محاكاة)، ابدأ برصيد افتراضي وجرّب استراتيجياتك بدون مخاطرة حقيقية.','A simulated trading portfolio: start with a virtual balance and test your strategies with no real risk.']},{icon:'📋',heading:['فتح صفقة','Opening a trade'],body:['اختر العملة، الاتجاه (LONG/SHORT)، الرافعة (1-20×)، والحجم.','Pick the coin, direction (LONG/SHORT), leverage (1-20×), and size.']},{icon:'⏱',heading:['التحديث','Updates'],body:['الأسعار تتحدث كل 15 ثانية، وتُغلق الصفقات تلقائياً عند TP/SL.','Prices refresh every 15 seconds; trades close automatically at TP/SL.']}]},
   '/coin-tracker':     {title:['دليل تتبع العملات','Coin Tracker Guide'],sections:[{icon:'🔔',heading:['إنشاء تنبيه','Creating an alert'],body:['أضف عملة وحدد نوع التنبيه: السعر فوق/تحت قيمة، أو نسبة تغير 24h.','Add a coin and set the alert type: price above/below a value, or 24h change percentage.']},{icon:'⚡',heading:['التشغيل','How it runs'],body:['يُفحص التنبيه كل 30 ثانية.','Alerts are checked every 30 seconds.']},{icon:'📋',heading:['التبويبات','Tabs'],body:['النشطة: لم تتحقق. المُشغَّلة: تحققت.','Active: not yet triggered. Triggered: already fired.']}]},
-  '/ai-assistant':     {title:['دليل المساعد الذكي','AI Assistant Guide'],sections:[{icon:'🤖',heading:['ما يستطيع فعله','What it can do'],body:['شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.','Explaining indicators, interpreting signals, and risk-management tips.']},{icon:'⚠️',heading:['تنبيه','Notice'],body:['تحليل تعليمي فقط — ليس نصيحة مالية.','Educational analysis only — not financial advice.']}]},
+  '/ai-assistant':     {title:['دليل المساعد الذكي','AI Assistant Guide'],sections:[{icon:'🤖',heading:['ما يستطيع فعله','What it can do'],body:['شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.','Explaining indicators, interpreting signals, and risk-management tips.']},{icon:'⚠️',heading:['تنبيه','Notice'],body:['تحليل تعليمي فقط، ليس نصيحة مالية.','Educational analysis only, not financial advice.']}]},
   '/api-docs':         {title:['دليل API','API Guide'],sections:[{icon:'🔗',heading:['Base URL','Base URL'],body:[`جميع الطلبات ترسل لـ ${API}`,`All requests are sent to ${API}`]},{icon:'📋',heading:['الصيغة','Format'],body:['Content-Type: application/json','Content-Type: application/json']}]},
 }
 
@@ -267,7 +269,8 @@ function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:any;i
   const { t } = useLang()
   const pageNames: Record<string,[string,string]> = {
     '/dashboard':['الداشبورد','Dashboard'],'/scanner':['السكانر','Scanner'],'/strategy-builder':['منشئ الاستراتيجيات','Strategy Builder'],
-    '/paper-trading':['التداول الحقيقي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
+    '/paper-trading':['التداول التجريبي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
+    '/academy':['الأكاديمية','Academy'],
     '/api-docs':['توثيق API','API Docs'],'/subscribe':['الاشتراك','Subscribe'],'/backtest-results':['نتائج الباك تست','Backtest Results'],
     '/settings':['الإعدادات','Settings'],
   }
@@ -360,21 +363,21 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
     <html lang={lang} dir={lang==='ar'?'rtl':'ltr'}>
       <head>
         <meta charSet="utf-8"/>
-        <title>DevelBot — منصة إشارات التداول</title>
-        <meta name="description" content="DevelBot يراقب Binance Spot وFutures ويرسل إشارات دخول عالية الجودة فوراً — مع الدخول، الهدف، والوقف."/>
+        <title>DevelBot | منصة إشارات التداول</title>
+        <meta name="description" content="DevelBot يراقب Binance Spot وFutures ويرسل إشارات دخول عالية الجودة فوراً، مع الدخول، الهدف، والوقف."/>
         <link rel="icon" href="/favicon.ico" sizes="any"/>
         <link rel="apple-touch-icon" href="/logo.png"/>
 
         {/* Open Graph / WhatsApp / Twitter link preview */}
         <meta property="og:type" content="website"/>
         <meta property="og:site_name" content="DevelBot"/>
-        <meta property="og:title" content="DevelBot — منصة إشارات التداول"/>
-        <meta property="og:description" content="إشارات كريبتو + بوت تلقرام — Spot وFutures، إشارات عالية الجودة فوراً مع الدخول والهدف والوقف."/>
+        <meta property="og:title" content="DevelBot | منصة إشارات التداول"/>
+        <meta property="og:description" content="إشارات كريبتو + بوت تلقرام، Spot وFutures، إشارات عالية الجودة فوراً مع الدخول والهدف والوقف."/>
         <meta property="og:image" content="https://devel-bot.space/logo.png"/>
         <meta property="og:url" content="https://devel-bot.space"/>
         <meta name="twitter:card" content="summary"/>
-        <meta name="twitter:title" content="DevelBot — منصة إشارات التداول"/>
-        <meta name="twitter:description" content="إشارات كريبتو + بوت تلقرام — Spot وFutures، إشارات عالية الجودة فوراً."/>
+        <meta name="twitter:title" content="DevelBot | منصة إشارات التداول"/>
+        <meta name="twitter:description" content="إشارات كريبتو + بوت تلقرام، Spot وFutures، إشارات عالية الجودة فوراً."/>
         <meta name="twitter:image" content="https://devel-bot.space/logo.png"/>
       </head>
       <body style={{margin:0,padding:0,background:'var(--bg)',color:'var(--text)',visibility:mounted?'visible':'hidden'}}>

@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useLang } from './layout'
+import { useLang, useAuth } from './layout'
 import LiveChartDemo from './LiveChartDemo'
 import SleepingWalletArt from './SleepingWalletArt'
 import AcademyTeaser from './AcademyTeaser'
@@ -47,6 +47,7 @@ function TgMsg({ text, time }: { text: string; time: string }) {
 
 export default function Home() {
   const { t, lang, setLang } = useLang()
+  const { user } = useAuth()
   const [btcPrice, setBtcPrice] = useState<string|null>(null)
   const [btcChg, setBtcChg] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -79,8 +80,14 @@ export default function Home() {
           <button onClick={() => setLang(lang==='ar'?'en':'ar')} title="Language / اللغة" style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '12px', fontWeight: 700, borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
             {lang==='ar'?'EN':'ع'}
           </button>
-          <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>{t('دخول','Login')}</Link>
-          <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('ابدأ مجاناً ←','Start free →')}</Link>
+          {user ? (
+            <Link href="/dashboard" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('الداشبورد ←','Dashboard →')}</Link>
+          ) : (
+            <>
+              <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>{t('دخول','Login')}</Link>
+              <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('ابدأ مجاناً ←','Start free →')}</Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger — hidden on desktop via CSS */}
@@ -108,8 +115,14 @@ export default function Home() {
             <button onClick={() => setLang(lang==='ar'?'en':'ar')} style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 700, borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
               {lang==='ar'?'English':'العربية'}
             </button>
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('دخول','Login')}</Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('ابدأ مجاناً','Start free')}</Link>
+            {user ? (
+              <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('الداشبورد','Dashboard')}</Link>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('دخول','Login')}</Link>
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('ابدأ مجاناً','Start free')}</Link>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -207,7 +220,7 @@ export default function Home() {
           <div style={{ marginBottom: '40px' }}>
             <div className="section-eyebrow">{t('01 · الداشبورد', '01 · Dashboard')}</div>
             <h2 className="section-title">{t('كل إشاراتك في مكان واحد', 'All your signals in one place')}</h2>
-            <p className="section-sub">{t('لوحة تحكم حية — كل صفقة ببوكس مستقل مع السعر الحالي ونسبة الربح أو الخسارة.', 'A live dashboard — every trade in its own card with the current price and profit/loss percentage.')}</p>
+            <p className="section-sub">{t('لوحة تحكم حية، كل صفقة ببوكس مستقل مع السعر الحالي ونسبة الربح أو الخسارة.', 'A live dashboard: every trade in its own card with the current price and profit/loss percentage.')}</p>
           </div>
 
           {/* mock signal cards */}
@@ -271,7 +284,7 @@ export default function Home() {
           <div>
             <div className="section-eyebrow">{t('02 · تلقرام', '02 · Telegram')}</div>
             <h2 className="section-title">{t('كل إشارة تجيك فوراً', 'Every signal reaches you instantly')}</h2>
-            <p className="section-sub">{t('بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك — الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.', 'As soon as an opportunity is found, the bot sends full details to your Telegram — pair, side, entry, target, stop loss, leverage, and Score.')}</p>
+            <p className="section-sub">{t('بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك: الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.', 'As soon as an opportunity is found, the bot sends full details to your Telegram: pair, side, entry, target, stop loss, leverage, and Score.')}</p>
             <div style={{ marginTop: '28px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <a href="https://t.me/Develpay_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
               <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>{t('سجّل للحصول على الكود', 'Sign up to get your code')}</Link>
@@ -311,18 +324,18 @@ export default function Home() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
             <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('03 · كل الأدوات', '03 · All the tools')}</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('مو بس إشارات — منصة كاملة', 'Not just signals — a complete platform')}</h2>
+            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('مو بس إشارات، منصة كاملة', 'Not just signals. A complete platform')}</h2>
             <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>{t('كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.', 'Every tool you need to analyze the market and make decisions, without paying for extra third-party tools.')}</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
             {[
               { icon: '📡', color: '#00c4ef', title: t('السكانر', 'Scanner'), desc: t('يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', 'Scans dozens of coins in real time and calculates RSI, MACD, ADX and Supertrend, giving each coin a Score from -100 to +100.'), href: '/scanner' },
               { icon: '⚙️', color: '#7c3aed', title: t('منشئ الاستراتيجيات', 'Strategy Builder'), desc: t('ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', 'Build your own scan conditions (AND/OR between indicators) and run them across the whole market with one click.'), href: '/strategy-builder' },
-              { icon: '📊', color: '#22d06e', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency — individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
-              { icon: '🔔', color: '#f59e0b', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage) — checked every 30 seconds.'), href: '/coin-tracker' },
-              { icon: '🤖', color: '#f04060', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal — it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
-              { icon: '💼', color: '#00c4ef', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market — leverage, size, LONG/SHORT.'), href: '/paper-trading' },
-              { icon: '🎓', color: '#7c3aed', title: t('الأكاديمية', 'Academy'), desc: t('تعلّم الشموع، النماذج، والمؤشرات الفنية مجاناً — كل مفهوم مربوط بميزة حقيقية بالبوت.', 'Learn candlesticks, chart patterns, and technical indicators for free — every concept tied to a real bot feature.'), href: '/academy', featured: true },
+              { icon: '📊', color: '#22d06e', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة: نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency: individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
+              { icon: '🔔', color: '#f59e0b', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة)، تُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage), checked every 30 seconds.'), href: '/coin-tracker' },
+              { icon: '🤖', color: '#f04060', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة، يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal: it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
+              { icon: '💼', color: '#00c4ef', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي: رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market: leverage, size, LONG/SHORT.'), href: '/paper-trading' },
+              { icon: '🎓', color: '#7c3aed', title: t('الأكاديمية', 'Academy'), desc: t('تعلّم الشموع، النماذج، والمؤشرات الفنية مجاناً، وكل مفهوم مربوط بميزة حقيقية بالبوت.', 'Learn candlesticks, chart patterns, and technical indicators for free, with every concept tied to a real bot feature.'), href: '/academy', featured: true },
             ].map((f, i) => (
               <Link key={i} href={f.href} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="signal-card" style={{
@@ -355,8 +368,8 @@ export default function Home() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ — بدون بطاقة ائتمان، 14 يوم تجربة كاملة', 'An account in seconds — no credit card, 14 days full trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
-              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot، ادفع، وفعّل حسابك — بعدها توصلك كل الإشارات على تلقرام فوراً', 'Open @Develpay_bot, pay, and activate your account — every signal then reaches you on Telegram instantly'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
+              { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ، بدون بطاقة ائتمان، مع 14 يوم تجربة كاملة', 'An account in seconds, no credit card, with a full 14-day trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
+              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot، ادفع، وفعّل حسابك، وبعدها توصلك كل الإشارات على تلقرام فوراً', 'Open @Develpay_bot, pay, and activate your account, then every signal reaches you on Telegram instantly'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
               { n: '03', title: t('تداول بثقة', 'Trade with confidence'), desc: t('كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', 'Every signal arrives with the strategy, entry, target, stop loss, and leverage'), href: '/dashboard', cta: t('الإشارات ←', 'Signals →') },
             ].map((s,i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
@@ -419,8 +432,8 @@ export default function Home() {
             {[
               { q: t('هل أحتاج بطاقة ائتمان للتجربة المجانية؟', 'Do I need a credit card for the free trial?'), a: t('لا، تسجّل بإيميلك فقط وتحصل على 14 يوم كاملة بدون أي التزام.', 'No, just sign up with your email and get a full 14 days with no commitment.') },
               { q: t('كيف توصلني الإشارات؟', 'How do signals reach me?'), a: t('على الموقع فوراً، وعلى تلقرام لو ربطت حسابك بالبوت.', 'Instantly on the website, and on Telegram if you connect your account to the bot.') },
-              { q: t('هل النتائج مضمونة؟', 'Are results guaranteed?'), a: t('لا. التداول ينطوي على مخاطر ولا توجد أداة تضمن الربح — الأرقام المعروضة من باك تست حقيقي فقط.', 'No. Trading involves risk and no tool guarantees profit — the numbers shown are from real backtesting only.') },
-              { q: t('أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel anytime?'), a: t('نعم، الاشتراك بدون عقد طويل — تجدده شهرياً أو تتوقف متى ما بغيت.', 'Yes, there\'s no long-term contract — renew monthly or stop whenever you like.') },
+              { q: t('هل النتائج مضمونة؟', 'Are results guaranteed?'), a: t('لا. التداول ينطوي على مخاطر ولا توجد أداة تضمن الربح. الأرقام المعروضة من باك تست حقيقي فقط.', 'No. Trading involves risk and no tool guarantees profit. The numbers shown are from real backtesting only.') },
+              { q: t('أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel anytime?'), a: t('نعم، الاشتراك بدون عقد طويل، تجدده شهرياً أو تتوقف متى ما بغيت.', 'Yes, there\'s no long-term contract. Renew monthly or stop whenever you like.') },
             ].map((f, i) => (
               <details key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 18px' }}>
                 <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '14px', listStyle: 'none' }}>{f.q}</summary>
@@ -441,7 +454,7 @@ export default function Home() {
             {t('السوق يتحرك الآن.', 'The market is moving.')}<br/>
             <span className="gradient-text">{t('دع DevelBot يبحث لك عن التالي.', 'Let DevelBot find what comes next.')}</span>
           </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>{t('لا بطاقة، لا التزامات — 14 يوم مجاناً', 'No card, no commitments — 14 days free')}</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>{t('لا بطاقة، لا التزامات، 14 يوم مجاناً', 'No card, no commitments, 14 days free')}</p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
             <Link href="/register" className="btn-primary" style={{ padding: '13px 32px', fontSize: '15px' }}>{t('ابدأ مجاناً الآن ←', 'Start free now →')}</Link>
             <Link href="/dashboard" className="btn-ghost" style={{ padding: '13px 24px', fontSize: '15px' }}>{t('شوف الإشارات', 'View signals')}</Link>
@@ -485,7 +498,7 @@ export default function Home() {
           </div>
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <span style={{ color: 'var(--dim)', fontSize: '12px' }}>© 2026 DevelBot</span>
-            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>{t('للأغراض التعليمية فقط — التداول ينطوي على مخاطر.', 'For educational purposes only — trading involves risk.')}</span>
+            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>{t('للأغراض التعليمية فقط، والتداول ينطوي على مخاطر.', 'For educational purposes only. Trading involves risk.')}</span>
           </div>
         </div>
       </footer>

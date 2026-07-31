@@ -129,7 +129,7 @@ export default function AIAssistantPage() {
       const aiMsg: Message = { role: 'assistant', content: data.response || data.error, ts: new Date() }
       setMessages(prev => [...prev, aiMsg])
     } catch (e: any) {
-      setError(t('حدث خطأ في الاتصال — تحقق من الاتصال بالإنترنت', 'A connection error occurred — check your internet connection'))
+      setError(t('حدث خطأ في الاتصال، تحقق من الاتصال بالإنترنت', 'A connection error occurred, check your internet connection'))
     } finally {
       setLoading(false)
     }
@@ -205,7 +205,7 @@ export default function AIAssistantPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--dim)', marginTop: '12px' }}>
-          {t('⚠️ Devel تقدم تحليلاً تعليمياً فقط — ليست نصيحة مالية', '⚠️ Devel provides educational analysis only — not financial advice')}
+          {t('⚠️ Devel تقدم تحليلاً تعليمياً فقط، ليست نصيحة مالية', '⚠️ Devel provides educational analysis only, not financial advice')}
         </p>
       </div>
     </div>

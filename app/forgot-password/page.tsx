@@ -21,7 +21,7 @@ export default function ForgotPassword() {
         body: JSON.stringify({ email })
       })
       if (res.ok) setSent(true)
-      else setError(t('حدث خطأ — حاول مجدداً', 'Something went wrong — please try again'))
+      else setError(t('حدث خطأ، حاول مجدداً', 'Something went wrong, please try again'))
     } catch {
       setError(t('تعذر الاتصال بالسيرفر', 'Could not connect to the server'))
     }

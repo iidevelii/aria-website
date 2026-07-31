@@ -74,7 +74,7 @@ export default function EquityCurve({ points, netPct, totalTrades, label }: {
               {label}
             </div>
             <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
-              {t(`منحنى الربح التراكمي — ${totalTrades} صفقة بالتسلسل الزمني الحقيقي`, `Cumulative equity curve — ${totalTrades} trades in real chronological order`)}
+              {t(`منحنى الربح التراكمي: ${totalTrades} صفقة بالتسلسل الزمني الحقيقي`, `Cumulative equity curve: ${totalTrades} trades in real chronological order`)}
             </div>
           </div>
           <div style={{ fontSize: '28px', fontWeight: 900, color: positive ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--mono)' }}>
@@ -101,7 +101,7 @@ export default function EquityCurve({ points, netPct, totalTrades, label }: {
         </svg>
 
         <div style={{ fontSize: '11px', color: 'var(--dim)', marginTop: '4px' }}>
-          {t('كل نقطة = إغلاق صفقة واحدة، مرتّبة حسب وقت الإغلاق الفعلي — مو أرقام تقديرية.', 'Each point = one trade close, ordered by real close time — not an illustrative estimate.')}
+          {t('كل نقطة = إغلاق صفقة واحدة، مرتّبة حسب وقت الإغلاق الفعلي، مو أرقام تقديرية.', 'Each point = one trade close, ordered by real close time, not an illustrative estimate.')}
         </div>
       </div>
     </div>

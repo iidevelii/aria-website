@@ -217,7 +217,7 @@ export default function CoinTrackerPage() {
         {(tab==='active'?active:triggered).length===0
           ?<div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',padding:'48px',textAlign:'center',color:'var(--muted)'}}>
             <div style={{fontSize:'32px',marginBottom:'12px'}}>{tab==='active'?'🔔':'✅'}</div>
-            {tab==='active'?t('لا توجد تنبيهات نشطة — اضغط "+ إضافة تنبيه"','No active alerts — click "+ Add alert"'):t('لم يُشغَّل أي تنبيه بعد','No alerts have triggered yet')}
+            {tab==='active'?t('لا توجد تنبيهات نشطة، اضغط "+ إضافة تنبيه"','No active alerts, click "+ Add alert"'):t('لم يُشغَّل أي تنبيه بعد','No alerts have triggered yet')}
           </div>
           :<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'12px'}}>
             {(tab==='active'?active:triggered).map(item=><AlertCard key={item.id} item={item}/>)}

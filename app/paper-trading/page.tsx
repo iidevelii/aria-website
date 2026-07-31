@@ -169,7 +169,7 @@ export default function PaperTradingPage() {
           <div>
             <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'4px',flexWrap:'wrap'}}>
               <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',margin:0}}>{t('محفظة التداول التجريبي', 'Paper Trading Portfolio')}</h1>
-              <span className="badge" style={{background:'rgba(251,191,36,0.1)',borderColor:'rgba(251,191,36,0.3)',color:'var(--yellow)'}}>{t('تجريبي — بدون مال حقيقي', 'Simulated — no real money')}</span>
+              <span className="badge" style={{background:'rgba(251,191,36,0.1)',borderColor:'rgba(251,191,36,0.3)',color:'var(--yellow)'}}>{t('تجريبي، بدون مال حقيقي', 'Simulated, no real money')}</span>
             </div>
             <p style={{color:'var(--muted)',fontSize:'13px'}}>
               <span style={{color:'var(--green)',fontWeight:700}}>{t('● أسعار حية', '● Live prices')}</span>
@@ -182,7 +182,7 @@ export default function PaperTradingPage() {
         </div>
 
         <div style={{background:'rgba(251,191,36,0.06)',border:'1px solid rgba(251,191,36,0.2)',borderRadius:'10px',padding:'10px 16px',marginBottom:'20px',fontSize:'12px',color:'var(--muted)',lineHeight:1.6}}>
-          ⚠️ {t('هذه محفظة افتراضية بالكامل لأغراض التدريب فقط. الرصيد وهمي والصفقات لا تُنفَّذ فعلياً في أي منصة حقيقية — لا علاقة لها بمالك الحقيقي أو اشتراكك.', 'This is a fully virtual portfolio for practice only. The balance is simulated and trades are never executed on any real exchange — it has no connection to your real money or subscription.')}
+          ⚠️ {t('هذه محفظة افتراضية بالكامل لأغراض التدريب فقط. الرصيد وهمي والصفقات لا تُنفَّذ فعلياً في أي منصة حقيقية، ولا علاقة لها بمالك الحقيقي أو اشتراكك.', 'This is a fully virtual portfolio for practice only. The balance is simulated and trades are never executed on any real exchange, and it has no connection to your real money or subscription.')}
         </div>
 
         {/* Stats */}
@@ -218,7 +218,7 @@ export default function PaperTradingPage() {
             {openPos.length===0
               ?<div style={{padding:'48px',textAlign:'center',color:'var(--muted)'}}>
                   <div style={{fontSize:'32px',marginBottom:'12px'}}>📈</div>
-                  {t('لا توجد صفقات مفتوحة — اضغط "+ فتح صفقة"', 'No open trades — press "+ Open trade"')}
+                  {t('لا توجد صفقات مفتوحة، اضغط "+ فتح صفقة"', 'No open trades, press "+ Open trade"')}
                 </div>
               :<table style={{width:'100%',borderCollapse:'collapse',minWidth:'720px'}}>
                 <thead>

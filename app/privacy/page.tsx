@@ -23,8 +23,8 @@ export default function PrivacyPage() {
 
         <Section title={t('١. البيانات التي نجمعها', '1. Data we collect')}>
           {t(
-            'عند إنشاء حساب نجمع اسم المستخدم والبريد الإلكتروني وكلمة مرور مشفّرة. إذا ربطت حسابك بتلقرام، نخزّن معرّف تلقرام (Telegram ID) لإرسال الإشارات لك. نخزّن أيضاً تفضيلاتك (نوع الإشارات، العملات المستبعدة شخصياً) لتخصيص تجربتك. لا نطلب ولا نخزّن أي بيانات بطاقات دفع على منصتنا — التفعيل يتم يدوياً عبر الدعم.',
-            'When you create an account we collect your username, email, and an encrypted password. If you link your account to Telegram, we store your Telegram ID to deliver signals to you. We also store your preferences (signal types, personally excluded coins) to personalize your experience. We do not request or store any payment card data on our platform — activation is handled manually through support.'
+            'عند إنشاء حساب نجمع اسم المستخدم والبريد الإلكتروني وكلمة مرور مشفّرة. إذا ربطت حسابك بتلقرام، نخزّن معرّف تلقرام (Telegram ID) لإرسال الإشارات لك. نخزّن أيضاً تفضيلاتك (نوع الإشارات، العملات المستبعدة شخصياً) لتخصيص تجربتك. لا نطلب ولا نخزّن أي بيانات بطاقات دفع على منصتنا، فالتفعيل يتم يدوياً عبر الدعم.',
+            'When you create an account we collect your username, email, and an encrypted password. If you link your account to Telegram, we store your Telegram ID to deliver signals to you. We also store your preferences (signal types, personally excluded coins) to personalize your experience. We do not request or store any payment card data on our platform; activation is handled manually through support.'
           )}
         </Section>
 
@@ -44,8 +44,8 @@ export default function PrivacyPage() {
 
         <Section title={t('٤. التخزين المحلي (Local Storage)', '4. Local storage')}>
           {t(
-            'نستخدم التخزين المحلي بمتصفحك لحفظ رمز الدخول (Token) وبعض الإعدادات مثل المحفظة التجريبية واستراتيجياتك المحفوظة وتنبيهات الأسعار — هذه البيانات تبقى على جهازك ولا تُرسل لسيرفراتنا إلا عند الحاجة الفعلية (مثل جلب بيانات حسابك).',
-            'We use your browser\'s local storage to save your login token and certain settings such as the paper-trading portfolio, saved strategies, and price alerts — this data stays on your device and is only sent to our servers when actually needed (such as fetching your account data).'
+            'نستخدم التخزين المحلي بمتصفحك لحفظ رمز الدخول (Token) وبعض الإعدادات مثل المحفظة التجريبية واستراتيجياتك المحفوظة وتنبيهات الأسعار. هذه البيانات تبقى على جهازك ولا تُرسل لسيرفراتنا إلا عند الحاجة الفعلية (مثل جلب بيانات حسابك).',
+            'We use your browser\'s local storage to save your login token and certain settings such as the paper-trading portfolio, saved strategies, and price alerts. This data stays on your device and is only sent to our servers when actually needed (such as fetching your account data).'
           )}
         </Section>
 

@@ -76,7 +76,7 @@ export default function AcademyPage() {
             🎓 {t('أكاديمية DevelBot', 'DevelBot Academy')}
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '640px', lineHeight: 1.7, margin: 0 }}>
-            {t('كل أساسيات التحليل الفني اللي تحتاجها — الشموع، النماذج، المؤشرات، مستويات السعر، وإدارة المخاطر. بالعربي، بأمثلة، ومربوط بمميزات البوت.', 'Everything you need to know about technical analysis — candlesticks, patterns, indicators, price levels, and risk management. In Arabic, with examples, tied to the bot\'s features.')}
+            {t('كل أساسيات التحليل الفني اللي تحتاجها: الشموع، النماذج، المؤشرات، مستويات السعر، وإدارة المخاطر. بالعربي، بأمثلة، ومربوط بمميزات البوت.', 'Everything you need to know about technical analysis: candlesticks, patterns, indicators, price levels, and risk management. In Arabic, with examples, tied to the bot\'s features.')}
           </p>
           <input
             value={query} onChange={e => setQuery(e.target.value)}
@@ -122,6 +122,13 @@ export default function AcademyPage() {
                 📖 {t('قاموس المصطلحات', 'Glossary')}
               </button>
             </div>
+
+            {activeChapter !== '__glossary__' && chapter.note && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: `${chapter.color}0f`, border: `1px solid ${chapter.color}30`, borderRadius: '12px', padding: '14px 16px', marginBottom: '24px' }}>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>🤖</span>
+                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.7, color: chapter.color }}>{lang === 'en' ? chapter.note[1] : chapter.note[0]}</p>
+              </div>
+            )}
 
             {activeChapter === '__glossary__' ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>

@@ -115,7 +115,7 @@ export default function SleepingWalletArt() {
 
       <div style={{ textAlign: 'center', marginTop: '14px' }}>
         <div style={{ fontWeight: 800, fontSize: '16px', marginBottom: '4px' }}>{t('الفلوس تشتغل وأنت نايم 😴', 'Your money works while you sleep 😴')}</div>
-        <div style={{ color: 'var(--muted)', fontSize: '13px' }}>{t('البوت يراقب السوق 24/7 ويرسل لك الفرص — حتى وأنت مو أونلاين.', 'The bot watches the market 24/7 and sends you opportunities — even while you\'re offline.')}</div>
+        <div style={{ color: 'var(--muted)', fontSize: '13px' }}>{t('البوت يراقب السوق 24/7 ويرسل لك الفرص، حتى وأنت مو أونلاين.', 'The bot watches the market 24/7 and sends you opportunities, even while you\'re offline.')}</div>
       </div>
 
       <style>{`

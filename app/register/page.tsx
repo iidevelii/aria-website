@@ -52,7 +52,7 @@ export default function Register() {
 
           <div className="badge" style={{ marginBottom: '20px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88', display: 'inline-block' }}></span>
-            {t('30 يوم تجربة مجانية — بدون بطاقة', '30-day free trial — no card required')}
+            {t('30 يوم تجربة مجانية، بدون بطاقة', '30-day free trial, no card required')}
           </div>
 
           <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, marginBottom: '8px' }}>{t('انشئ حسابك', 'Create your account')}</h1>

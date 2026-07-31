@@ -30,7 +30,7 @@ function StatusBadge({ status }: { status: CoinRow['status'] }) {
     active:             { text: t('✅ نشطة', '✅ Active'),                 bg: 'rgba(0,230,100,0.12)',  color: 'var(--green)' },
     blacklisted:        { text: t('🚫 مستبعدة', '🚫 Blacklisted'),         bg: 'rgba(255,68,85,0.12)',  color: 'var(--red)' },
     insufficient_data:  { text: t('⏳ بيانات قليلة', '⏳ Insufficient Data'), bg: 'rgba(251,191,36,0.12)', color: 'var(--yellow)' },
-    no_signal:          { text: t('— بدون إشارة', '— No Signal'),         bg: 'transparent',           color: 'var(--muted)' },
+    no_signal:          { text: t('● بدون إشارة', '● No Signal'),         bg: 'transparent',           color: 'var(--muted)' },
   }[status]
   return (
     <span style={{ background: map.bg, color: map.color, borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -200,7 +200,7 @@ export default function BacktestResults() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={{ fontSize: '30px', fontWeight: 900, marginBottom: '6px' }}>{t('📊 نتائج الباك تست التاريخي', '📊 Historical Backtest Results')}</h1>
-            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{data?.period || t('آخر 365 يوم', 'Last 365 days')} — {t('بيانات Binance حقيقية، لكل عملة على حدة', 'Real Binance data, coin by coin')}</p>
+            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{data?.period || t('آخر 365 يوم', 'Last 365 days')} · {t('بيانات Binance حقيقية، لكل عملة على حدة', 'Real Binance data, coin by coin')}</p>
           </div>
           <Link href="/dashboard" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)', textDecoration: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700 }}>{t('← الداشبورد', '← Dashboard')}</Link>
         </div>
@@ -214,13 +214,13 @@ export default function BacktestResults() {
           <span style={{ fontSize: '20px' }}>📈</span>
           <div style={{ fontSize: '13px', lineHeight: 1.8, color: 'var(--text)' }}>
             <strong>{t(
-              'لو كنت مشترك معنا خلال آخر 365 يوم، هذي تقريباً النتائج اللي كانت طالعة لك — بمحاكاة دقيقة على بيانات Binance الحقيقية لكل صفقة.',
-              'If you had been subscribed with us over the last 365 days, these are roughly the results you would have seen — based on an accurate simulation using real Binance data for every trade.'
+              'لو كنت مشترك معنا خلال آخر 365 يوم، هذي تقريباً النتائج اللي كانت طالعة لك، بمحاكاة دقيقة على بيانات Binance الحقيقية لكل صفقة.',
+              'If you had been subscribed with us over the last 365 days, these are roughly the results you would have seen, based on an accurate simulation using real Binance data for every trade.'
             )}</strong>
             <br />
             {t(
-              'بكل شفافية: هذي أرقام محاكاة (باك تست) على بيانات تاريخية من تشغيلة واحدة، مو صفقات حية نُفِّذت فعلياً، وما تحتسب رسوم التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate بالفيوتشر). السوق يتغير باستمرار والأداء الفعلي ممكن يختلف عن الماضي — لكنها مؤشر قوي على الاستراتيجية اللي يشتغل فيها البوت كل يوم، ونراجعها بشكل دوري لنحافظ على جودتها.',
-              'In full transparency: these are simulated (backtested) numbers from a single run on historical data — not live trades that were actually executed — and they do not account for trading fees, price slippage, or futures funding rates. Markets are constantly changing and actual performance may differ from the past — but this is a strong indicator of the strategy the bot runs every day, and we review it periodically to maintain its quality.'
+              'بكل شفافية: هذي أرقام محاكاة (باك تست) على بيانات تاريخية من تشغيلة واحدة، مو صفقات حية نُفِّذت فعلياً، وما تحتسب رسوم التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate بالفيوتشر). السوق يتغير باستمرار والأداء الفعلي ممكن يختلف عن الماضي، لكنها مؤشر قوي على الاستراتيجية اللي يشتغل فيها البوت كل يوم، ونراجعها بشكل دوري لنحافظ على جودتها.',
+              'In full transparency: these are simulated (backtested) numbers from a single run on historical data, not live trades that were actually executed, and they do not account for trading fees, price slippage, or futures funding rates. Markets are constantly changing and actual performance may differ from the past, but this is a strong indicator of the strategy the bot runs every day, and we review it periodically to maintain its quality.'
             )}
           </div>
         </div>
@@ -234,12 +234,12 @@ export default function BacktestResults() {
               points={equity.points}
               netPct={equity.netPct}
               totalTrades={equity.totalTrades}
-              label={`🔵 ${t('منحنى الفيوتشر — TREND_MTF', 'Futures Equity Curve — TREND_MTF')}`}
+              label={`🔵 ${t('منحنى الفيوتشر (TREND_MTF)', 'Futures Equity Curve (TREND_MTF)')}`}
             />
             <p style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '-8px', marginBottom: '32px', lineHeight: 1.7 }}>
               {t(
-                `⚠️ هذا المنحنى مبني من إعادة تشغيل حقيقية بنفس إعدادات البوت الحي بالضبط (SL 0.6×ATR / TP 1.2R) على عيّنة ${equity.universe} عملة/365 يوم — ${equity.totalTrades} صفقة حقيقية بترتيبها الزمني الفعلي، مو أرقام تقديرية. الجدول والإحصائيات بالأسفل مبنية على عيّنة أوسع (${data?.futures.universe ?? 529} عملة) ولذلك أرقامها تختلف قليلاً عن هذا المنحنى.`,
-                `⚠️ This curve is built from a real re-run using the exact live bot settings (SL 0.6×ATR / TP 1.2R) on a ${equity.universe}-coin/365-day sample — ${equity.totalTrades} real trades in actual chronological order, not an estimate. The table and stats below come from a broader ${data?.futures.universe ?? 529}-coin sample, so the numbers differ slightly from this curve.`
+                `⚠️ هذا المنحنى مبني من إعادة تشغيل حقيقية بنفس إعدادات البوت الحي بالضبط (SL 0.6×ATR / TP 1.2R) على عيّنة ${equity.universe} عملة/365 يوم: ${equity.totalTrades} صفقة حقيقية بترتيبها الزمني الفعلي، مو أرقام تقديرية. الجدول والإحصائيات بالأسفل مبنية على عيّنة أوسع (${data?.futures.universe ?? 529} عملة) ولذلك أرقامها تختلف قليلاً عن هذا المنحنى.`,
+                `⚠️ This curve is built from a real re-run using the exact live bot settings (SL 0.6×ATR / TP 1.2R) on a ${equity.universe}-coin/365-day sample: ${equity.totalTrades} real trades in actual chronological order, not an estimate. The table and stats below come from a broader ${data?.futures.universe ?? 529}-coin sample, so the numbers differ slightly from this curve.`
               )}
             </p>
           </div>
@@ -255,12 +255,12 @@ export default function BacktestResults() {
                   points={spotEquity.points}
                   netPct={spotEquity.netPct}
                   totalTrades={spotEquity.totalTrades}
-                  label={`🟡 ${t('منحنى السبوت — SMC_MTF', 'Spot Equity Curve — SMC_MTF')}`}
+                  label={`🟡 ${t('منحنى السبوت (SMC_MTF)', 'Spot Equity Curve (SMC_MTF)')}`}
                 />
                 <p style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '-8px', marginBottom: '32px', lineHeight: 1.7 }}>
                   {t(
-                    `⚠️ نفس المبدأ: إعادة تشغيل حقيقية بنفس إعدادات البوت الحي (SL 0.3×ATR / TP 2.0R) على عيّنة ${spotEquity.universe} عملة/365 يوم — ${spotEquity.totalTrades} صفقة حقيقية فقط (تردد السبوت أقل بطبيعته من الفيوتشر). الجدول بالأسفل مبني على عيّنة أوسع (462 عملة).`,
-                    `⚠️ Same principle: a real re-run using the exact live bot settings (SL 0.3×ATR / TP 2.0R) on a ${spotEquity.universe}-coin/365-day sample — only ${spotEquity.totalTrades} real trades (spot is naturally lower-frequency than futures). The table below comes from a broader 462-coin sample.`
+                    `⚠️ نفس المبدأ: إعادة تشغيل حقيقية بنفس إعدادات البوت الحي (SL 0.3×ATR / TP 2.0R) على عيّنة ${spotEquity.universe} عملة/365 يوم، ${spotEquity.totalTrades} صفقة حقيقية فقط (تردد السبوت أقل بطبيعته من الفيوتشر). الجدول بالأسفل مبني على عيّنة أوسع (462 عملة).`,
+                    `⚠️ Same principle: a real re-run using the exact live bot settings (SL 0.3×ATR / TP 2.0R) on a ${spotEquity.universe}-coin/365-day sample, only ${spotEquity.totalTrades} real trades (spot is naturally lower-frequency than futures). The table below comes from a broader 462-coin sample.`
                   )}
                 </p>
               </div>

@@ -12,7 +12,7 @@ export default function Subscribe() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 style={{ fontSize: '36px', fontWeight: 900, marginBottom: '8px', color: 'var(--text)' }}>{t('الاشتراك الاحترافي', 'Pro Subscription')}</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('35 USDT — 30 يوم وصول كامل بدون قيود', '35 USDT — 30 days of full, unrestricted access')}</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('35 USDT · 30 يوم وصول كامل بدون قيود', '35 USDT · 30 days of full, unrestricted access')}</p>
         </div>
 
         {/* Pricing card */}

@@ -172,7 +172,7 @@ export default function StrategyBuilderPage() {
         body: JSON.stringify({ user_id: Number(uid), name: stratName, conditions, logic, timeframe: tf, pair_count: pairCount }),
       })
       const d = await r.json()
-      if (r.ok) { setActivateMsg(t('✅ تم التفعيل — راح توصلك تنبيهات على تلقرام', '✅ Activated — you\'ll get alerts on Telegram')); loadCustomAlerts() }
+      if (r.ok) { setActivateMsg(t('✅ تم التفعيل، راح توصلك تنبيهات على تلقرام', '✅ Activated, you\'ll get alerts on Telegram')); loadCustomAlerts() }
       else setActivateMsg(d.detail || t('تعذّر التفعيل', 'Could not activate'))
     } catch { setActivateMsg(t('تعذّر التفعيل', 'Could not activate')) }
     setActivating(false)
@@ -220,7 +220,7 @@ export default function StrategyBuilderPage() {
         }),
       })
       const d = await r.json()
-      if (r.ok) { setPatternMsg(t('✅ تم التفعيل — راح توصلك تنبيهات على تلقرام', '✅ Activated — you\'ll get alerts on Telegram')); loadCustomAlerts() }
+      if (r.ok) { setPatternMsg(t('✅ تم التفعيل، راح توصلك تنبيهات على تلقرام', '✅ Activated, you\'ll get alerts on Telegram')); loadCustomAlerts() }
       else setPatternMsg(d.detail || t('تعذّر التفعيل', 'Could not activate'))
     } catch { setPatternMsg(t('تعذّر التفعيل', 'Could not activate')) }
     setPatternActivating(false)
@@ -455,7 +455,7 @@ export default function StrategyBuilderPage() {
             </button>
             {activateMsg && <div style={{ fontSize: '11.5px', color: activateMsg.startsWith('✅') ? '#00e664' : '#ff4455', marginTop: '8px' }}>{activateMsg}</div>}
             <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', lineHeight: 1.6 }}>
-              {t('البوت يراقب هذي الشروط تلقائياً ويرسل لك تنبيه خاص على تلقرام أول ما تنطبق على أي عملة — لازم يكون حسابك مربوط بتلقرام من صفحة الإعدادات.', 'The bot monitors these conditions automatically and sends you a private Telegram alert whenever a coin matches — your account must be linked to Telegram from the Settings page.')}
+              {t('البوت يراقب هذي الشروط تلقائياً ويرسل لك تنبيه خاص على تلقرام أول ما تنطبق على أي عملة. لازم يكون حسابك مربوط بتلقرام من صفحة الإعدادات.', 'The bot monitors these conditions automatically and sends you a private Telegram alert whenever a coin matches. Your account must be linked to Telegram from the Settings page.')}
             </div>
 
             {loading && (
@@ -475,7 +475,7 @@ export default function StrategyBuilderPage() {
             </div>
             <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <p style={{ color: 'var(--muted)', fontSize: '12px', margin: 0 }}>
-                {t('اختر نمط شارت كلاسيكي — البوت يرصده تلقائياً ويرسل لك تنبيه بعد التأكيد.', 'Pick a classic chart pattern — the bot detects it automatically and alerts you once confirmed.')}
+                {t('اختر نمط شارت كلاسيكي، والبوت يرصده تلقائياً ويرسل لك تنبيه بعد التأكيد.', 'Pick a classic chart pattern, and the bot detects it automatically and alerts you once confirmed.')}
               </p>
               <select value={patternType} onChange={e => setPatternType(e.target.value)}
                 style={{ width: '100%', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '10px', color: 'var(--text)', fontSize: '13px', fontFamily: 'inherit', fontWeight: 700 }}>

@@ -38,7 +38,7 @@ export default function RiskDisclaimerPage() {
         <Section title={t('٢. الأداء السابق لا يضمن النتائج المستقبلية', '2. Past performance does not guarantee future results')}>
           {t(
             'أرقام الباك تست المعروضة (مثل نسبة النجاح أو صافي الربح) مبنية على محاكاة لبيانات تاريخية حقيقية من Binance، وليست صفقات حية نُفِّذت فعلياً. لا تحتسب هذه المحاكاة رسوم التداول أو الانزلاق السعري (slippage) أو تمويل المراكز (funding rate). أداء الاستراتيجية في المستقبل قد يختلف جوهرياً عن أدائها التاريخي.',
-            'The backtest figures shown (such as win rate or net profit) are based on a simulation using real historical Binance data — they are not live trades that were actually executed. This simulation does not account for trading fees, price slippage, or futures funding rates. Future strategy performance may differ materially from its historical performance.'
+            'The backtest figures shown (such as win rate or net profit) are based on a simulation using real historical Binance data; they are not live trades that were actually executed. This simulation does not account for trading fees, price slippage, or futures funding rates. Future strategy performance may differ materially from its historical performance.'
           )}
         </Section>
 

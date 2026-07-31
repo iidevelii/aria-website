@@ -9,10 +9,10 @@ const CATS: Cat[] = [
   {
     title: ['الحساب والاشتراك', 'Account & Subscription'], emoji: '👤',
     items: [
-      { q: ['كيف أبدأ التجربة المجانية؟', 'How do I start the free trial?'], a: ['سجّل حساباً جديداً من صفحة "سجّل مجاناً" — تحصل مباشرة على 14 يوم وصول كامل بدون أي بطاقة بنكية.', 'Create a new account from the "Sign up free" page — you get instant access to a full 14-day trial with no card required.'] },
+      { q: ['كيف أبدأ التجربة المجانية؟', 'How do I start the free trial?'], a: ['سجّل حساباً جديداً من صفحة "سجّل مجاناً"، تحصل مباشرة على 14 يوم وصول كامل بدون أي بطاقة بنكية.', 'Create a new account from the "Sign up free" page, you get instant access to a full 14-day trial with no card required.'] },
       { q: ['كيف أشترك بعد انتهاء التجربة؟', 'How do I subscribe after the trial ends?'], a: ['تواصل معنا عبر تلقرام (@devel_support) وسنرشدك لخطوات الدفع والتفعيل خلال دقائق.', 'Message us on Telegram (@devel_support) and we\'ll guide you through payment and activation within minutes.'] },
-      { q: ['أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel my subscription anytime?'], a: ['نعم — الاشتراك بدون التزام طويل الأمد، وينتهي تلقائياً بنهاية المدة المدفوعة بدون تجديد تلقائي.', 'Yes — there\'s no long-term commitment. The subscription simply expires at the end of the paid period with no auto-renewal.'] },
-      { q: ['فقدت رقم التحويل (TXID)، شسوي؟', 'I lost my transfer number (TXID), what do I do?'], a: ['راسل الدعم على تلقرام وأرسل تفاصيل عملية الدفع — سنساعدك بتفعيل حسابك يدوياً.', 'Message support on Telegram with your payment details — we\'ll help activate your account manually.'] },
+      { q: ['أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel my subscription anytime?'], a: ['نعم، الاشتراك بدون التزام طويل الأمد، وينتهي تلقائياً بنهاية المدة المدفوعة بدون تجديد تلقائي.', 'Yes, there\'s no long-term commitment. The subscription simply expires at the end of the paid period with no auto-renewal.'] },
+      { q: ['فقدت رقم التحويل (TXID)، شسوي؟', 'I lost my transfer number (TXID), what do I do?'], a: ['راسل الدعم على تلقرام وأرسل تفاصيل عملية الدفع، وسنساعدك بتفعيل حسابك يدوياً.', 'Message support on Telegram with your payment details, and we\'ll help activate your account manually.'] },
     ],
   },
   {
@@ -21,7 +21,7 @@ const CATS: Cat[] = [
       { q: ['كيف توصلني الإشارة؟', 'How does a signal reach me?'], a: ['فور ما يرصد البوت فرصة مطابقة لشروطه، ترسل الإشارة فوراً على الموقع وبوت تلقرام معاً، مع الدخول والهدف ووقف الخسارة وسبب الاختيار.', 'The moment the bot detects a matching opportunity, the signal is sent instantly to both the website and the Telegram bot, with entry, target, stop loss, and the reasoning behind it.'] },
       { q: ['كم مرة يفحص البوت السوق؟', 'How often does the bot scan the market?'], a: ['كل 15 دقيقة يفحص البوت أكثر من 100 عملة على Binance عبر عدة أطر زمنية.', 'Every 15 minutes the bot scans 100+ coins on Binance across multiple timeframes.'] },
       { q: ['وش الفرق بين إشارات السبوت والفيوتشر؟', "What's the difference between Spot and Futures signals?"], a: ['السبوت شراء مباشر بدون رافعة، مناسب للمدى الأطول. الفيوتشر يدعم LONG وSHORT برافعة ديناميكية، وأعلى في التردد والمخاطر.', 'Spot is a direct purchase with no leverage, suited for longer horizons. Futures supports LONG and SHORT with dynamic leverage, and carries higher frequency and risk.'] },
-      { q: ['أقدر أستبعد عملة معينة من إشاراتي؟', 'Can I exclude a specific coin from my signals?'], a: ['نعم — من صفحة الإعدادات أضف أي عملة لقائمة الاستبعاد الشخصية ولن تصلك إشاراتها، بينما باقي المشتركين يستلمونها عادي.', 'Yes — from the Settings page, add any coin to your personal exclusion list and you\'ll stop receiving its signals, while other subscribers still get them normally.'] },
+      { q: ['أقدر أستبعد عملة معينة من إشاراتي؟', 'Can I exclude a specific coin from my signals?'], a: ['نعم، من صفحة الإعدادات أضف أي عملة لقائمة الاستبعاد الشخصية ولن تصلك إشاراتها، بينما باقي المشتركين يستلمونها عادي.', 'Yes, from the Settings page, add any coin to your personal exclusion list and you\'ll stop receiving its signals, while other subscribers still get them normally.'] },
       { q: ['أقدر أبني شروط فحص خاصة فيني؟', 'Can I build my own custom scan conditions?'], a: ['نعم، عبر "منشئ الاستراتيجيات" تقدر تركّب شروطك الخاصة (RSI, MACD, ADX, Score...) وتفعّلها كتنبيه على الموقع أو تلقرام.', 'Yes, through the Strategy Builder you can combine your own conditions (RSI, MACD, ADX, Score...) and activate them as an alert on the website or Telegram.'] },
     ],
   },
@@ -37,7 +37,7 @@ const CATS: Cat[] = [
     title: ['تقني', 'Technical'], emoji: '⚙️',
     items: [
       { q: ['البوت يدعم منصات تداول ثانية غير Binance؟', 'Does the bot support exchanges other than Binance?'], a: ['حالياً كل بيانات الأسعار والحجوم مصدرها Binance حصرياً.', 'Currently all price and volume data is sourced exclusively from Binance.'] },
-      { q: ['كيف أربط حسابي بتلقرام؟', 'How do I link my account to Telegram?'], a: ['من صفحة الإعدادات اضغط "اربط الآن"، بيفتح لك رابط تلقرام — اضغط Start هناك وبيتربط حسابك تلقائياً خلال ثوانٍ.', 'From the Settings page press "Link now" — it opens a Telegram link. Press Start there and your account links automatically within seconds.'] },
+      { q: ['كيف أربط حسابي بتلقرام؟', 'How do I link my account to Telegram?'], a: ['من صفحة الإعدادات اضغط "اربط الآن"، بيفتح لك رابط تلقرام، اضغط Start هناك وبيتربط حسابك تلقائياً خلال ثوانٍ.', 'From the Settings page press "Link now": it opens a Telegram link. Press Start there and your account links automatically within seconds.'] },
     ],
   },
 ]

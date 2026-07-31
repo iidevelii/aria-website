@@ -159,7 +159,7 @@ export default function SettingsPage() {
               ) : (
                 <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
                   <p style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '12px' }}>
-                    {t('اضغط الزر وبيفتح تلقرام — اضغط Start هناك وبيتربط حسابك تلقائياً.', 'Click the button, it opens Telegram — press Start there and your account links automatically.')}
+                    {t('اضغط الزر وبيفتح تلقرام، اضغط Start هناك وبيتربط حسابك تلقائياً.', 'Click the button, it opens Telegram, press Start there and your account links automatically.')}
                   </p>
                   <a href={linkCode.deep_link} target="_blank" rel="noopener noreferrer"
                      className="btn-primary" style={{ display: 'inline-block', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' }}>
@@ -191,7 +191,7 @@ export default function SettingsPage() {
         {/* ── قائمة الاستبعاد الشخصية ── */}
         <Card title={`🚫 ${t('عملات مستبعدة (خاصة بك)', 'Excluded Coins (personal)')}`}>
           <p style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '14px' }}>
-            {t('أي عملة تضيفها هنا، ما تنرسل لك إشاراتها — باقي المشتركين يستلمونها عادي.', 'Any coin you add here won\'t be sent to you — other subscribers still receive it normally.')}
+            {t('أي عملة تضيفها هنا، ما تنرسل لك إشاراتها، وباقي المشتركين يستلمونها عادي.', 'Any coin you add here won\'t be sent to you, while other subscribers still receive it normally.')}
           </p>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
             <input

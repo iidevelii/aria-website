@@ -144,7 +144,7 @@ export default function ActivatePage() {
           </button>
 
           <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '12px', marginTop: '16px' }}>
-            {t('كل رقم تحويل يفعّل حساباً واحداً فقط — لا مشاركة', 'Each transfer number activates only one account — no sharing')}
+            {t('كل رقم تحويل يفعّل حساباً واحداً فقط، لا مشاركة', 'Each transfer number activates only one account, no sharing')}
           </p>
         </div>
 

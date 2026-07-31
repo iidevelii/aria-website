@@ -37,8 +37,8 @@ export default function TermsPage() {
 
         <Section title={t('٣. الاشتراك والدفع', '3. Subscription & payment')}>
           {t(
-            'التفعيل والتجديد يتمّان يدوياً عبر التواصل مع فريق الدعم على تلقرام. لا يوجد تجديد تلقائي — ينتهي الوصول تلقائياً بانتهاء المدة المدفوعة ما لم يُجدَّد. أي استفسار متعلق برد المبلغ يُدرَس حالة بحالة عبر التواصل المباشر مع الدعم.',
-            'Activation and renewal are handled manually by contacting the support team on Telegram. There is no auto-renewal — access automatically ends when the paid period expires unless renewed. Any refund inquiry is reviewed on a case-by-case basis through direct contact with support.'
+            'التفعيل والتجديد يتمّان يدوياً عبر التواصل مع فريق الدعم على تلقرام. لا يوجد تجديد تلقائي، وينتهي الوصول تلقائياً بانتهاء المدة المدفوعة ما لم يُجدَّد. أي استفسار متعلق برد المبلغ يُدرَس حالة بحالة عبر التواصل المباشر مع الدعم.',
+            'Activation and renewal are handled manually by contacting the support team on Telegram. There is no auto-renewal; access automatically ends when the paid period expires unless renewed. Any refund inquiry is reviewed on a case-by-case basis through direct contact with support.'
           )}
         </Section>
 
