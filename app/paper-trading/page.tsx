@@ -165,17 +165,24 @@ export default function PaperTradingPage() {
       <div style={{maxWidth:'1200px',margin:'0 auto'}}>
 
         {/* Header */}
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'24px',flexWrap:'wrap',gap:'12px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'16px',flexWrap:'wrap',gap:'12px'}}>
           <div>
-            <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',marginBottom:'4px'}}>{t('محفظة التداول الحقيقي', 'Live Trading Portfolio')}</h1>
+            <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'4px',flexWrap:'wrap'}}>
+              <h1 style={{fontSize:'24px',fontWeight:900,letterSpacing:'-0.02em',margin:0}}>{t('محفظة التداول التجريبي', 'Paper Trading Portfolio')}</h1>
+              <span className="badge" style={{background:'rgba(251,191,36,0.1)',borderColor:'rgba(251,191,36,0.3)',color:'var(--yellow)'}}>{t('تجريبي — بدون مال حقيقي', 'Simulated — no real money')}</span>
+            </div>
             <p style={{color:'var(--muted)',fontSize:'13px'}}>
-              <span style={{color:'var(--green)',fontWeight:700}}>{t('● مباشر', '● Live')}</span>
-              {'  '}{t('نتائج إشارات Devel الحقيقية — أسعار Binance اللحظية', 'Real Devel signal results — live Binance prices')}
+              <span style={{color:'var(--green)',fontWeight:700}}>{t('● أسعار حية', '● Live prices')}</span>
+              {'  '}{t('اختبر استراتيجيتك برصيد افتراضي وأسعار Binance اللحظية', 'Test your strategy with a virtual balance and live Binance prices')}
             </p>
           </div>
           <div style={{display:'flex',gap:'8px'}}>
             <button onClick={()=>setShowForm(true)} style={{background:'var(--cyan)',color:'#000',border:'none',padding:'9px 20px',borderRadius:'8px',fontWeight:700,fontSize:'13px',cursor:'pointer',fontFamily:'inherit'}}>{t('+ فتح صفقة', '+ Open trade')}</button>
           </div>
+        </div>
+
+        <div style={{background:'rgba(251,191,36,0.06)',border:'1px solid rgba(251,191,36,0.2)',borderRadius:'10px',padding:'10px 16px',marginBottom:'20px',fontSize:'12px',color:'var(--muted)',lineHeight:1.6}}>
+          ⚠️ {t('هذه محفظة افتراضية بالكامل لأغراض التدريب فقط. الرصيد وهمي والصفقات لا تُنفَّذ فعلياً في أي منصة حقيقية — لا علاقة لها بمالك الحقيقي أو اشتراكك.', 'This is a fully virtual portfolio for practice only. The balance is simulated and trades are never executed on any real exchange — it has no connection to your real money or subscription.')}
         </div>
 
         {/* Stats */}

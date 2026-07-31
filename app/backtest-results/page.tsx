@@ -41,7 +41,7 @@ function StatusBadge({ status }: { status: CoinRow['status'] }) {
 
 function StatCard({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', textAlign: 'center' }}>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-card)', padding: '18px', textAlign: 'center' }}>
       <div style={{ fontSize: '22px', fontWeight: 900, color: color || 'var(--text)' }}>{value}</div>
       <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
     </div>
