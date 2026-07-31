@@ -37,8 +37,12 @@ export default function TgAuthPage() {
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      background: 'var(--bg)', color: 'var(--text)', gap: 16,
+      background: 'var(--bg)', color: 'var(--text)', gap: 16, position: 'relative',
     }}>
+      <div className="orb-1"></div>
+      <div className="orb-2"></div>
+      <div className="grid-bg"></div>
+      <img src="/logo.png" alt="DevelBot" style={{ height: 72, width: 'auto', borderRadius: 14, background: '#fff', padding: 8, position: 'relative', zIndex: 1, marginBottom: 8 }}/>
       {status === 'loading' ? (
         <>
           <div style={{
@@ -46,15 +50,16 @@ export default function TgAuthPage() {
             border: '3px solid var(--surface-3)',
             borderTop: '3px solid #00c4ef',
             animation: 'spin 0.8s linear infinite',
+            position: 'relative', zIndex: 1,
           }} />
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-          <p style={{ color: 'var(--muted)' }}>{t('جاري تسجيل الدخول...', 'Logging you in...')}</p>
+          <p style={{ color: 'var(--muted)', position: 'relative', zIndex: 1 }}>{t('جاري تسجيل الدخول...', 'Logging you in...')}</p>
         </>
       ) : (
         <>
-          <span style={{ fontSize: 40 }}>⚠️</span>
-          <p style={{ color: 'var(--red)', fontWeight: 600 }}>{msg}</p>
-          <a href="/login" style={{ color: '#00c4ef', fontSize: 14 }}>{t('تسجيل الدخول يدوياً', 'Log in manually')}</a>
+          <span style={{ fontSize: 40, position: 'relative', zIndex: 1 }}>⚠️</span>
+          <p style={{ color: 'var(--red)', fontWeight: 600, position: 'relative', zIndex: 1 }}>{msg}</p>
+          <a href="/login" style={{ color: '#00c4ef', fontSize: 14, position: 'relative', zIndex: 1 }}>{t('تسجيل الدخول يدوياً', 'Log in manually')}</a>
         </>
       )}
     </div>

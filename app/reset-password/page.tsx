@@ -40,7 +40,7 @@ function ResetForm() {
     <div style={{ textAlign: 'center', padding: '20px 0' }}>
       <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
       <h2 style={{ color: 'var(--cyan)', marginBottom: '12px' }}>{t('تم تغيير كلمة المرور', 'Password changed successfully')}</h2>
-      <Link href="/login" style={{ display: 'inline-block', marginTop: '16px', background: 'linear-gradient(135deg,#00d4ff,#7b2fff)', color: '#fff', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700 }}>
+      <Link href="/login" className="btn-primary" style={{ display: 'inline-flex', marginTop: '16px' }}>
         {t('تسجيل الدخول', 'Log in')}
       </Link>
     </div>
@@ -74,10 +74,17 @@ function ResetForm() {
 export default function ResetPassword() {
   const { t } = useLang()
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100%', maxWidth: '440px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
+      <div className="orb-1"></div>
+      <div className="orb-2"></div>
+      <div className="grid-bg"></div>
+
+      <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>{t('كلمة مرور جديدة', 'New password')}</h1>
+          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
+          </Link>
+          <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>{t('كلمة مرور جديدة', 'New password')}</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('اختر كلمة مرور قوية', 'Choose a strong password')}</p>
         </div>
         <div className="glass-card">

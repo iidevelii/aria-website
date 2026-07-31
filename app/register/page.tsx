@@ -55,7 +55,7 @@ export default function Register() {
             {t('30 يوم تجربة مجانية — بدون بطاقة', '30-day free trial — no card required')}
           </div>
 
-          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>{t('انشئ حسابك', 'Create your account')}</h1>
+          <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, marginBottom: '8px' }}>{t('انشئ حسابك', 'Create your account')}</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('ابدأ رحلتك مع DevelBot مجاناً', 'Start your journey with DevelBot for free')}</p>
         </div>
 

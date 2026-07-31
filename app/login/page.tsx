@@ -50,7 +50,7 @@ export default function Login() {
           <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
             <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
           </Link>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px' }}>{t('مرحباً بعودتك', 'Welcome back')}</h1>
+          <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, marginBottom: '8px' }}>{t('مرحباً بعودتك', 'Welcome back')}</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('سجّل دخولك للوصول لإشاراتك', 'Log in to access your signals')}</p>
         </div>
 

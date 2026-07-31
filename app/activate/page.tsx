@@ -53,12 +53,18 @@ export default function ActivatePage() {
       padding: '24px',
       position: 'relative',
     }}>
+      <div className="orb-1"></div>
+      <div className="orb-2"></div>
+      <div className="grid-bg"></div>
 
       <div style={{ width: '100%', maxWidth: '480px', position: 'relative', zIndex: 1 }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '8px', color: 'var(--text)' }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '80px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
+          </Link>
+          <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, marginBottom: '8px', color: 'var(--text)' }}>
             {t('تفعيل الحساب', 'Activate Account')}
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '14px' }}>

@@ -173,7 +173,23 @@ body {
 .glass-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px; padding: 28px;
+  border-radius: var(--radius-lg); padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ── Ambient background decorations (auth pages) ── */
+.orb-1, .orb-2 {
+  position: absolute; border-radius: 50%; filter: blur(90px);
+  pointer-events: none; z-index: 0;
+}
+.orb-1 { top: -12%; inset-inline-start: -12%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(0,196,239,0.16), transparent 70%); }
+.orb-2 { bottom: -18%; inset-inline-end: -12%; width: 480px; height: 480px; background: radial-gradient(circle, rgba(124,58,237,0.16), transparent 70%); }
+.grid-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at center, black 30%, transparent 75%);
 }
 
 /* ── Scrollbar ── */

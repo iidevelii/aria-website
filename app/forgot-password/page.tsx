@@ -29,10 +29,17 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100%', maxWidth: '440px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative' }}>
+      <div className="orb-1"></div>
+      <div className="orb-2"></div>
+      <div className="grid-bg"></div>
+
+      <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>{t('نسيت كلمة المرور؟', 'Forgot your password?')}</h1>
+          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '96px', width: 'auto', display: 'block', borderRadius: '14px', background: '#fff', padding: '8px' }}/>
+          </Link>
+          <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 900, color: 'var(--text)', marginBottom: '8px' }}>{t('نسيت كلمة المرور؟', 'Forgot your password?')}</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('أدخل إيميلك وراح نرسل لك رابط الاستعادة', 'Enter your email and we\'ll send you a reset link')}</p>
         </div>
         <div className="glass-card">
