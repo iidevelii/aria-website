@@ -427,6 +427,9 @@ export default function Home() {
                 <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7, marginTop: '8px' }}>{f.a}</p>
               </details>
             ))}
+            <div style={{ textAlign: 'center', marginTop: '4px' }}>
+              <Link href="/faq" style={{ color: 'var(--cyan)', fontSize: '13px', textDecoration: 'none', fontWeight: 700 }}>{t('شوف كل الأسئلة الشائعة ←', 'See all FAQs →')}</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -463,7 +466,8 @@ export default function Home() {
               {[
                 { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
                 { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
-                { title: t('تواصل', 'Contact'),  links: [[t('تلقرام','Telegram'),'https://t.me/Develpay_bot'],[t('القناة','Channel'),'https://t.me/DevilAISignals']] },
+                { title: t('الشركة', 'Company'),  links: [[t('عن DevelBot','About'),'/about'],[t('الأسئلة الشائعة','FAQ'),'/faq'],[t('تواصل','Contact'),'/contact']] },
+                { title: t('قانوني', 'Legal'),  links: [[t('سياسة الخصوصية','Privacy Policy'),'/privacy'],[t('الشروط والأحكام','Terms & Conditions'),'/terms'],[t('تنبيه المخاطر','Risk Disclaimer'),'/risk-disclaimer']] },
               ].map((col,i) => (
                 <div key={i}>
                   <div style={{ color: 'var(--text)', fontWeight: 700, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>{col.title}</div>
