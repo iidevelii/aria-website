@@ -108,8 +108,8 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
 
   return (
     <div style={{
-      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px',
-      overflow: 'hidden', transition: 'border-color 0.2s, transform 0.15s',
+      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
+      boxShadow: 'var(--shadow-card)', overflow: 'hidden', transition: 'border-color 0.2s, transform 0.15s',
       cursor: 'default',
     }}
       onMouseEnter={e => { e.currentTarget.style.borderColor='var(--cyan)'; e.currentTarget.style.transform='translateY(-2px)' }}
