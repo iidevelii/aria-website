@@ -5,6 +5,9 @@ import { useLang } from './layout'
 import LiveChartDemo from './LiveChartDemo'
 import SleepingWalletArt from './SleepingWalletArt'
 import AcademyTeaser from './AcademyTeaser'
+import HowItWorks from './HowItWorks'
+import ChaosToOpportunity from './ChaosToOpportunity'
+import PerformancePreview from './PerformancePreview'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -120,19 +123,18 @@ export default function Home() {
             <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 600 }}>{t('online · 100+ عملة · فحص كل 15 دقيقة', 'online · 100+ coins · scanned every 15 minutes')}</span>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: '20px' }}>
-            {t('إشارات كريبتو', 'Crypto signals')}<br/>
-            <span className="gradient-text">{t('+ بوت تلقرام.', '+ Telegram bot.')}</span><br/>
-            {t('اشتراك واحد.', 'One subscription.')}
+          <h1 style={{ fontSize: 'clamp(36px, 5vw, 58px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', marginBottom: '20px' }}>
+            {t('اترك مراقبة السوق', 'Let DevelBot watch')}<br/>
+            <span className="gradient-text">{t('لـ DevelBot.', 'the market for you.')}</span>
           </h1>
 
-          <p style={{ color: 'var(--muted)', fontSize: '16px', lineHeight: 1.75, marginBottom: '36px', maxWidth: '400px' }}>
-            {t('DevelBot يراقب Binance Spot و Futures ويرسل إشارات عالية الجودة فوراً — مع الدخول، الهدف، الوقف، والرافعة.', 'DevelBot monitors Binance Spot and Futures and sends high-quality signals instantly — with entry, target, stop loss, and leverage.')}
+          <p style={{ color: 'var(--muted)', fontSize: '16px', lineHeight: 1.75, marginBottom: '36px', maxWidth: '420px' }}>
+            {t('نحلل مئات العملات والاستراتيجيات باستمرار، وعندما تظهر فرصة مطابقة لشروطك نرسلها إليك فوراً مع الدخول والأهداف ووقف الخسارة وأسباب الاختيار.', 'We continuously analyze hundreds of assets and strategies. When an opportunity matches your criteria, you receive it instantly with entry, targets, stop loss, and a clear explanation.')}
           </p>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '48px' }}>
-            <Link href="/register" className="btn-primary" style={{ padding: '12px 28px', fontSize: '15px', borderRadius: '8px' }}>{t('ابدأ مجاناً — 14 يوم ←', 'Start free — 14 days →')}</Link>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '12px 24px', fontSize: '15px', borderRadius: '8px' }}>{t('شوف الإشارات', 'View signals')}</Link>
+            <Link href="/register" className="btn-primary" style={{ padding: '12px 28px', fontSize: '15px', borderRadius: '8px' }}>{t('ابدأ تجربتك المجانية ←', 'Start your free trial →')}</Link>
+            <a href="#how-it-works" className="btn-ghost" style={{ padding: '12px 24px', fontSize: '15px', borderRadius: '8px' }}>{t('شاهد كيف يعمل', 'See how it works')}</a>
           </div>
 
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
@@ -185,6 +187,8 @@ export default function Home() {
         </div>
       </section>
 
+      <HowItWorks />
+
       {/* ══ شارت حي + الفلوس تشتغل وأنت نايم ══ */}
       <section className="section">
         <div className="hero-visuals-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '32px', alignItems: 'stretch' }}>
@@ -192,6 +196,8 @@ export default function Home() {
           <SleepingWalletArt />
         </div>
       </section>
+
+      <ChaosToOpportunity />
 
       <AcademyTeaser />
 
@@ -270,6 +276,12 @@ export default function Home() {
               <a href="https://t.me/Develpay_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
               <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>{t('سجّل للحصول على الكود', 'Sign up to get your code')}</Link>
             </div>
+
+            <div style={{ marginTop: '28px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['/start', '/status', '/pay', '/settings', '/website', '/help'].map(cmd => (
+                <span key={cmd} style={{ fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--cyan)', background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.16)', borderRadius: '6px', padding: '4px 10px' }}>{cmd}</span>
+              ))}
+            </div>
           </div>
           {/* Telegram UI mockup */}
           <div style={{ background: '#0e1218', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', overflow: 'hidden' }}>
@@ -304,18 +316,27 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
             {[
-              { icon: '📡', title: t('السكانر', 'Scanner'), desc: t('يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', 'Scans dozens of coins in real time and calculates RSI, MACD, ADX and Supertrend, giving each coin a Score from -100 to +100.'), href: '/scanner' },
-              { icon: '⚙️', title: t('منشئ الاستراتيجيات', 'Strategy Builder'), desc: t('ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', 'Build your own scan conditions (AND/OR between indicators) and run them across the whole market with one click.'), href: '/strategy-builder' },
-              { icon: '📊', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency — individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
-              { icon: '🔔', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage) — checked every 30 seconds.'), href: '/coin-tracker' },
-              { icon: '🤖', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal — it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
-              { icon: '💼', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market — leverage, size, LONG/SHORT.'), href: '/paper-trading' },
+              { icon: '📡', color: '#00c4ef', title: t('السكانر', 'Scanner'), desc: t('يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', 'Scans dozens of coins in real time and calculates RSI, MACD, ADX and Supertrend, giving each coin a Score from -100 to +100.'), href: '/scanner' },
+              { icon: '⚙️', color: '#7c3aed', title: t('منشئ الاستراتيجيات', 'Strategy Builder'), desc: t('ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', 'Build your own scan conditions (AND/OR between indicators) and run them across the whole market with one click.'), href: '/strategy-builder' },
+              { icon: '📊', color: '#22d06e', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة — نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency — individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
+              { icon: '🔔', color: '#f59e0b', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة) — يُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage) — checked every 30 seconds.'), href: '/coin-tracker' },
+              { icon: '🤖', color: '#f04060', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة — يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal — it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
+              { icon: '💼', color: '#00c4ef', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي — رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market — leverage, size, LONG/SHORT.'), href: '/paper-trading' },
+              { icon: '🎓', color: '#7c3aed', title: t('الأكاديمية', 'Academy'), desc: t('تعلّم الشموع، النماذج، والمؤشرات الفنية مجاناً — كل مفهوم مربوط بميزة حقيقية بالبوت.', 'Learn candlesticks, chart patterns, and technical indicators for free — every concept tied to a real bot feature.'), href: '/academy', featured: true },
             ].map((f, i) => (
               <Link key={i} href={f.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="signal-card" style={{ height: '100%', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
-                  <div style={{ fontSize: '28px', marginBottom: '12px' }}>{f.icon}</div>
+                <div className="signal-card" style={{
+                  height: '100%', cursor: 'pointer', transition: 'border-color 0.15s, transform 0.15s',
+                  background: f.featured ? 'linear-gradient(135deg, rgba(124,58,237,0.07), rgba(0,196,239,0.05))' : undefined,
+                  borderColor: f.featured ? 'rgba(124,58,237,0.25)' : undefined,
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = f.color; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = f.featured ? 'rgba(124,58,237,0.25)' : 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}>
+                  <div style={{
+                    width: '44px', height: '44px', borderRadius: '10px', marginBottom: '14px',
+                    background: `${f.color}18`, border: `1px solid ${f.color}33`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px',
+                  }}>{f.icon}</div>
                   <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '8px' }}>{f.title}</div>
                   <div style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7 }}>{f.desc}</div>
                 </div>
@@ -350,6 +371,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <PerformancePreview />
 
       {/* ══ الأسعار ══ */}
       <section className="section">
@@ -390,21 +413,39 @@ export default function Home() {
               <Link href="/subscribe" className="btn-primary" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px', borderRadius: '8px' }}>{t('اشترك الآن', 'Subscribe now')}</Link>
             </div>
           </div>
+
+          {/* Mini FAQ */}
+          <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {[
+              { q: t('هل أحتاج بطاقة ائتمان للتجربة المجانية؟', 'Do I need a credit card for the free trial?'), a: t('لا، تسجّل بإيميلك فقط وتحصل على 14 يوم كاملة بدون أي التزام.', 'No, just sign up with your email and get a full 14 days with no commitment.') },
+              { q: t('كيف توصلني الإشارات؟', 'How do signals reach me?'), a: t('على الموقع فوراً، وعلى تلقرام لو ربطت حسابك بالبوت.', 'Instantly on the website, and on Telegram if you connect your account to the bot.') },
+              { q: t('هل النتائج مضمونة؟', 'Are results guaranteed?'), a: t('لا. التداول ينطوي على مخاطر ولا توجد أداة تضمن الربح — الأرقام المعروضة من باك تست حقيقي فقط.', 'No. Trading involves risk and no tool guarantees profit — the numbers shown are from real backtesting only.') },
+              { q: t('أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel anytime?'), a: t('نعم، الاشتراك بدون عقد طويل — تجدده شهرياً أو تتوقف متى ما بغيت.', 'Yes, there\'s no long-term contract — renew monthly or stop whenever you like.') },
+            ].map((f, i) => (
+              <details key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 18px' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '14px', listStyle: 'none' }}>{f.q}</summary>
+                <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7, marginTop: '8px' }}>{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ══ CTA ══ */}
       <section style={{ padding: '80px 24px', borderTop: '1px solid var(--border)', position: 'relative', zIndex: 1 }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '16px' }}>
-            {t('ابدأ التداول بالذكاء', 'Start trading smarter')}<br/>
-            <span className="gradient-text">{t('الحين.', 'now.')}</span>
+            {t('السوق يتحرك الآن.', 'The market is moving.')}<br/>
+            <span className="gradient-text">{t('دع DevelBot يبحث لك عن التالي.', 'Let DevelBot find what comes next.')}</span>
           </h2>
           <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>{t('لا بطاقة، لا التزامات — 14 يوم مجاناً', 'No card, no commitments — 14 days free')}</p>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
             <Link href="/register" className="btn-primary" style={{ padding: '13px 32px', fontSize: '15px' }}>{t('ابدأ مجاناً الآن ←', 'Start free now →')}</Link>
             <Link href="/dashboard" className="btn-ghost" style={{ padding: '13px 24px', fontSize: '15px' }}>{t('شوف الإشارات', 'View signals')}</Link>
           </div>
+          <p style={{ color: 'var(--dim)', fontSize: '11.5px', lineHeight: 1.7, maxWidth: '520px', margin: '0 auto' }}>
+            {t('التداول والاستثمار ينطويان على مخاطر، ولا توجد أداة أو استراتيجية تضمن الربح. المعلومات والنتائج المعروضة لأغراض تعليمية وتحليلية وليست نصيحة مالية.', 'Trading and investing involve risk. No tool or strategy can guarantee profit. Information and results are provided for educational and analytical purposes and do not constitute financial advice.')}
+          </p>
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '../../layout';
+import { useAuth, useLang } from '../../layout';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app';
 
@@ -9,12 +9,13 @@ export default function TgAuthPage() {
   const router = useRouter();
   const params = useSearchParams();
   const { refresh } = useAuth();
+  const { t } = useLang();
   const [status, setStatus] = useState<'loading' | 'error'>('loading');
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
     const token = params.get('token');
-    if (!token) { setStatus('error'); setMsg('رابط غير صالح'); return; }
+    if (!token) { setStatus('error'); setMsg(t('رابط غير صالح', 'Invalid link')); return; }
 
     fetch(`${API}/auth/tg-verify?token=${token}`)
       .then(r => r.json())
@@ -26,10 +27,10 @@ export default function TgAuthPage() {
           router.replace('/dashboard');
         } else {
           setStatus('error');
-          setMsg(data.detail || 'انتهت صلاحية الرابط');
+          setMsg(data.detail || t('انتهت صلاحية الرابط', 'The link has expired'));
         }
       })
-      .catch(() => { setStatus('error'); setMsg('خطأ في الاتصال'); });
+      .catch(() => { setStatus('error'); setMsg(t('خطأ في الاتصال', 'Connection error')); });
   }, []);
 
   return (
@@ -47,13 +48,13 @@ export default function TgAuthPage() {
             animation: 'spin 0.8s linear infinite',
           }} />
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-          <p style={{ color: 'var(--muted)' }}>جاري تسجيل الدخول...</p>
+          <p style={{ color: 'var(--muted)' }}>{t('جاري تسجيل الدخول...', 'Logging you in...')}</p>
         </>
       ) : (
         <>
           <span style={{ fontSize: 40 }}>⚠️</span>
           <p style={{ color: 'var(--red)', fontWeight: 600 }}>{msg}</p>
-          <a href="/login" style={{ color: '#00c4ef', fontSize: 14 }}>تسجيل الدخول يدوياً</a>
+          <a href="/login" style={{ color: '#00c4ef', fontSize: 14 }}>{t('تسجيل الدخول يدوياً', 'Log in manually')}</a>
         </>
       )}
     </div>
