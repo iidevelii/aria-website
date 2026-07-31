@@ -232,7 +232,7 @@ export default function Home() {
                     <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--cyan)', lineHeight: 1 }}>{s.score}</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+                <div className="price-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
                   <div className="price-box">
                     <div style={{ fontSize: '9px', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('دخول', 'Entry')}</div>
                     <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px' }}>${s.entry}</div>

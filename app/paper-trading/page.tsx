@@ -214,13 +214,13 @@ export default function PaperTradingPage() {
 
         {/* Open Positions */}
         {tab==='open' && (
-          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:'hidden'}}>
+          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:openPos.length===0?'hidden':'auto'}}>
             {openPos.length===0
               ?<div style={{padding:'48px',textAlign:'center',color:'var(--muted)'}}>
                   <div style={{fontSize:'32px',marginBottom:'12px'}}>📈</div>
                   {t('لا توجد صفقات مفتوحة — اضغط "+ فتح صفقة"', 'No open trades — press "+ Open trade"')}
                 </div>
-              :<table style={{width:'100%',borderCollapse:'collapse'}}>
+              :<table style={{width:'100%',borderCollapse:'collapse',minWidth:'720px'}}>
                 <thead>
                   <tr>
                     {[t('الزوج','Pair'),t('جانب','Side'),t('دخول','Entry'),'TP','SL',t('الحجم','Size'),t('السعر الحالي','Current Price'),'P&L',t('إجراء','Action')].map(h=>(
@@ -264,10 +264,10 @@ export default function PaperTradingPage() {
 
         {/* History */}
         {tab==='history' && (
-          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:'hidden'}}>
+          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:history.length===0?'hidden':'auto'}}>
             {history.length===0
               ?<div style={{padding:'48px',textAlign:'center',color:'var(--muted)'}}>{t('لا يوجد سجل بعد', 'No history yet')}</div>
-              :<table style={{width:'100%',borderCollapse:'collapse'}}>
+              :<table style={{width:'100%',borderCollapse:'collapse',minWidth:'680px'}}>
                 <thead>
                   <tr>
                     {[t('الزوج','Pair'),t('جانب','Side'),t('دخول','Entry'),t('إغلاق','Close'),t('الحجم','Size'),'P&L',t('النتيجة','Result'),t('التاريخ','Date')].map(h=>(

@@ -129,7 +129,7 @@ function ChartView() {
 
         {/* Levels */}
         {entry > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+          <div className="chart-levels-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
             <div style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: '#00d4ff', marginBottom: '6px', fontWeight: 700 }}>{t('سعر الدخول', 'Entry Price')}</div>
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px' }}>${entry.toLocaleString()}</div>
@@ -166,7 +166,12 @@ function ChartView() {
           <div ref={chartRef} style={{ width: '100%' }} />
         </div>
       </div>
-      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @media (max-width: 480px) {
+          .chart-levels-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   )
 }
