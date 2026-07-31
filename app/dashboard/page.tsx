@@ -358,7 +358,7 @@ export default function Dashboard() {
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #00c4ef, #6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '22px', margin: '0 auto 16px' }}>A</div>
+        <img src="/logo.png" alt="DevelBot" style={{ width: '48px', height: '48px', borderRadius: '14px', background: '#fff', padding: '6px', margin: '0 auto 16px', display: 'block' }}/>
         <div style={{ color: '#00c4ef', fontWeight: 700, fontSize: '16px' }}>{t('جاري التحميل...', 'Loading...')}</div>
       </div>
     </div>
@@ -371,6 +371,10 @@ export default function Dashboard() {
       {/* Top nav */}
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/logo.png" alt="DevelBot" style={{ height: '26px', width: 'auto', display: 'block', borderRadius: '6px', background: '#fff', padding: '2px' }}/>
+          </Link>
+          <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Live</span>
