@@ -4,6 +4,10 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useLang } from '../layout'
 
+function parseTs(raw: string) {
+  return new Date(raw.endsWith('Z') || raw.includes('+') ? raw : raw + 'Z').getTime()
+}
+
 function ChartView() {
   const { t } = useLang()
   const searchParams = useSearchParams()
@@ -22,7 +26,6 @@ function ChartView() {
   const [duration, setDuration] = useState('—')
   useEffect(() => {
     if (!createdAt) return
-    const parseTs = (raw: string) => new Date(raw.endsWith('Z') || raw.includes('+') ? raw : raw + 'Z').getTime()
     const start = parseTs(createdAt)
     if (isNaN(start)) return
     const fixedEnd = isClosed && closedAt ? parseTs(closedAt) : null
@@ -41,7 +44,6 @@ function ChartView() {
   }, [createdAt, closedAt, isClosed])
 
   const chartRef = useRef<HTMLDivElement>(null)
-  const curLineRef = useRef<any>(null)
   const [currentPrice, setCurrentPrice] = useState(0)
   const [live, setLive] = useState(false)
 
@@ -50,7 +52,7 @@ function ChartView() {
     let chart: any, series: any
 
     const init = async () => {
-      const { createChart, CandlestickSeries, LineStyle } = await import('lightweight-charts')
+      const { createChart, CandlestickSeries, LineStyle, createSeriesMarkers } = await import('lightweight-charts')
       chart = createChart(chartRef.current!, {
         width: chartRef.current!.clientWidth,
         height: 500,
@@ -58,14 +60,28 @@ function ChartView() {
         grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
-        timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
+        timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true, rightOffset: 6 },
       })
 
       series = chart.addSeries(CandlestickSeries, {
         upColor: '#00e664', downColor: '#ff5555',
         borderUpColor: '#00e664', borderDownColor: '#ff5555',
         wickUpColor: '#00e664', wickDownColor: '#ff5555',
+        priceLineVisible: false, lastValueVisible: false,
       })
+      // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
+      // الشموع الحالي (خط/marker وحدهم ما يوسّعون النطاق بشكل موثوق دايماً)
+      series.applyOptions({
+        autoscaleInfoProvider: (original: () => any) => {
+          const res = original()
+          if (res?.priceRange) {
+            const vals = [entry, tp, sl].filter((v: number) => v > 0)
+            res.priceRange.minValue = Math.min(res.priceRange.minValue, ...vals)
+            res.priceRange.maxValue = Math.max(res.priceRange.maxValue, ...vals)
+          }
+          return res
+        },
+      } as any)
 
       // جلب الكاندلز
       const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=4h&limit=100`)
@@ -84,31 +100,52 @@ function ChartView() {
       const lastClose = candles[candles.length - 1].close
       if (!(isClosed && closePriceParam > 0)) setCurrentPrice(lastClose)
 
-      // خطوط
+      // خطين فقط — دخول ووقف. الهدف نقطة/شارة بدون خط كامل، وبدون خط سعر حالي.
+      // (نستخدم priceLine بلا خط ظاهر للهدف — badge على المحور بس — لأن خط
+      // السعر يوسّع نطاق المقياس تلقائياً بعكس marker مخصص عند سعر بعيد عن الشموع)
       if (entry > 0) {
         series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('دخول', 'Entry') })
-      }
-      if (tp > 0) {
-        series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
       }
       if (sl > 0) {
         series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
       }
-      if (isClosed && closePriceParam > 0) {
-        series.createPriceLine({ price: closePriceParam, color: '#fbbf24', lineWidth: 2, lineStyle: LineStyle.Solid, title: t('الإغلاق', 'Close') })
-      } else {
-        curLineRef.current = series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: t('الحالي', 'Current') })
+      if (tp > 0) {
+        series.createPriceLine({ price: tp, color: '#fbbf24', lineVisible: false, axisLabelVisible: true, title: t('أخذ الربح', 'Take Profit') })
       }
+
+      // أقرب شمعة لوقت فتح الصفقة لوضع سهم الدخول عليها
+      let entryTime = candles[0]?.time
+      if (createdAt) {
+        const target = parseTs(createdAt)
+        if (!isNaN(target)) {
+          let best = candles[0], bestDiff = Infinity
+          for (const c of candles) {
+            const diff = Math.abs(c.time - target / 1000)
+            if (diff < bestDiff) { bestDiff = diff; best = c }
+          }
+          entryTime = best.time
+        }
+      }
+      const isLong = side === 'LONG'
+      const markers: any[] = []
+      if (entryTime != null) {
+        markers.push({
+          time: entryTime, position: isLong ? 'belowBar' : 'aboveBar',
+          shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? '#00e664' : '#ff5555',
+          text: t(isLong ? 'شراء' : 'بيع', isLong ? 'Buy' : 'Sell'),
+        })
+      }
+      if (markers.length) createSeriesMarkers(series, markers)
 
       chart.timeScale().fitContent()
     }
 
     init()
     return () => { if (chart) chart.remove() }
-  }, [symbol, entry, tp, sl, isClosed, closePriceParam])
+  }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, side])
 
-  // تحديث السعر الحالي لايف كل 8 ثواني — يحرّك خط "الحالي" على الشارت بدون إعادة رسم الشموع
-  // (الصفقات المغلقة ما تحتاج تحديث حي، السعر النهائي معروف وثابت)
+  // تحديث السعر الحالي لايف كل 8 ثواني — يحدّث رقم السعر بأعلى الصفحة بس
+  // (بدون خط على الشارت نفسه). الصفقات المغلقة ما تحتاج تحديث حي.
   useEffect(() => {
     if (isClosed) { if (closePriceParam > 0) setCurrentPrice(closePriceParam); return }
     const poll = async () => {
@@ -119,7 +156,6 @@ function ChartView() {
         if (!isFinite(p) || p <= 0) return
         setCurrentPrice(p)
         setLive(true)
-        curLineRef.current?.applyOptions({ price: p })
       } catch {}
     }
     poll()

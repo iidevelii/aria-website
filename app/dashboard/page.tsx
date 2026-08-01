@@ -238,7 +238,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         <TradeChart
           symbol={sym}
           entry={parseFloat(s.entry)} tp={parseFloat(s.tp)} sl={parseFloat(s.sl)}
-          side={s.side} status={s.status}
+          side={s.side} status={s.status} createdAt={s.created_at}
           closePrice={s.close_price ? parseFloat(s.close_price) : undefined}
         />
       </div>

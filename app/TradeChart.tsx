@@ -19,18 +19,21 @@ function useLazyMount<T extends HTMLElement>() {
 
 /** شارت مصغّر مضمّن داخل بطاقة الصفقة مباشرة (زي شارت تلقرام) — يتحمّل بس
  * لمّا يوصل النظر له (IntersectionObserver)، عشان صفحة فيها عشرات الصفقات
- * ما تشغّل عشرات شارتات لايف بنفس الوقت. */
+ * ما تشغّل عشرات شارتات لايف بنفس الوقت.
+ *
+ * خطين فقط (دخول ووقف)، بدون خط هدف وبدون خط سعر حالي — الهدف يُعرض كعلامة
+ * دائرية برتقالية بدل خط كامل، والدخول عليه سهم شراء/بيع بالإضافة لخطه. */
 export default function TradeChart({
-  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, height = 200,
+  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, height = 200,
 }: {
   symbol: string; entry: number; tp: number; sl: number; side: string
-  status?: string; closePrice?: number; height?: number
+  status?: string; closePrice?: number; createdAt?: string; height?: number
 }) {
   const { ref, visible } = useLazyMount<HTMLDivElement>()
   const chartRef = useRef<HTMLDivElement>(null)
-  const curLineRef = useRef<any>(null)
   const [loaded, setLoaded] = useState(false)
   const isClosed = status === 'WIN' || status === 'LOSS'
+  const isLong = side === 'LONG'
 
   useEffect(() => {
     if (!visible || !chartRef.current) return
@@ -39,7 +42,7 @@ export default function TradeChart({
     let cancelled = false
 
     const init = async () => {
-      const { createChart, CandlestickSeries, LineStyle } = await import('lightweight-charts')
+      const { createChart, CandlestickSeries, LineStyle, createSeriesMarkers } = await import('lightweight-charts')
       if (cancelled || !chartRef.current) return
       chart = createChart(chartRef.current, {
         width: chartRef.current.clientWidth,
@@ -48,7 +51,7 @@ export default function TradeChart({
         grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
-        timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
+        timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true, rightOffset: 6 },
       })
 
       // نتابع عرض الحاوية فعلياً بدل الاعتماد على قراءة clientWidth مرة وحدة
@@ -64,7 +67,21 @@ export default function TradeChart({
         upColor: '#00e664', downColor: '#ff5555',
         borderUpColor: '#00e664', borderDownColor: '#ff5555',
         wickUpColor: '#00e664', wickDownColor: '#ff5555',
+        priceLineVisible: false, lastValueVisible: false,
       })
+      // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
+      // الشموع الحالي (خط/marker وحدهم ما يوسّعون النطاق بشكل موثوق دايماً)
+      series.applyOptions({
+        autoscaleInfoProvider: (original: () => any) => {
+          const res = original()
+          if (res?.priceRange) {
+            const vals = [entry, tp, sl].filter(v => v > 0)
+            res.priceRange.minValue = Math.min(res.priceRange.minValue, ...vals)
+            res.priceRange.maxValue = Math.max(res.priceRange.maxValue, ...vals)
+          }
+          return res
+        },
+      } as any)
       try {
         const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=100`)
         const data = await res.json()
@@ -73,16 +90,36 @@ export default function TradeChart({
           time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]),
         }))
         series.setData(candles)
-        const lastClose = candles[candles.length - 1]?.close
 
         if (entry > 0) series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'Entry' })
-        if (tp > 0) series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'TP' })
         if (sl > 0) series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'SL' })
-        if (isClosed && closePrice) {
-          series.createPriceLine({ price: closePrice, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: 'Close' })
-        } else if (lastClose) {
-          curLineRef.current = series.createPriceLine({ price: lastClose, color: '#fbbf24', lineWidth: 1, lineStyle: LineStyle.Solid, title: 'Now' })
+        // badge بدون خط ظاهر — priceLine (لا marker) عشان يوسّع مقياس السعر تلقائياً
+        // حتى لو الهدف بعيد عن مدى الشموع الحالي
+        if (tp > 0) series.createPriceLine({ price: tp, color: '#fbbf24', lineVisible: false, axisLabelVisible: true, title: 'TP' })
+
+        // أقرب شمعة لوقت فتح الصفقة (لو موجود)، وإلا أول شمعة بالمدى
+        let entryTime = candles[0]?.time
+        if (createdAt) {
+          const target = new Date(createdAt.endsWith('Z') || createdAt.includes('+') ? createdAt : createdAt + 'Z').getTime() / 1000
+          if (!isNaN(target)) {
+            let best = candles[0], bestDiff = Infinity
+            for (const c of candles) {
+              const diff = Math.abs(c.time - target)
+              if (diff < bestDiff) { bestDiff = diff; best = c }
+            }
+            entryTime = best.time
+          }
         }
+        const markers: any[] = []
+        if (entryTime != null) {
+          markers.push({
+            time: entryTime, position: isLong ? 'belowBar' : 'aboveBar',
+            shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? '#00e664' : '#ff5555',
+            text: isLong ? 'شراء' : 'بيع',
+          })
+        }
+        if (markers.length) createSeriesMarkers(series, markers)
+
         chart.timeScale().fitContent()
         setLoaded(true)
       } catch {}
@@ -90,22 +127,7 @@ export default function TradeChart({
 
     init()
     return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
-  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, height])
-
-  // تحديث لايف بسيط — الصفقات المفتوحة بس، كل 10 ثواني
-  useEffect(() => {
-    if (!visible || isClosed) return
-    const poll = async () => {
-      try {
-        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`)
-        const d = await res.json()
-        const p = parseFloat(d.price)
-        if (isFinite(p) && p > 0) curLineRef.current?.applyOptions({ price: p })
-      } catch {}
-    }
-    const iv = setInterval(poll, 10000)
-    return () => clearInterval(iv)
-  }, [visible, isClosed, symbol])
+  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, createdAt, isLong, height])
 
   return (
     <div ref={ref} style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)', minHeight: visible ? height : 40 }}>
