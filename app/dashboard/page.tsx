@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useLang } from '../layout'
+import TradeChart from '../TradeChart'
 
 const API = 'https://web-production-97af6.up.railway.app'
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
@@ -104,21 +105,20 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
 
   const closedPnl = s.pnl_pct ? parseFloat(s.pnl_pct) : null
 
+  const openFullChart = () => {
+    const params = new URLSearchParams({
+      symbol: sym, entry: String(s.entry), tp: String(s.tp), sl: String(s.sl), side: s.side,
+      status: s.status || 'OPEN',
+    })
+    if (s.created_at) params.set('created_at', s.created_at)
+    if (s.closed_at) params.set('closed_at', s.closed_at)
+    if (s.close_price) params.set('close_price', String(s.close_price))
+    if (s.pnl_pct) params.set('pnl_pct', String(s.pnl_pct))
+    window.open(`/chart?${params.toString()}`, '_blank')
+  }
+
   return (
-    <div
-      className="signal-card"
-      onClick={() => {
-        const params = new URLSearchParams({
-          symbol: sym, entry: String(s.entry), tp: String(s.tp), sl: String(s.sl), side: s.side,
-          status: s.status || 'OPEN',
-        })
-        if (s.created_at) params.set('created_at', s.created_at)
-        if (s.closed_at) params.set('closed_at', s.closed_at)
-        if (s.close_price) params.set('close_price', String(s.close_price))
-        if (s.pnl_pct) params.set('pnl_pct', String(s.pnl_pct))
-        window.open(`/chart?${params.toString()}`, '_blank')
-      }}
-    >
+    <div className="signal-card" style={{ cursor: 'default' }}>
       {/* ── Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', gap: '8px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -233,8 +233,22 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         </div>
       )}
 
-      {/* Click hint */}
-      <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--muted)', textAlign: 'left' }}>{t('اضغط لفتح الشارت ←', 'Click to open the chart →')}</div>
+      {/* ── شارت مضمّن — دخول/هدف/وقف على شموع حقيقية، زي شارت تلقرام ── */}
+      <div style={{ marginTop: '12px' }}>
+        <TradeChart
+          symbol={sym}
+          entry={parseFloat(s.entry)} tp={parseFloat(s.tp)} sl={parseFloat(s.sl)}
+          side={s.side} status={s.status}
+          closePrice={s.close_price ? parseFloat(s.close_price) : undefined}
+        />
+      </div>
+
+      <button
+        onClick={(e) => { e.stopPropagation(); openFullChart() }}
+        style={{ marginTop: '10px', background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontSize: '11px', fontFamily: 'inherit', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        🔍 {t('فتح بملء الشاشة ←', 'Open full screen →')}
+      </button>
     </div>
   )
 }
