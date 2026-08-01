@@ -53,7 +53,7 @@ export default function EquityCurve({ points, netPct, totalTrades, label }: {
     <div ref={ref} style={{ position: 'relative', marginBottom: '24px' }}>
       {/* توهج خلفي — يمثّل "العمق البعيد" قبل الكشف */}
       <div style={{
-        position: 'absolute', inset: '-40px', borderRadius: '32px', zIndex: 0,
+        position: 'absolute', inset: '-16px', borderRadius: '32px', zIndex: 0,
         background: 'radial-gradient(600px circle at 20% 20%, rgba(0,196,239,0.14), transparent 60%), radial-gradient(600px circle at 80% 80%, rgba(124,58,237,0.14), transparent 60%)',
         opacity: revealed ? 1 : 0, transition: 'opacity 1.4s ease',
       }} />

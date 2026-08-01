@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect, useLayoutEffect, createContext, useContext } from 'react'
 import './globals.css'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
@@ -310,7 +310,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   const [mobileNavOpen,setMobileNavOpen] = useState(false)
   const pathname = usePathname()
 
-  useEffect(()=>{
+  useLayoutEffect(()=>{
     const check=()=>setIsMobile(window.innerWidth <= 860)
     check()
     window.addEventListener('resize',check)

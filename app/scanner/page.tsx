@@ -280,13 +280,13 @@ export default function ScannerPage() {
 
       {/* ── Top Bar ── */}
       <div style={{ borderBottom:'1px solid var(--border)', background:'var(--surface)', padding:'0 24px' }}>
-        <div style={{ maxWidth:'1400px', margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', height:'56px', gap:'12px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+        <div className="scanner-topbar" style={{ maxWidth:'1400px', margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'12px', padding:'12px 0' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap' }}>
             <h1 style={{ fontSize:'16px', fontWeight:900, margin:0, letterSpacing:'-0.02em' }}>Market Scanner</h1>
             {lastScan && <span style={{ fontSize:'11px', color:'var(--muted)' }}>{t('آخر مسح', 'Last scan')} {lastScan.toLocaleTimeString(lang==='ar'?'ar-SA':'en-US',{hour:'2-digit',minute:'2-digit'})}</span>}
             {loading && <span style={{ fontSize:'11px', color:'var(--cyan)', animation:'pulse 1s infinite' }}>{t(`● مسح ${progress}%`, `● Scanning ${progress}%`)}</span>}
           </div>
-          <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+          <div className="scanner-controls" style={{ display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap' }}>
             {/* TF */}
             <div style={{ display:'flex', background:'var(--surface-2)', borderRadius:'8px', padding:'3px', gap:'2px' }}>
               {TFS.map(t => (

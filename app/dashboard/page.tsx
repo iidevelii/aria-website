@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLang } from '../layout'
 
@@ -70,33 +69,6 @@ function FearGreed() {
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 900, color }}>{value}</div>
       </div>
       <div style={{ fontSize: '13px', fontWeight: 700, color }}>{label}</div>
-    </div>
-  )
-}
-
-function MarketBar() {
-  const [coins, setCoins] = useState<any[]>([])
-  useEffect(() => {
-    fetch('https://api.binance.com/api/v3/ticker/24hr')
-      .then(r => r.json())
-      .then(d => {
-        const usdt = d.filter((t: any) => t.symbol.endsWith('USDT'))
-        setCoins([...usdt].sort((a: any, b: any) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume)).slice(0, 30))
-      }).catch(() => {})
-  }, [])
-  return (
-    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden', padding: '10px 0', background: 'rgba(255,255,255,0.01)' }}>
-      <div className="animate-marquee" style={{ display: 'flex', gap: '32px', width: 'max-content' }}>
-        {[...coins, ...coins].map((t: any, i: number) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap', fontSize: '12px' }}>
-            <span style={{ color: 'var(--muted)', fontWeight: 700 }}>{t.symbol.replace('USDT', '')}</span>
-            <span style={{ fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>${parseFloat(t.lastPrice) > 1 ? parseFloat(t.lastPrice).toLocaleString() : parseFloat(t.lastPrice).toFixed(4)}</span>
-            <span style={{ color: parseFloat(t.priceChangePercent) >= 0 ? '#00e664' : '#ff5555', fontWeight: 600 }}>
-              {parseFloat(t.priceChangePercent) >= 0 ? '▲' : '▼'}{Math.abs(parseFloat(t.priceChangePercent)).toFixed(2)}%
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -258,7 +230,6 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
 }
 
 export default function Dashboard() {
-  const router = useRouter()
   const { t, lang } = useLang()
   const [user, setUser] = useState<any>(null)
   const [signals, setSignals] = useState<any[]>([])
@@ -366,37 +337,15 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
-      <MarketBar />
-
-      {/* Top nav */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src="/logo.png" alt="DevelBot" style={{ height: '26px', width: 'auto', display: 'block', borderRadius: '6px', background: '#fff', padding: '2px' }}/>
-          </Link>
-          <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-            <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Live</span>
-          </div>
-          <span style={{ color: 'var(--muted)', fontSize: '13px' }}>
-            {t('الفحص القادم:', 'Next scan:')} <span style={{ color: 'var(--muted)', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {user ? (
-            <>
-              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('مرحباً', 'Welcome')} <span style={{ color: 'var(--text)', fontWeight: 600 }}>{user.username}</span></span>
-              <span className={user.is_active ? 'status-active' : 'status-inactive'}>{user.is_active ? `${t('نشط', 'Active')} · ${user.days_left}${t('د', 'd')}` : t('منتهي', 'Expired')}</span>
-              <button onClick={() => { localStorage.clear(); router.push('/') }} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>{t('خروج', 'Logout')}</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px' }}>{t('دخول', 'Login')}</Link>
-              <Link href="/register" className="btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>{t('سجّل مجاناً', 'Sign up free')}</Link>
-            </>
-          )}
-        </div>
+      {/* Next-scan status (rest of the identity/nav chrome already lives in the shared sidebar/topbar) */}
+      <div className="dash-status-bar" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }}/>
+        <span style={{ color: 'var(--muted)', fontSize: '13px' }}>
+          {t('الفحص القادم:', 'Next scan:')} <span style={{ color: 'var(--muted)', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
+        </span>
+        {user && (
+          <span className={user.is_active ? 'status-active' : 'status-inactive'} style={{ marginInlineStart: 'auto' }}>{user.is_active ? `${t('نشط', 'Active')} · ${user.days_left}${t('د', 'd')}` : t('منتهي', 'Expired')}</span>
+        )}
       </div>
 
       {!user && (
