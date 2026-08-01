@@ -27,6 +27,9 @@ export default function AdminPage() {
   const [granting, setGranting] = useState(false)
   const [msg, setMsg] = useState('')
 
+  const [channelEnabled, setChannelEnabled] = useState<boolean | null>(null)
+  const [channelBusy, setChannelBusy] = useState(false)
+
   useEffect(() => {
     (async () => {
       const uid = localStorage.getItem('user_id')
@@ -37,7 +40,29 @@ export default function AdminPage() {
       } catch {}
       setLoading(false)
     })()
+    ;(async () => {
+      try {
+        const r = await fetch(`${API}/bot-state/channel_broadcast_enabled`)
+        const d = await r.json()
+        setChannelEnabled(d.value === 'true')
+      } catch {}
+    })()
   }, [])
+
+  const toggleChannelBroadcast = async () => {
+    setChannelBusy(true)
+    try {
+      const r = await fetch(`${API}/admin/channel-broadcast`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ enabled: !channelEnabled }),
+      })
+      if (r.ok) {
+        const d = await r.json()
+        setChannelEnabled(d.enabled)
+      }
+    } catch {}
+    setChannelBusy(false)
+  }
 
   const grantSubscription = async () => {
     if (!identifier.trim()) { setMsg(t('⚠️ اكتب آيدي تلقرام أو يوزرنيم أو إيميل', '⚠️ Enter a Telegram ID/username or email')); return }
@@ -92,6 +117,23 @@ export default function AdminPage() {
       </div>
 
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '28px 32px' }}>
+        <Card title={t('📢 بث القناة العامة', 'Public channel broadcast')}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 700 }}>
+                {channelEnabled === null ? t('جاري التحقق...', 'Checking...') : channelEnabled ? t('✅ مفعّل', '✅ Enabled') : t('⏸ متوقف', '⏸ Disabled')}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+                {t('عند التفعيل، كل إشارة جديدة تُنشر أيضاً بقناة @DevilAISignals العامة، بالإضافة للمشتركين.', 'When enabled, every new signal is also posted to the public @DevilAISignals channel, in addition to subscribers.')}
+              </div>
+            </div>
+            <button onClick={toggleChannelBroadcast} disabled={channelEnabled === null || channelBusy}
+              style={{ padding: '10px 18px', flexShrink: 0, background: channelEnabled ? 'rgba(255,68,85,0.1)' : 'var(--cyan)', color: channelEnabled ? '#ff7070' : '#000', border: channelEnabled ? '1px solid rgba(255,68,85,0.25)' : 'none', borderRadius: '9px', fontWeight: 800, fontSize: '13px', cursor: channelBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              {channelBusy ? '...' : channelEnabled ? t('إيقاف', 'Disable') : t('تفعيل', 'Enable')}
+            </button>
+          </div>
+        </Card>
+
         <Card title={t('تفعيل اشتراك', 'Activate a subscription')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
