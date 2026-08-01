@@ -17,6 +17,9 @@ const LanguageContext = createContext<LangCtx>({ lang: 'ar', setLang: () => {}, 
 export const useLang = () => useContext(LanguageContext)
 
 const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/activate', '/auth/tg', '/backtest-results', '/academy', '/faq', '/about', '/contact', '/privacy', '/terms', '/risk-disclaimer']
+// صفحات "standalone" — تُفتح كنافذة منبثقة مستقلة (window.open) وعندها هيدر خاص فيها،
+// فما نبي القائمة الجانبية/التيكر/الهيدر العام يتكرر فوقها
+const STANDALONE = ['/chart']
 
 const API = 'https://web-production-97af6.up.railway.app'
 
@@ -357,6 +360,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
   }
 
   const isApp=!PUBLIC.includes(pathname)
+  const isStandalone=STANDALONE.includes(pathname)
   const sideW=collapsed?58:220
 
   return (
@@ -384,28 +388,32 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
         <LanguageContext.Provider value={{lang,setLang,t}}>
         <AuthContext.Provider value={{user,loading:authLoading,refresh:fetchUser}}>
 
-          {/* Ticker — full width, fixed at top */}
-          <div style={{position:'fixed',top:0,right:0,left:0,zIndex:9999}}>
-            <TickerBar/>
-          </div>
+          {/* Ticker — full width, fixed at top (مو بالصفحات standalone) */}
+          {!isStandalone && (
+            <div style={{position:'fixed',top:0,right:0,left:0,zIndex:9999}}>
+              <TickerBar/>
+            </div>
+          )}
 
           {/* Sidebar — right side, below ticker */}
-          <Sidebar
-            theme={theme} toggleTheme={toggleTheme} user={user}
-            pathname={pathname} helpOpen={helpOpen} setHelpOpen={setHelpOpen}
-            collapsed={collapsed} setCollapsed={setCollapsed}
-            isMobile={isMobile} mobileOpen={mobileNavOpen} setMobileOpen={setMobileNavOpen}
-          />
+          {!isStandalone && (
+            <Sidebar
+              theme={theme} toggleTheme={toggleTheme} user={user}
+              pathname={pathname} helpOpen={helpOpen} setHelpOpen={setHelpOpen}
+              collapsed={collapsed} setCollapsed={setCollapsed}
+              isMobile={isMobile} mobileOpen={mobileNavOpen} setMobileOpen={setMobileNavOpen}
+            />
+          )}
 
           {/* Main content */}
           <div style={{
-            marginTop:'32px',
-            marginRight: isApp && !isMobile ? sideW+'px' : 0,
-            minHeight:'calc(100vh - 32px)',
+            marginTop: isStandalone ? 0 : '32px',
+            marginRight: isApp && !isMobile && !isStandalone ? sideW+'px' : 0,
+            minHeight: isStandalone ? '100vh' : 'calc(100vh - 32px)',
             transition:'margin-right 0.2s ease',
             display:'flex', flexDirection:'column',
           }}>
-            {isApp && <TopBar pathname={pathname} user={user} isMobile={isMobile} onMenuClick={()=>setMobileNavOpen(true)}/>}
+            {isApp && !isStandalone && <TopBar pathname={pathname} user={user} isMobile={isMobile} onMenuClick={()=>setMobileNavOpen(true)}/>}
 
             {/* Public header (login/register/etc) — الرئيسية "/" مستثناة لأن
                 page.tsx عندها نافبار كامل خاص فيها، عرضهم مع بعض يسبب هيدر مكرر */}

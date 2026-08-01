@@ -107,7 +107,17 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
   return (
     <div
       className="signal-card"
-      onClick={() => window.open(`/chart?symbol=${sym}&entry=${s.entry}&tp=${s.tp}&sl=${s.sl}&side=${s.side}`, '_blank')}
+      onClick={() => {
+        const params = new URLSearchParams({
+          symbol: sym, entry: String(s.entry), tp: String(s.tp), sl: String(s.sl), side: s.side,
+          status: s.status || 'OPEN',
+        })
+        if (s.created_at) params.set('created_at', s.created_at)
+        if (s.closed_at) params.set('closed_at', s.closed_at)
+        if (s.close_price) params.set('close_price', String(s.close_price))
+        if (s.pnl_pct) params.set('pnl_pct', String(s.pnl_pct))
+        window.open(`/chart?${params.toString()}`, '_blank')
+      }}
     >
       {/* ── Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', gap: '8px', flexWrap: 'wrap' }}>
