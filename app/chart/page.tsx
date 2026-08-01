@@ -100,17 +100,15 @@ function ChartView() {
       const lastClose = candles[candles.length - 1].close
       if (!(isClosed && closePriceParam > 0)) setCurrentPrice(lastClose)
 
-      // خطين فقط — دخول ووقف. الهدف نقطة/شارة بدون خط كامل، وبدون خط سعر حالي.
-      // (نستخدم priceLine بلا خط ظاهر للهدف — badge على المحور بس — لأن خط
-      // السعر يوسّع نطاق المقياس تلقائياً بعكس marker مخصص عند سعر بعيد عن الشموع)
+      // ثلاث خطوط: دخول أزرق، هدف أخضر، وقف أحمر — بدون خط سعر حالي
       if (entry > 0) {
         series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('دخول', 'Entry') })
       }
+      if (tp > 0) {
+        series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
+      }
       if (sl > 0) {
         series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
-      }
-      if (tp > 0) {
-        series.createPriceLine({ price: tp, color: '#fbbf24', lineVisible: false, axisLabelVisible: true, title: t('أخذ الربح', 'Take Profit') })
       }
 
       // أقرب شمعة لوقت فتح الصفقة لوضع سهم الدخول عليها

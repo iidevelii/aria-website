@@ -21,8 +21,8 @@ function useLazyMount<T extends HTMLElement>() {
  * لمّا يوصل النظر له (IntersectionObserver)، عشان صفحة فيها عشرات الصفقات
  * ما تشغّل عشرات شارتات لايف بنفس الوقت.
  *
- * خطين فقط (دخول ووقف)، بدون خط هدف وبدون خط سعر حالي — الهدف يُعرض كعلامة
- * دائرية برتقالية بدل خط كامل، والدخول عليه سهم شراء/بيع بالإضافة لخطه. */
+ * ثلاث خطوط بس: دخول (أزرق)، هدف (أخضر)، وقف (أحمر) — بدون خط سعر حالي،
+ * والدخول عليه كمان سهم شراء/بيع بالإضافة لخطه. */
 export default function TradeChart({
   symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, height = 200,
 }: {
@@ -91,11 +91,10 @@ export default function TradeChart({
         }))
         series.setData(candles)
 
+        // ثلاث خطوط: دخول أزرق، هدف أخضر، وقف أحمر
         if (entry > 0) series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'Entry' })
+        if (tp > 0) series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'TP' })
         if (sl > 0) series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'SL' })
-        // badge بدون خط ظاهر — priceLine (لا marker) عشان يوسّع مقياس السعر تلقائياً
-        // حتى لو الهدف بعيد عن مدى الشموع الحالي
-        if (tp > 0) series.createPriceLine({ price: tp, color: '#fbbf24', lineVisible: false, axisLabelVisible: true, title: 'TP' })
 
         // أقرب شمعة لوقت فتح الصفقة (لو موجود)، وإلا أول شمعة بالمدى
         let entryTime = candles[0]?.time
