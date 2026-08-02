@@ -24,10 +24,10 @@ function useLazyMount<T extends HTMLElement>() {
  * ثلاث خطوط بس: دخول (أزرق)، هدف (أخضر)، وقف (أحمر) — بدون خط سعر حالي،
  * والدخول عليه كمان سهم شراء/بيع بالإضافة لخطه. */
 export default function TradeChart({
-  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, height = 200,
+  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, height = 200, market = 'FUTURES',
 }: {
   symbol: string; entry: number; tp: number; sl: number; side: string
-  status?: string; closePrice?: number; createdAt?: string; height?: number
+  status?: string; closePrice?: number; createdAt?: string; height?: number; market?: string
 }) {
   const { ref, visible } = useLazyMount<HTMLDivElement>()
   const chartRef = useRef<HTMLDivElement>(null)
@@ -83,7 +83,10 @@ export default function TradeChart({
         },
       } as any)
       try {
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=100`)
+        // فيوتشر يجيب من /fapi — رموز كثيرة (زي RIVERUSDT) موجودة بالفيوتشر بس
+        // وما تشتغل عبر endpoint السبوت (يرجع "Invalid symbol")
+        const base = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
+        const res = await fetch(`${base}/klines?symbol=${symbol}&interval=1h&limit=100`)
         const data = await res.json()
         if (cancelled) return
         const candles = data.map((d: any) => ({

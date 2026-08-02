@@ -16,6 +16,7 @@ function ChartView() {
   const tp = parseFloat(searchParams.get('tp') || '0')
   const sl = parseFloat(searchParams.get('sl') || '0')
   const side = searchParams.get('side') || 'LONG'
+  const market = searchParams.get('market') || 'FUTURES'
   const status = searchParams.get('status') || 'OPEN'
   const createdAt = searchParams.get('created_at') || ''
   const closedAt = searchParams.get('closed_at') || ''
@@ -83,8 +84,9 @@ function ChartView() {
         },
       } as any)
 
-      // جلب الكاندلز
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=4h&limit=100`)
+      // جلب الكاندلز — فيوتشر من /fapi (رموز زي RIVERUSDT موجودة بالفيوتشر بس)
+      const klinesBase = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
+      const res = await fetch(`${klinesBase}/klines?symbol=${symbol}&interval=4h&limit=100`)
       const data = await res.json()
       const candles = data.map((d: any) => ({
         time: d[0] / 1000,
@@ -140,15 +142,16 @@ function ChartView() {
 
     init()
     return () => { if (chart) chart.remove() }
-  }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, side])
+  }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, side, market])
 
   // تحديث السعر الحالي لايف كل 8 ثواني — يحدّث رقم السعر بأعلى الصفحة بس
   // (بدون خط على الشارت نفسه). الصفقات المغلقة ما تحتاج تحديث حي.
   useEffect(() => {
     if (isClosed) { if (closePriceParam > 0) setCurrentPrice(closePriceParam); return }
+    const tickerBase = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
     const poll = async () => {
       try {
-        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`)
+        const res = await fetch(`${tickerBase}/ticker/price?symbol=${symbol}`)
         const d = await res.json()
         const p = parseFloat(d.price)
         if (!isFinite(p) || p <= 0) return
@@ -159,7 +162,7 @@ function ChartView() {
     poll()
     const t = setInterval(poll, 8000)
     return () => clearInterval(t)
-  }, [symbol, isClosed, closePriceParam])
+  }, [symbol, isClosed, closePriceParam, market])
 
   const livePct = entry > 0 ? ((currentPrice - entry) / entry) * 100 * (side === 'SHORT' ? -1 : 1) : 0
   const pct = isClosed && pnlPctParam ? pnlPctParam : livePct

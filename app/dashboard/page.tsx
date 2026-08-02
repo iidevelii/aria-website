@@ -108,7 +108,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
   const openFullChart = () => {
     const params = new URLSearchParams({
       symbol: sym, entry: String(s.entry), tp: String(s.tp), sl: String(s.sl), side: s.side,
-      status: s.status || 'OPEN',
+      status: s.status || 'OPEN', market: s.market || 'FUTURES',
     })
     if (s.created_at) params.set('created_at', s.created_at)
     if (s.closed_at) params.set('closed_at', s.closed_at)
@@ -240,6 +240,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
           entry={parseFloat(s.entry)} tp={parseFloat(s.tp)} sl={parseFloat(s.sl)}
           side={s.side} status={s.status} createdAt={s.created_at}
           closePrice={s.close_price ? parseFloat(s.close_price) : undefined}
+          market={s.market}
         />
       </div>
 
