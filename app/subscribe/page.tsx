@@ -12,7 +12,7 @@ export default function Subscribe() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 style={{ fontSize: '36px', fontWeight: 900, marginBottom: '8px', color: 'var(--text)' }}>{t('الاشتراك الاحترافي', 'Pro Subscription')}</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('35 USDT · 30 يوم وصول كامل بدون قيود', '35 USDT · 30 days of full, unrestricted access')}</p>
+          <p style={{ color: 'var(--muted)', fontSize: '15px' }}>{t('45 USDT · 30 يوم وصول كامل بدون قيود', '45 USDT · 30 days of full, unrestricted access')}</p>
         </div>
 
         {/* Pricing card */}
@@ -29,7 +29,7 @@ export default function Subscribe() {
           gap: '16px',
         }}>
           <div>
-            <div style={{ fontSize: '48px', fontWeight: 900, color: 'var(--text)' }}>$35</div>
+            <div style={{ fontSize: '48px', fontWeight: 900, color: 'var(--text)' }}>$45</div>
             <div style={{ color: 'var(--muted)', fontSize: '14px' }}>{t('لمدة 30 يوم كاملة', 'For a full 30 days')}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

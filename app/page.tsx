@@ -412,7 +412,7 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '-11px', right: '20px', background: 'var(--cyan)', color: '#000', fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '5px' }}>{t('الأشهر', 'Most popular')}</div>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('احترافي', 'Pro')}</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.03em' }}>$35</span>
+                <span style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.03em' }}>$45</span>
                 <span style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '10px' }}>{t('/ 30 يوم', '/ 30 days')}</span>
               </div>
               <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('وصول كامل بدون قيود', 'Full access, no limits')}</div>
