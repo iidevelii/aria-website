@@ -369,7 +369,7 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
               { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ، بدون بطاقة ائتمان، مع 14 يوم تجربة كاملة', 'An account in seconds, no credit card, with a full 14-day trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
-              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot، ادفع، وفعّل حسابك، وبعدها توصلك كل الإشارات على تلقرام فوراً', 'Open @Develpay_bot, pay, and activate your account, then every signal reaches you on Telegram instantly'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
+              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot وفعّل حسابك — البوت نفسه يرشدك لخطوة أخيرة بسيطة (ضغطة واحدة) لتفعيل استقبال الإشارات', 'Open @Develpay_bot and activate your account — the bot itself will guide you through one last simple step (a single tap) to activate signal delivery'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
               { n: '03', title: t('تداول بثقة', 'Trade with confidence'), desc: t('كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', 'Every signal arrives with the strategy, entry, target, stop loss, and leverage'), href: '/dashboard', cta: t('الإشارات ←', 'Signals →') },
             ].map((s,i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
