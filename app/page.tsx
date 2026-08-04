@@ -8,6 +8,7 @@ import AcademyTeaser from './AcademyTeaser'
 import HowItWorks from './HowItWorks'
 import ChaosToOpportunity from './ChaosToOpportunity'
 import PerformancePreview from './PerformancePreview'
+import RealTradeShowcase from './RealTradeShowcase'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -319,11 +320,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ 03 · كل الأدوات ══ */}
+      <RealTradeShowcase />
+
+      {/* ══ 04 · كل الأدوات ══ */}
       <section className="section">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('03 · كل الأدوات', '03 · All the tools')}</div>
+            <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('04 · كل الأدوات', '04 · All the tools')}</div>
             <h2 className="section-title" style={{ textAlign: 'center' }}>{t('مو بس إشارات، منصة كاملة', 'Not just signals. A complete platform')}</h2>
             <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>{t('كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.', 'Every tool you need to analyze the market and make decisions, without paying for extra third-party tools.')}</p>
           </div>
@@ -363,7 +366,7 @@ export default function Home() {
       <section className="section">
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow">{t('04 · البداية', '04 · Getting started')}</div>
+            <div className="section-eyebrow">{t('05 · البداية', '05 · Getting started')}</div>
             <h2 className="section-title" style={{ textAlign: 'center' }}>{t('3 خطوات وتبدأ', '3 steps and you\'re started')}</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -515,6 +518,7 @@ export default function Home() {
         @media (max-width: 768px) {
           .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
           .telegram-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .showcase-grid { grid-template-columns: 1fr !important; }
           .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           .academy-teaser-card { grid-template-columns: 1fr !important; }
           .academy-teaser-card > div:last-child { height: 180px !important; order: -1; }
