@@ -86,7 +86,7 @@ export default function TradeChart({
         // فيوتشر يجيب من /fapi — رموز كثيرة (زي RIVERUSDT) موجودة بالفيوتشر بس
         // وما تشتغل عبر endpoint السبوت (يرجع "Invalid symbol")
         const base = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
-        const res = await fetch(`${base}/klines?symbol=${symbol}&interval=1h&limit=100`)
+        const res = await fetch(`${base}/klines?symbol=${symbol}&interval=15m&limit=150`)
         const data = await res.json()
         if (cancelled) return
         const candles = data.map((d: any) => ({

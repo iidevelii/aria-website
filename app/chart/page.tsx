@@ -86,7 +86,7 @@ function ChartView() {
 
       // جلب الكاندلز — فيوتشر من /fapi (رموز زي RIVERUSDT موجودة بالفيوتشر بس)
       const klinesBase = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
-      const res = await fetch(`${klinesBase}/klines?symbol=${symbol}&interval=4h&limit=100`)
+      const res = await fetch(`${klinesBase}/klines?symbol=${symbol}&interval=15m&limit=150`)
       const data = await res.json()
       const candles = data.map((d: any) => ({
         time: d[0] / 1000,
