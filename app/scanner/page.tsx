@@ -12,7 +12,23 @@ function stCalc(hi: number[], lo: number[], c: number[], p=10, m=3): 'up'|'down'
 function bbPct(c: number[], p=20) { const sl=c.slice(-p),m=sl.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(sl.reduce((a,b)=>a+(b-m)**2,0)/p);return Math.max(0,Math.min(100,(c[c.length-1]-(m-2*std))/(4*std)*100)) }
 function scoreCalc(r: number, mc: any, ax: any, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=mc.bullish?(mc.rising?25:15):(mc.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
 function divCalc(c: number[], rs: number[], lb=20): 'bullish'|'bearish'|null { if(c.length<lb+5||rs.length<lb+5)return null;const pc=c.slice(-lb-5,-5),rc=c.slice(-5),pr=rs.slice(-lb-5,-5),rr=rs.slice(-5);if(Math.min(...rc)<Math.min(...pc)&&Math.min(...rr)>Math.min(...pr)+2)return'bullish';if(Math.max(...rc)>Math.max(...pc)&&Math.max(...rr)<Math.max(...pr)-2)return'bearish';return null }
-function pdCalc(vols: number[], c: number[]): 'pump'|'dump'|null { if(vols.length<22)return null;const avg=vols.slice(-21,-1).reduce((a,b)=>a+b,0)/20,chg=(c[c.length-1]-c[c.length-2])/c[c.length-2]*100;if(vols[vols.length-1]>avg*3){if(chg>3)return'pump';if(chg<-3)return'dump'}return null }
+// كان يتطلب فوليوم 3x + حركة 3% على نفس الشمعة الأخيرة بالضبط — على فريم 4h
+// الافتراضي هذا نادر جداً (يحتاج القفزتين تصير بنفس الشمعة بالضبط)، وما يفحص
+// إلا آخر شمعة وقت الفحص، فأي بمب/دمب صار قبل شمعة أو شمعتين يفوت تماماً.
+// خفّضنا الحدود (فوليوم 2x، حركة 2%) ونفحص آخر 3 شموع مو الأخيرة بس.
+function pdCalc(vols: number[], c: number[]): 'pump'|'dump'|null {
+  if (vols.length < 22) return null
+  const avg = vols.slice(-21, -1).reduce((a, b) => a + b, 0) / 20
+  for (let i = vols.length - 3; i < vols.length; i++) {
+    if (i < 1) continue
+    const chg = (c[i] - c[i - 1]) / c[i - 1] * 100
+    if (vols[i] > avg * 2) {
+      if (chg > 2) return 'pump'
+      if (chg < -2) return 'dump'
+    }
+  }
+  return null
+}
 
 // ── Pattern Detection ────────────────────────────────────
 type Pat = { type: string; emoji: string; bullish: boolean|null; confidence: number; desc: { ar: string; en: string } }
