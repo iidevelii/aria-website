@@ -9,6 +9,9 @@ import HowItWorks from './HowItWorks'
 import ChaosToOpportunity from './ChaosToOpportunity'
 import PerformancePreview from './PerformancePreview'
 import RealTradeShowcase from './RealTradeShowcase'
+import FeatureSections from './FeatureSections'
+import ComingSoonUSMarket from './ComingSoonUSMarket'
+import { TgBubble, TgScreen } from './ui/TelegramBubble'
 
 /* ── Logo ── */
 function Logo({ size = 28 }: { size?: number }) {
@@ -34,18 +37,6 @@ function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
   )
 }
 
-/* ── Telegram message mockup ── */
-function TgMsg({ text, time }: { text: string; time: string }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '8px' }}>
-      <div style={{ background: '#1c2333', borderRadius: '12px 12px 12px 2px', padding: '10px 14px', maxWidth: '300px' }}>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: '12px', lineHeight: 1.7, color: '#c9d1e0', whiteSpace: 'pre-wrap' }}>{text}</div>
-        <div style={{ fontSize: '10px', color: '#3d4d66', marginTop: '4px', textAlign: 'right' }}>{time} ✓✓</div>
-      </div>
-    </div>
-  )
-}
-
 export default function Home() {
   const { t, lang, setLang } = useLang()
   const { user } = useAuth()
@@ -60,7 +51,7 @@ export default function Home() {
       .catch(() => {})
   }, [])
 
-  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
+  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('كل المميزات','All Features'),'/features'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
@@ -216,7 +207,7 @@ export default function Home() {
       <AcademyTeaser />
 
       {/* ══ 01 · الداشبورد ══ */}
-      <section className="section">
+      <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 15% 0%, rgba(0,196,239,0.08), transparent 70%)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px' }}>
             <div className="section-eyebrow">{t('01 · الداشبورد', '01 · Dashboard')}</div>
@@ -280,7 +271,7 @@ export default function Home() {
       </section>
 
       {/* ══ 02 · تلقرام ══ */}
-      <section className="section">
+      <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 85% 0%, rgba(124,58,237,0.09), transparent 70%)' }}>
         <div className="telegram-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           <div>
             <div className="section-eyebrow">{t('02 · تلقرام', '02 · Telegram')}</div>
@@ -298,75 +289,28 @@ export default function Home() {
             </div>
           </div>
           {/* Telegram UI mockup */}
-          <div style={{ background: '#0e1218', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', overflow: 'hidden' }}>
-            <div style={{ background: '#161b26', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #00c4ef, #6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px' }}>D</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '13px' }}>DevelBot</div>
-                <div style={{ fontSize: '11px', color: '#3d8b6e' }}>online</div>
-              </div>
-            </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '260px' }}>
-              <TgMsg
-                text={`🟢 LONG · FUTURES\n━━━━━━━━━━━━━━\n📌 INJ/USDT\n\n🎯 ${t('دخول','Entry')}:   $24.31\n✅ ${t('هدف','Target')}:    $27.89 (+14.8%)\n🛑 ${t('وقف','Stop')}:    $22.80 (-6.2%)\n⚡ ${t('رافعة','Leverage')}:  ×5\n\n🤖 Score: 82/100\n📊 RSI Dip · Spot v11`}
-                time="14:22"
-              />
-              <TgMsg
-                text={`🔴 SHORT · FUTURES\n━━━━━━━━━━━━━━\n📌 FLOKI/USDT\n\n🎯 ${t('دخول','Entry')}:   $0.0001840\n✅ ${t('هدف','Target')}:    $0.0001590 (+13.6%)\n🛑 ${t('وقف','Stop')}:    $0.0001990 (-8.2%)\n⚡ ${t('رافعة','Leverage')}:  ×3\n\n🤖 Score: 74/100\n📊 RSI OB · Futures v13`}
-                time="09:47"
-              />
-            </div>
-          </div>
+          <TgScreen>
+            <TgBubble time="14:22">
+              {`🟢 LONG · FUTURES\n━━━━━━━━━━━━━━\n📌 INJ/USDT\n\n🎯 ${t('دخول','Entry')}:   $24.31\n✅ ${t('هدف','Target')}:    $27.89 (+14.8%)\n🛑 ${t('وقف','Stop')}:    $22.80 (-6.2%)\n⚡ ${t('رافعة','Leverage')}:  ×5\n\n🤖 Score: 82/100\n📊 RSI Dip · Spot v11`}
+            </TgBubble>
+            <TgBubble time="09:47">
+              {`🔴 SHORT · FUTURES\n━━━━━━━━━━━━━━\n📌 FLOKI/USDT\n\n🎯 ${t('دخول','Entry')}:   $0.0001840\n✅ ${t('هدف','Target')}:    $0.0001590 (+13.6%)\n🛑 ${t('وقف','Stop')}:    $0.0001990 (-8.2%)\n⚡ ${t('رافعة','Leverage')}:  ×3\n\n🤖 Score: 74/100\n📊 RSI OB · Futures v13`}
+            </TgBubble>
+          </TgScreen>
         </div>
       </section>
 
       <RealTradeShowcase />
 
-      {/* ══ 04 · كل الأدوات ══ */}
-      <section className="section">
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('04 · كل الأدوات', '04 · All the tools')}</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('مو بس إشارات، منصة كاملة', 'Not just signals. A complete platform')}</h2>
-            <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>{t('كل أداة تحتاجها لتحليل السوق واتخاذ القرار، بدون ما تدفع لأدوات خارجية إضافية.', 'Every tool you need to analyze the market and make decisions, without paying for extra third-party tools.')}</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-            {[
-              { icon: '📡', color: '#00c4ef', title: t('السكانر', 'Scanner'), desc: t('يفحص عشرات العملات لحظياً ويحسب RSI وMACD وADX وSupertrend، ويعطي Score من -100 إلى +100 لكل عملة.', 'Scans dozens of coins in real time and calculates RSI, MACD, ADX and Supertrend, giving each coin a Score from -100 to +100.'), href: '/scanner' },
-              { icon: '⚙️', color: '#7c3aed', title: t('منشئ الاستراتيجيات', 'Strategy Builder'), desc: t('ابنِ شروط الفحص الخاصة فيك (AND/OR بين المؤشرات) وشغّلها على كل السوق بضغطة زر.', 'Build your own scan conditions (AND/OR between indicators) and run them across the whole market with one click.'), href: '/strategy-builder' },
-              { icon: '📊', color: '#22d06e', title: t('نتائج الباك تست', 'Backtest Results'), desc: t('شفافية كاملة: نتيجة كل عملة على حدة من باك تست حقيقي على بيانات Binance، مع استبعاد العملات الضعيفة تلقائياً.', 'Full transparency: individual results per coin from real backtesting on Binance data, with weak coins automatically excluded.'), href: '/backtest-results' },
-              { icon: '🔔', color: '#f59e0b', title: t('تتبع العملات', 'Coin Tracker'), desc: t('أضف تنبيهات سعر مخصصة (فوق/تحت قيمة، أو نسبة تغيّر 24 ساعة)، تُفحص كل 30 ثانية.', 'Add custom price alerts (above/below a value, or 24h change percentage), checked every 30 seconds.'), href: '/coin-tracker' },
-              { icon: '🤖', color: '#f04060', title: t('مساعد AI', 'AI Assistant'), desc: t('اسأله عن أي مؤشر أو إشارة، يشرحلك ليش صارت، وأساسيات إدارة المخاطر. تعليمي، مو نصيحة مالية.', 'Ask it about any indicator or signal: it explains why it happened, plus risk management basics. Educational, not financial advice.'), href: '/ai-assistant' },
-              { icon: '💼', color: '#00c4ef', title: t('محفظة تجريبية', 'Paper Trading'), desc: t('جرّب استراتيجياتك بمحفظة محاكاة (بدون فلوس حقيقية) قبل ما تدخل بسوق حقيقي: رافعة، حجم، LONG/SHORT.', 'Test your strategies with a simulated portfolio (no real money) before entering the real market: leverage, size, LONG/SHORT.'), href: '/paper-trading' },
-              { icon: '🎓', color: '#7c3aed', title: t('الأكاديمية', 'Academy'), desc: t('تعلّم الشموع، النماذج، والمؤشرات الفنية مجاناً، وكل مفهوم مربوط بميزة حقيقية بالبوت.', 'Learn candlesticks, chart patterns, and technical indicators for free, with every concept tied to a real bot feature.'), href: '/academy', featured: true },
-            ].map((f, i) => (
-              <Link key={i} href={f.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="signal-card" style={{
-                  height: '100%', cursor: 'pointer', transition: 'border-color 0.15s, transform 0.15s',
-                  background: f.featured ? 'linear-gradient(135deg, rgba(124,58,237,0.07), rgba(0,196,239,0.05))' : undefined,
-                  borderColor: f.featured ? 'rgba(124,58,237,0.25)' : undefined,
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = f.color; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = f.featured ? 'rgba(124,58,237,0.25)' : 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}>
-                  <div style={{
-                    width: '44px', height: '44px', borderRadius: '10px', marginBottom: '14px',
-                    background: `${f.color}18`, border: `1px solid ${f.color}33`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px',
-                  }}>{f.icon}</div>
-                  <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '8px' }}>{f.title}</div>
-                  <div style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7 }}>{f.desc}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeatureSections />
 
-      {/* ══ 04 · البداية ══ */}
+      <ComingSoonUSMarket />
+
+      {/* ══ 10 · البداية ══ */}
       <section className="section">
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow">{t('05 · البداية', '05 · Getting started')}</div>
+            <div className="section-eyebrow">{t('10 · البداية', '10 · Getting started')}</div>
             <h2 className="section-title" style={{ textAlign: 'center' }}>{t('3 خطوات وتبدأ', '3 steps and you\'re started')}</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -480,7 +424,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
               {[
-                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
+                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('كل المميزات','All Features'),'/features'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
                 { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
                 { title: t('الشركة', 'Company'),  links: [[t('عن DevelBot','About'),'/about'],[t('الأسئلة الشائعة','FAQ'),'/faq'],[t('تواصل','Contact'),'/contact']] },
                 { title: t('قانوني', 'Legal'),  links: [[t('سياسة الخصوصية','Privacy Policy'),'/privacy'],[t('الشروط والأحكام','Terms & Conditions'),'/terms'],[t('تنبيه المخاطر','Risk Disclaimer'),'/risk-disclaimer']] },
@@ -519,6 +463,7 @@ export default function Home() {
           .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
           .telegram-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
           .showcase-grid { grid-template-columns: 1fr !important; }
+          .feature-block-grid { grid-template-columns: 1fr !important; direction: ltr !important; gap: 28px !important; }
           .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           .academy-teaser-card { grid-template-columns: 1fr !important; }
           .academy-teaser-card > div:last-child { height: 180px !important; order: -1; }

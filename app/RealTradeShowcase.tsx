@@ -133,7 +133,7 @@ Neckline: 0.9797 (broke up ↑)
   ]
 
   return (
-    <section className="section">
+    <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(34,208,110,0.07), transparent 70%)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ marginBottom: '36px', textAlign: 'center' }}>
           <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('03 · نتائج حقيقية', '03 · Real results')}</div>
