@@ -329,6 +329,27 @@ export default function Dashboard() {
   const totalPnlWin = signals.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const totalPnlLoss = signals.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const netPnl = totalPnlWin + totalPnlLoss
+
+  // E1 (تأكيد الوقف بإغلاق شمعة) دخل الإنتاج بهالتوقيت -- نقسم الإحصائيات
+  // قبله/بعده عشان الأداء المحدّث يبان لحاله، بدون ما يتخفّى بمتوسط تاريخي
+  // يشمل فترة قبل الإصلاح.
+  const STRATEGY_UPDATE_CUTOFF = new Date('2026-08-06T17:09:00Z').getTime()
+  const isUpdatedEra = (s: any) => new Date(s.created_at).getTime() >= STRATEGY_UPDATE_CUTOFF
+  const updatedSignals = signals.filter(isUpdatedEra)
+  const oldSignals = signals.filter(s => !isUpdatedEra(s))
+
+  function computeEraStats(list: any[]) {
+    const w = list.filter(s => s.status === 'WIN').length
+    const l = list.filter(s => s.status === 'LOSS').length
+    const o = list.filter(s => s.status === 'OPEN').length
+    const t = list.length
+    const wr = (w + l) > 0 ? Math.round((w / (w + l)) * 100) : 0
+    const pnlW = list.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+    const pnlL = list.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+    return { total: t, open: o, wins: w, losses: l, winRate: wr, netPnl: pnlW + pnlL }
+  }
+  const updatedStats = computeEraStats(updatedSignals)
+  const oldStats = computeEraStats(oldSignals)
   const mins = Math.floor(nextScan / 60)
   const secs = nextScan % 60
 
@@ -391,15 +412,40 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
-        {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        {/* Stats row -- استراتيجية محدثة (فوق) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--cyan)' }}>🆕 {t('استراتيجية محدثة', 'Updated Strategy')}</span>
+          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأداء بعد آخر تحسين على إدارة الوقف', 'Performance since the latest stop-management improvement')}</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
-            { label: t('الكل', 'All'), value: total, color: 'var(--text)' },
-            { label: t('مفتوحة', 'Open'), value: open, color: 'var(--yellow)' },
-            { label: t('الرابحة', 'Wins'), value: wins, color: 'var(--green)' },
-            { label: t('الخاسرة', 'Losses'), value: losses, color: 'var(--red)' },
-            { label: t('نسبة الفوز', 'Win Rate'), value: `${winRate}%`, color: winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
-            { label: t('صافي الربح', 'Net Profit'), value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+            { label: t('الكل', 'All'), value: updatedStats.total, color: 'var(--text)' },
+            { label: t('مفتوحة', 'Open'), value: updatedStats.open, color: 'var(--yellow)' },
+            { label: t('الرابحة', 'Wins'), value: updatedStats.wins, color: 'var(--green)' },
+            { label: t('الخاسرة', 'Losses'), value: updatedStats.losses, color: 'var(--red)' },
+            { label: t('نسبة الفوز', 'Win Rate'), value: `${updatedStats.winRate}%`, color: updatedStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${updatedStats.netPnl >= 0 ? '+' : ''}${updatedStats.netPnl.toFixed(1)}%`, color: updatedStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+          ].map((s, i) => (
+            <div key={i} className="stat-card" style={{ border: '1px solid rgba(0,196,239,0.25)' }}>
+              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats row -- استراتيجية قديمة (تحت) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--muted)' }}>📁 {t('استراتيجية قديمة', 'Old Strategy')}</span>
+          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأرشيف -- قبل آخر تحسين', 'Archive -- before the latest improvement')}</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px', opacity: 0.7 }}>
+          {[
+            { label: t('الكل', 'All'), value: oldStats.total, color: 'var(--text)' },
+            { label: t('مفتوحة', 'Open'), value: oldStats.open, color: 'var(--yellow)' },
+            { label: t('الرابحة', 'Wins'), value: oldStats.wins, color: 'var(--green)' },
+            { label: t('الخاسرة', 'Losses'), value: oldStats.losses, color: 'var(--red)' },
+            { label: t('نسبة الفوز', 'Win Rate'), value: `${oldStats.winRate}%`, color: oldStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${oldStats.netPnl >= 0 ? '+' : ''}${oldStats.netPnl.toFixed(1)}%`, color: oldStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
