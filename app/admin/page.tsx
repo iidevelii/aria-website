@@ -30,6 +30,14 @@ export default function AdminPage() {
   const [channelEnabled, setChannelEnabled] = useState<boolean | null>(null)
   const [channelBusy, setChannelBusy] = useState(false)
 
+  const [bcText, setBcText] = useState('')
+  const [bcImage, setBcImage] = useState<string | null>(null)
+  const [bcImageName, setBcImageName] = useState('')
+  const [bcDestination, setBcDestination] = useState<'channel' | 'all' | 'custom'>('channel')
+  const [bcCustomId, setBcCustomId] = useState('')
+  const [bcSending, setBcSending] = useState(false)
+  const [bcMsg, setBcMsg] = useState('')
+
   useEffect(() => {
     (async () => {
       const uid = localStorage.getItem('user_id')
@@ -62,6 +70,43 @@ export default function AdminPage() {
       }
     } catch {}
     setChannelBusy(false)
+  }
+
+  const onImagePick = (file: File | null) => {
+    if (!file) { setBcImage(null); setBcImageName(''); return }
+    setBcImageName(file.name)
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setBcImage(result.split(',')[1] || null) // نشيل بادئة "data:image/...;base64,"
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const sendBroadcast = async () => {
+    if (!bcText.trim()) { setBcMsg(t('⚠️ اكتب نص الرسالة', '⚠️ Write the message text')); return }
+    if (bcDestination === 'custom' && !bcCustomId.trim()) { setBcMsg(t('⚠️ اكتب آيدي تلقرام', '⚠️ Enter a Telegram ID')); return }
+    setBcSending(true); setBcMsg('')
+    try {
+      const r = await fetch(`${API}/admin/broadcast`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          text: bcText.trim(),
+          image_base64: bcImage,
+          destination: bcDestination === 'custom' ? bcCustomId.trim() : bcDestination,
+        }),
+      })
+      const d = await r.json()
+      if (r.ok) {
+        setBcMsg(t(`✅ أُرسلت لـ${d.sent} من ${d.total}${d.failed ? ` (فشل ${d.failed})` : ''}`, `✅ Sent to ${d.sent}/${d.total}${d.failed ? ` (${d.failed} failed)` : ''}`))
+        setBcText(''); setBcImage(null); setBcImageName('')
+      } else {
+        setBcMsg(`⚠️ ${d.detail || t('تعذّر الإرسال', 'Could not send')}`)
+      }
+    } catch {
+      setBcMsg(`⚠️ ${t('تعذّر الاتصال بالسيرفر', 'Could not reach the server')}`)
+    }
+    setBcSending(false)
   }
 
   const grantSubscription = async () => {
@@ -131,6 +176,53 @@ export default function AdminPage() {
               style={{ padding: '10px 18px', flexShrink: 0, background: channelEnabled ? 'rgba(255,68,85,0.1)' : 'var(--cyan)', color: channelEnabled ? '#ff7070' : '#000', border: channelEnabled ? '1px solid rgba(255,68,85,0.25)' : 'none', borderRadius: '9px', fontWeight: 800, fontSize: '13px', cursor: channelBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {channelBusy ? '...' : channelEnabled ? t('إيقاف', 'Disable') : t('تفعيل', 'Enable')}
             </button>
+          </div>
+        </Card>
+
+        <Card title={t('✍️ بث يدوي مخصص', 'Custom manual broadcast')}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>
+                {t('نص الرسالة', 'Message text')}
+              </label>
+              <textarea value={bcText} onChange={e => setBcText(e.target.value)} rows={5}
+                placeholder={t('اكتب أي نص تبيه يوصل...', 'Write any text you want to send...')}
+                style={{ width: '100%', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '9px', padding: '11px', color: 'var(--text)', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>
+                {t('صورة/شارت (اختياري)', 'Image/chart (optional)')}
+              </label>
+              <input type="file" accept="image/*" onChange={e => onImagePick(e.target.files?.[0] || null)}
+                style={{ fontSize: '12px', color: 'var(--muted)' }} />
+              {bcImageName && <div style={{ fontSize: '11px', color: 'var(--cyan)', marginTop: '4px' }}>📎 {bcImageName}</div>}
+            </div>
+            <div>
+              <label style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>
+                {t('يُرسل إلى', 'Send to')}
+              </label>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {([
+                  ['channel', t('القناة العامة', 'Public channel')],
+                  ['all', t('كل المشتركين', 'All subscribers')],
+                  ['custom', t('آيدي محدد', 'Specific ID')],
+                ] as const).map(([val, label]) => (
+                  <button key={val} onClick={() => setBcDestination(val)}
+                    style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border)', background: bcDestination === val ? 'rgba(0,196,239,0.1)' : 'var(--surface)', color: bcDestination === val ? 'var(--cyan)' : 'var(--text)', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {bcDestination === 'custom' && (
+                <input value={bcCustomId} onChange={e => setBcCustomId(e.target.value)} placeholder="123456789"
+                  style={{ width: '100%', marginTop: '8px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '9px', padding: '11px', color: 'var(--text)', fontSize: '13px', fontFamily: 'var(--mono)' }} />
+              )}
+            </div>
+            <button onClick={sendBroadcast} disabled={bcSending}
+              style={{ padding: '13px', background: bcSending ? 'var(--surface-2)' : 'var(--cyan)', color: bcSending ? 'var(--muted)' : '#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '14px', cursor: bcSending ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              {bcSending ? t('جاري الإرسال...', 'Sending...') : t('📤 إرسال', '📤 Send')}
+            </button>
+            {bcMsg && <div style={{ fontSize: '12.5px', color: bcMsg.startsWith('✅') ? '#00e664' : '#ff4455' }}>{bcMsg}</div>}
           </div>
         </Card>
 

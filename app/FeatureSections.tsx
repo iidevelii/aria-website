@@ -187,7 +187,14 @@ type Feature = {
 }
 
 function FeatureBlock({ f, index }: { f: Feature; index: number }) {
+  const { lang } = useLang()
   const reverse = index % 2 === 1
+  // reverse يتحكم بس بترتيب عمودي النص/الصورة (تنويع بصري)، ما له علاقة
+  // باتجاه القراءة الفعلي — كان مستخدم غلط كـdirection على الشبكة كلها، فسحب
+  // معه صف النقاط (bullet points) وقلب ترتيبه، فطلعت العلامة "›" يسار
+  // والجملة عربي (اتجاه القراءة الصحيح معكوس). نفصلهم: الشبكة تاخذ reverse
+  // للتنويع، صف النقاط ياخذ اتجاه اللغة الحقيقي دايماً.
+  const textDir = lang === 'ar' ? 'rtl' : 'ltr'
   return (
     <section style={{ position: 'relative', padding: '72px 24px', overflow: 'hidden' }}>
       <div style={{
@@ -209,10 +216,10 @@ function FeatureBlock({ f, index }: { f: Feature; index: number }) {
           <div className="section-eyebrow" style={{ color: f.color }}>{f.eyebrow}</div>
           <h2 className="section-title" style={{ marginBottom: '16px' }}>{f.title}</h2>
           <p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.8, marginBottom: '20px', maxWidth: '460px' }}>{f.lead}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', direction: textDir }}>
             {f.points.map((p, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13.5px', color: '#c9d1e0', lineHeight: 1.6 }}>
-                <span style={{ color: f.color, fontWeight: 900, flexShrink: 0, marginTop: '1px' }}>›</span>
+                <span style={{ color: f.color, fontWeight: 900, flexShrink: 0, marginTop: '1px', transform: textDir === 'rtl' ? 'scaleX(-1)' : 'none' }}>›</span>
                 <span>{p}</span>
               </div>
             ))}
