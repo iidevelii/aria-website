@@ -37,6 +37,7 @@ const Icons = {
   backtest:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   academy:   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>,
   bank:      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="21" x2="5" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/><line x1="14" y1="21" x2="14" y2="10"/><line x1="19" y1="21" x2="19" y2="10"/><polygon points="12 2 21 8 3 8"/></svg>,
+  usMarket:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="19" x2="20" y2="19"/><polyline points="4 15 9 9 13 12 20 5"/><polyline points="15 5 20 5 20 10"/></svg>,
   moon:      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   sun:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   logout:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
@@ -92,6 +93,7 @@ const NAV = [
   { href:'/ai-assistant',     label:'مساعد AI',        labelEn:'AI Assistant',    icon:Icons.ai },
   { href:'/backtest-results', label:'نتائج الباك تست', labelEn:'Backtest Results',icon:Icons.backtest },
   { href:'/academy',          label:'الأكاديمية',      labelEn:'Academy',         icon:Icons.academy },
+  { href:'/us-market',        label:'السوق الأمريكي',  labelEn:'US Market',       icon:Icons.usMarket },
   { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
   { href:'/settings',         label:'الإعدادات',       labelEn:'Settings',        icon:Icons.settings },
 ]
@@ -275,7 +277,7 @@ function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:any;i
   const pageNames: Record<string,[string,string]> = {
     '/dashboard':['الداشبورد','Dashboard'],'/binance-guide':['شرح Binance','Binance Guide'],'/scanner':['السكانر','Scanner'],'/strategy-builder':['منشئ الاستراتيجيات','Strategy Builder'],
     '/paper-trading':['التداول التجريبي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
-    '/academy':['الأكاديمية','Academy'],
+    '/academy':['الأكاديمية','Academy'], '/us-market':['السوق الأمريكي','US Market'],
     '/api-docs':['توثيق API','API Docs'],'/subscribe':['الاشتراك','Subscribe'],'/backtest-results':['نتائج الباك تست','Backtest Results'],
     '/settings':['الإعدادات','Settings'],
   }
