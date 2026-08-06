@@ -47,7 +47,7 @@ export default function TradeChart({
       chart = createChart(chartRef.current, {
         width: chartRef.current.clientWidth,
         height,
-        layout: { background: { color: 'transparent' }, textColor: '#9ca3af', fontSize: 10 },
+        layout: { background: { color: 'transparent' }, textColor: 'var(--muted)', fontSize: 10 },
         grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
@@ -64,9 +64,9 @@ export default function TradeChart({
       resizeObs.observe(chartRef.current)
 
       const series = chart.addSeries(CandlestickSeries, {
-        upColor: '#00e664', downColor: '#ff5555',
-        borderUpColor: '#00e664', borderDownColor: '#ff5555',
-        wickUpColor: '#00e664', wickDownColor: '#ff5555',
+        upColor: 'var(--green)', downColor: 'var(--red)',
+        borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
+        wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
         priceLineVisible: false, lastValueVisible: false,
       })
       // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
@@ -96,8 +96,8 @@ export default function TradeChart({
 
         // ثلاث خطوط: دخول أزرق، هدف أخضر، وقف أحمر
         if (entry > 0) series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'Entry' })
-        if (tp > 0) series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'TP' })
-        if (sl > 0) series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'SL' })
+        if (tp > 0) series.createPriceLine({ price: tp, color: 'var(--green)', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'TP' })
+        if (sl > 0) series.createPriceLine({ price: sl, color: 'var(--red)', lineWidth: 1, lineStyle: LineStyle.Dashed, title: 'SL' })
 
         // أقرب شمعة لوقت فتح الصفقة (لو موجود)، وإلا أول شمعة بالمدى
         let entryTime = candles[0]?.time
@@ -116,7 +116,7 @@ export default function TradeChart({
         if (entryTime != null) {
           markers.push({
             time: entryTime, position: isLong ? 'belowBar' : 'aboveBar',
-            shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? '#00e664' : '#ff5555',
+            shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? 'var(--green)' : 'var(--red)',
             text: isLong ? 'شراء' : 'بيع',
           })
         }

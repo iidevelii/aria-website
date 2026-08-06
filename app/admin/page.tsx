@@ -173,7 +173,7 @@ export default function AdminPage() {
               </div>
             </div>
             <button onClick={toggleChannelBroadcast} disabled={channelEnabled === null || channelBusy}
-              style={{ padding: '10px 18px', flexShrink: 0, background: channelEnabled ? 'rgba(255,68,85,0.1)' : 'var(--cyan)', color: channelEnabled ? '#ff7070' : '#000', border: channelEnabled ? '1px solid rgba(255,68,85,0.25)' : 'none', borderRadius: '9px', fontWeight: 800, fontSize: '13px', cursor: channelBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '10px 18px', flexShrink: 0, background: channelEnabled ? 'rgba(255,68,85,0.1)' : 'var(--cyan)', color: channelEnabled ? 'var(--red)' : '#000', border: channelEnabled ? '1px solid rgba(255,68,85,0.25)' : 'none', borderRadius: '9px', fontWeight: 800, fontSize: '13px', cursor: channelBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {channelBusy ? '...' : channelEnabled ? t('إيقاف', 'Disable') : t('تفعيل', 'Enable')}
             </button>
           </div>
@@ -222,7 +222,7 @@ export default function AdminPage() {
               style={{ padding: '13px', background: bcSending ? 'var(--surface-2)' : 'var(--cyan)', color: bcSending ? 'var(--muted)' : '#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '14px', cursor: bcSending ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {bcSending ? t('جاري الإرسال...', 'Sending...') : t('📤 إرسال', '📤 Send')}
             </button>
-            {bcMsg && <div style={{ fontSize: '12.5px', color: bcMsg.startsWith('✅') ? '#00e664' : '#ff4455' }}>{bcMsg}</div>}
+            {bcMsg && <div style={{ fontSize: '12.5px', color: bcMsg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{bcMsg}</div>}
           </div>
         </Card>
 
@@ -254,7 +254,7 @@ export default function AdminPage() {
               style={{ padding: '13px', background: granting ? 'var(--surface-2)' : 'var(--cyan)', color: granting ? 'var(--muted)' : '#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '14px', cursor: granting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {granting ? t('جاري التفعيل...', 'Activating...') : t('✅ فعّل الاشتراك', '✅ Activate subscription')}
             </button>
-            {msg && <div style={{ fontSize: '12.5px', color: msg.startsWith('✅') ? '#00e664' : '#ff4455' }}>{msg}</div>}
+            {msg && <div style={{ fontSize: '12.5px', color: msg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{msg}</div>}
             <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.6 }}>
               {t('لو المشترك عنده اشتراك فعّال حالياً، الأيام تُضاف فوق النهاية الحالية بدل ما تستبدلها.', 'If the user already has an active subscription, the days are added on top of the current end date instead of replacing it.')}
             </div>

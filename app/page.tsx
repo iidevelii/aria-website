@@ -28,11 +28,11 @@ function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', animation: `sigRowIn 0.5s ease ${delay}s both` }}>
       <span style={{ fontWeight: 800, minWidth: '90px', fontFamily: 'var(--mono)' }}>{pair}</span>
       <span className={side === 'LONG' ? 'pill-long' : 'pill-short'}>{side}</span>
-      <span style={{ color: '#5a6272', fontFamily: 'var(--mono)', fontSize: '12px', flex: 1 }}>${entry}</span>
-      <span style={{ color: '#00e664', fontFamily: 'var(--mono)', fontSize: '12px', minWidth: '72px', textAlign: 'left' }}>→ ${tp}</span>
+      <span style={{ color: 'var(--dim)', fontFamily: 'var(--mono)', fontSize: '12px', flex: 1 }}>${entry}</span>
+      <span style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontSize: '12px', minWidth: '72px', textAlign: 'left' }}>→ ${tp}</span>
       <span className="feed-col-narrow" style={{ color: '#00c4ef', fontWeight: 700, fontFamily: 'var(--mono)', minWidth: '38px', textAlign: 'right' }}>{score}</span>
-      <span className="feed-col-narrow" style={{ color: side === 'LONG' ? '#00e664' : '#ff4455', fontFamily: 'var(--mono)', minWidth: '52px', textAlign: 'right' }}>{pct}</span>
-      <span className="feed-col-narrow" style={{ color: '#2a2e38', fontSize: '11px', minWidth: '36px', textAlign: 'right' }}>{age}</span>
+      <span className="feed-col-narrow" style={{ color: side === 'LONG' ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--mono)', minWidth: '52px', textAlign: 'right' }}>{pct}</span>
+      <span className="feed-col-narrow" style={{ color: 'var(--dim)', fontSize: '11px', minWidth: '36px', textAlign: 'right' }}>{age}</span>
     </div>
   )
 }
@@ -125,7 +125,7 @@ export default function Home() {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,230,100,0.08)', border: '1px solid rgba(0,230,100,0.18)', borderRadius: '6px', padding: '5px 12px', marginBottom: '28px' }}>
             <span className="live-dot"/>
-            <span style={{ fontSize: '12px', color: '#00e664', fontWeight: 600 }}>{t('online · 100+ عملة · فحص كل 15 دقيقة', 'online · 100+ coins · scanned every 15 minutes')}</span>
+            <span style={{ fontSize: '12px', color: 'var(--green)', fontWeight: 600 }}>{t('online · 100+ عملة · فحص كل 15 دقيقة', 'online · 100+ coins · scanned every 15 minutes')}</span>
           </div>
 
           <h1 style={{ fontSize: 'clamp(36px, 5vw, 58px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', marginBottom: '20px' }}>
@@ -166,7 +166,7 @@ export default function Home() {
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('آخر الإشارات', 'Latest signals')}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="live-dot"/>
-              <span style={{ fontSize: '11px', color: '#00e664' }}>live</span>
+              <span style={{ fontSize: '11px', color: 'var(--green)' }}>live</span>
             </div>
           </div>
           <div style={{ padding: '4px 16px 4px' }}>
@@ -348,7 +348,7 @@ export default function Home() {
               <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('14 يوم كاملة', 'Full 14 days')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
                 {[t('كامل الإشارات', 'All signals'), t('ربط التلقرام', 'Telegram connection'), t('الداشبورد الكامل', 'Full dashboard'), t('بدون بطاقة', 'No card required')].map((item,i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#9ca3af' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
                     <span style={{ color: 'var(--green)', fontWeight: 700 }}>✓</span> {item}
                   </div>
                 ))}
@@ -456,7 +456,7 @@ export default function Home() {
         @keyframes sweepLine { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
         .hero-feed-card::before {
           content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-          background: linear-gradient(90deg, transparent, #00c4ef, #00e664, transparent);
+          background: linear-gradient(90deg, transparent, #00c4ef, var(--green), transparent);
           animation: sweepLine 4s linear infinite; opacity: .8; pointer-events: none;
         }
         @media (max-width: 768px) {

@@ -24,7 +24,7 @@ const MC = {
   boolean: '#ff9f43',
   object: '#a29bfe',
   array: '#fd79a8',
-  kw: '#00e664',
+  kw: 'var(--green)',
   muted: '#606778',
 }
 
@@ -154,7 +154,7 @@ const METHOD_COLOR: Record<string, string> = {
   PUT:    'rgba(245,200,66,0.12)', DELETE: 'rgba(255,68,85,0.12)',
 }
 const METHOD_TEXT: Record<string, string> = {
-  GET: '#00c4ef', POST: '#00e664', PUT: '#f5c842', DELETE: '#ff4455',
+  GET: '#00c4ef', POST: 'var(--green)', PUT: '#f5c842', DELETE: 'var(--red)',
 }
 
 function CodeBlock({ code }: { code: string }) {
@@ -163,7 +163,7 @@ function CodeBlock({ code }: { code: string }) {
   const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1500) }
   return (
     <div style={{ position: 'relative', background: '#0d0f14', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '9px', marginTop: '8px' }}>
-      <button onClick={copy} style={{ position: 'absolute', top: '8px', right: '8px', background: copied?'rgba(0,230,100,0.15)':'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: copied?'#00e664':'var(--muted)', padding: '3px 10px', borderRadius: '5px', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>{copied?t('✓ نُسخ','✓ Copied'):t('نسخ','Copy')}</button>
+      <button onClick={copy} style={{ position: 'absolute', top: '8px', right: '8px', background: copied?'rgba(0,230,100,0.15)':'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: copied?'var(--green)':'var(--muted)', padding: '3px 10px', borderRadius: '5px', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>{copied?t('✓ نُسخ','✓ Copied'):t('نسخ','Copy')}</button>
       <pre style={{ margin: 0, padding: '14px 16px', fontSize: '12px', fontFamily: 'var(--mono,monospace)', overflowX: 'auto', color: '#e2e8f0', lineHeight: 1.7 }}>{code}</pre>
     </div>
   )
@@ -175,7 +175,7 @@ function ParamRow({ p }: { p: { name: string; type: string; required: boolean; d
     <div className="param-row" style={{ display: 'grid', gridTemplateColumns: '130px 80px 60px 1fr', gap: '10px', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', alignItems: 'start', fontSize: '12px' }}>
       <code style={{ color: MC.kw, fontFamily: 'var(--mono)' }}>{p.name}</code>
       <span style={{ color: MC.string }}>{p.type}</span>
-      <span style={{ color: p.required?'#ff4455':'var(--muted)', fontWeight: 700, fontSize: '10px', paddingTop: '1px' }}>{p.required?t('مطلوب','Required'):t('اختياري','Optional')}</span>
+      <span style={{ color: p.required?'var(--red)':'var(--muted)', fontWeight: 700, fontSize: '10px', paddingTop: '1px' }}>{p.required?t('مطلوب','Required'):t('اختياري','Optional')}</span>
       <span style={{ color: 'var(--muted)' }}>{t(p.desc, p.descEn)}</span>
     </div>
   )

@@ -8,8 +8,8 @@ import { useLang } from './layout'
 function TgWindow({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ background: '#0e1218', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: '#161b26', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #00c4ef, #6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '13px', flexShrink: 0 }}>D</div>
+      <div style={{ background: 'var(--surface-2)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #00c4ef, var(--purple))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '13px', flexShrink: 0 }}>D</div>
         <div>
           <div style={{ fontWeight: 700, fontSize: '12px' }}>DevelBot</div>
           <div style={{ fontSize: '10px', color: '#3d8b6e' }}>online</div>
@@ -33,8 +33,8 @@ function TgPhoto({ src, alt }: { src: string; alt: string }) {
 function TgCaption({ text }: { text: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-      <div style={{ background: '#1c2333', borderRadius: '12px 12px 12px 2px', padding: '10px 12px', maxWidth: '100%' }}>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: '11px', lineHeight: 1.65, color: '#c9d1e0', whiteSpace: 'pre-wrap' }}>{text}</div>
+      <div style={{ background: 'var(--surface-2)', borderRadius: '12px 12px 12px 2px', padding: '10px 12px', maxWidth: '100%' }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: '11px', lineHeight: 1.65, color: 'var(--muted)', whiteSpace: 'pre-wrap' }}>{text}</div>
       </div>
     </div>
   )

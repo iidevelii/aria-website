@@ -237,7 +237,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
             <div style={{display:'flex',flexDirection:'column',gap:'4px',padding:collapsedEff?'6px 0':'6px 12px',alignItems:collapsedEff?'center':'flex-start'}}>
               {!collapsedEff && (
                 <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
-                  <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'linear-gradient(135deg,#00c4ef33,#6b1fff33)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,color:'var(--cyan)'}}>
+                  <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'linear-gradient(135deg,#00c4ef33,var(--purple)33)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,color:'var(--cyan)'}}>
                     {user.username?.[0]?.toUpperCase()}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
@@ -247,7 +247,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
                 </div>
               )}
               <button onClick={logout} title={t('خروج','Logout')}
-                style={{display:'flex',alignItems:'center',gap:'8px',padding:collapsedEff?'7px 0':'7px 10px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'7px',background:'rgba(255,68,85,0.06)',border:'1px solid rgba(255,68,85,0.15)',color:'#ff7070',cursor:'pointer',fontFamily:'inherit',fontSize:'11px',fontWeight:600,width:'100%',transition:'all 0.15s'}}
+                style={{display:'flex',alignItems:'center',gap:'8px',padding:collapsedEff?'7px 0':'7px 10px',justifyContent:collapsedEff?'center':'flex-start',borderRadius:'7px',background:'rgba(255,68,85,0.06)',border:'1px solid rgba(255,68,85,0.15)',color:'var(--red)',cursor:'pointer',fontFamily:'inherit',fontSize:'11px',fontWeight:600,width:'100%',transition:'all 0.15s'}}
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,68,85,0.12)'}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,68,85,0.06)'}}>
                 <span style={{display:'flex',flexShrink:0}}>{Icons.logout}</span>

@@ -188,10 +188,10 @@ export default function PaperTradingPage() {
         {/* Stats */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'12px',marginBottom:'24px'}}>
           {[
-            { label:t('الرصيد', 'Balance'), value:fmtUSD(portfolio.balance), color: portfolio.balance>=portfolio.initialBalance?'#00e664':'#ff4455' },
-            { label:t('الربح / الخسارة', 'Profit / Loss'), value:(totalPnl>=0?'+':'')+fmtUSD(totalPnl), color:totalPnl>=0?'#00e664':'#ff4455' },
-            { label:t('العائد الكلي', 'Total Return'), value:(totalReturn>=0?'+':'')+totalReturn.toFixed(2)+'%', color:totalReturn>=0?'#00e664':'#ff4455' },
-            { label:t('معدل الفوز', 'Win Rate'), value:winRate+'%', color:winRate>=60?'#00e664':winRate>=40?'var(--yellow)':'#ff4455' },
+            { label:t('الرصيد', 'Balance'), value:fmtUSD(portfolio.balance), color: portfolio.balance>=portfolio.initialBalance?'var(--green)':'var(--red)' },
+            { label:t('الربح / الخسارة', 'Profit / Loss'), value:(totalPnl>=0?'+':'')+fmtUSD(totalPnl), color:totalPnl>=0?'var(--green)':'var(--red)' },
+            { label:t('العائد الكلي', 'Total Return'), value:(totalReturn>=0?'+':'')+totalReturn.toFixed(2)+'%', color:totalReturn>=0?'var(--green)':'var(--red)' },
+            { label:t('معدل الفوز', 'Win Rate'), value:winRate+'%', color:winRate>=60?'var(--green)':winRate>=40?'var(--yellow)':'var(--red)' },
             { label:t('صفقات مفتوحة', 'Open Trades'), value:openPos.length.toString(), color:'var(--text)' },
             { label:t('إجمالي الصفقات', 'Total Trades'), value:history.length.toString(), color:'var(--muted)' },
           ].map((s,i)=>(
@@ -233,16 +233,16 @@ export default function PaperTradingPage() {
                     const cur = prices[pos.symbol]
                     const pnl = cur ? calcPnl(pos,cur) : 0
                     const pnlPct = cur ? calcPnlPct(pos,cur) : 0
-                    const pnlColor = pnl>=0?'#00e664':'#ff4455'
+                    const pnlColor = pnl>=0?'var(--green)':'var(--red)'
                     return <tr key={pos.id} style={{borderBottom:'1px solid var(--border)',background:i%2===0?'transparent':'rgba(255,255,255,0.015)'}}>
                       <td style={{padding:'12px 14px',fontWeight:800}}>{pos.symbol.replace('USDT','/USDT')}</td>
                       <td style={{padding:'12px 14px'}}>
-                        <span style={{padding:'2px 8px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.side==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.side==='LONG'?'#00e664':'#ff4455'}}>{pos.side}</span>
+                        <span style={{padding:'2px 8px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.side==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.side==='LONG'?'var(--green)':'var(--red)'}}>{pos.side}</span>
                         {pos.leverage>1&&<span style={{marginRight:'4px',fontSize:'10px',color:'var(--muted)'}}>×{pos.leverage}</span>}
                       </td>
                       <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px'}}>${fmt(pos.entry)}</td>
-                      <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px',color:'#00e664'}}>${fmt(pos.tp)}</td>
-                      <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px',color:'#ff4455'}}>${fmt(pos.sl)}</td>
+                      <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px',color:'var(--green)'}}>${fmt(pos.tp)}</td>
+                      <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px',color:'var(--red)'}}>${fmt(pos.sl)}</td>
                       <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px'}}>{fmtUSD(pos.size)}</td>
                       <td style={{padding:'12px 14px',fontFamily:'var(--mono)',fontSize:'12px',fontWeight:600}}>
                         {cur?<><span className="live-dot" style={{marginLeft:'4px'}}/>${fmt(cur)}</>:'—'}
@@ -252,7 +252,7 @@ export default function PaperTradingPage() {
                         <div style={{color:pnlColor,fontSize:'10px'}}>{pnlPct>=0?'+':''}{pnlPct.toFixed(1)}%</div>
                       </td>
                       <td style={{padding:'12px 14px'}}>
-                        <button onClick={()=>closeManual(pos.id)} style={{background:'rgba(255,68,85,0.1)',border:'1px solid rgba(255,68,85,0.25)',color:'#ff4455',padding:'5px 10px',borderRadius:'6px',fontSize:'11px',cursor:'pointer',fontFamily:'inherit',fontWeight:700}}>{t('إغلاق', 'Close')}</button>
+                        <button onClick={()=>closeManual(pos.id)} style={{background:'rgba(255,68,85,0.1)',border:'1px solid rgba(255,68,85,0.25)',color:'var(--red)',padding:'5px 10px',borderRadius:'6px',fontSize:'11px',cursor:'pointer',fontFamily:'inherit',fontWeight:700}}>{t('إغلاق', 'Close')}</button>
                       </td>
                     </tr>
                   })}
@@ -277,12 +277,12 @@ export default function PaperTradingPage() {
                 </thead>
                 <tbody>
                   {history.map((pos,i)=>{
-                    const pnl=pos.pnl||0;const pnlColor=pnl>=0?'#00e664':'#ff4455'
+                    const pnl=pos.pnl||0;const pnlColor=pnl>=0?'var(--green)':'var(--red)'
                     const pnlPct=pos.closePrice?calcPnlPct(pos,pos.closePrice):0
                     return <tr key={pos.id} style={{borderBottom:'1px solid var(--border)',background:i%2===0?'transparent':'rgba(255,255,255,0.015)'}}>
                       <td style={{padding:'11px 14px',fontWeight:800}}>{pos.symbol.replace('USDT','/USDT')}</td>
                       <td style={{padding:'11px 14px'}}>
-                        <span style={{padding:'2px 8px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.side==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.side==='LONG'?'#00e664':'#ff4455'}}>{pos.side}</span>
+                        <span style={{padding:'2px 8px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.side==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.side==='LONG'?'var(--green)':'var(--red)'}}>{pos.side}</span>
                       </td>
                       <td style={{padding:'11px 14px',fontFamily:'var(--mono)',fontSize:'12px'}}>${fmt(pos.entry)}</td>
                       <td style={{padding:'11px 14px',fontFamily:'var(--mono)',fontSize:'12px'}}>${fmt(pos.closePrice||pos.entry)}</td>
@@ -292,7 +292,7 @@ export default function PaperTradingPage() {
                         <div style={{color:pnlColor,fontSize:'10px'}}>{pnlPct>=0?'+':''}{pnlPct.toFixed(1)}%</div>
                       </td>
                       <td style={{padding:'11px 14px'}}>
-                        <span style={{padding:'3px 9px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.status==='WIN'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.status==='WIN'?'#00e664':'#ff4455'}}>{pos.status==='WIN'?t('✓ ربح','✓ Win'):t('✗ خسارة','✗ Loss')}</span>
+                        <span style={{padding:'3px 9px',borderRadius:'5px',fontSize:'11px',fontWeight:800,background:pos.status==='WIN'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)',color:pos.status==='WIN'?'var(--green)':'var(--red)'}}>{pos.status==='WIN'?t('✓ ربح','✓ Win'):t('✗ خسارة','✗ Loss')}</span>
                       </td>
                       <td style={{padding:'11px 14px',fontSize:'12px',color:'var(--muted)'}}>{pos.closedAt?new Date(pos.closedAt).toLocaleDateString(lang==='ar'?'ar-SA':'en-US'):'—'}</td>
                     </tr>
@@ -325,7 +325,7 @@ export default function PaperTradingPage() {
                   <label style={{fontSize:'12px',fontWeight:600,color:'var(--muted)',display:'block',marginBottom:'6px'}}>{t('الجانب', 'Side')}</label>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
                     {(['LONG','SHORT'] as const).map(s=>(
-                      <button key={s} onClick={()=>setForm(f=>({...f,side:s}))} style={{padding:'10px',borderRadius:'8px',border:`1px solid ${form.side===s?(s==='LONG'?'rgba(0,230,100,0.5)':'rgba(255,68,85,0.5)'):'var(--border)'}`,background:form.side===s?(s==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)'):'transparent',color:form.side===s?(s==='LONG'?'#00e664':'#ff4455'):'var(--muted)',fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>
+                      <button key={s} onClick={()=>setForm(f=>({...f,side:s}))} style={{padding:'10px',borderRadius:'8px',border:`1px solid ${form.side===s?(s==='LONG'?'rgba(0,230,100,0.5)':'rgba(255,68,85,0.5)'):'var(--border)'}`,background:form.side===s?(s==='LONG'?'rgba(0,230,100,0.1)':'rgba(255,68,85,0.1)'):'transparent',color:form.side===s?(s==='LONG'?'var(--green)':'var(--red)'):'var(--muted)',fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>
                         {s==='LONG'?'▲ LONG':'▼ SHORT'}
                       </button>
                     ))}
@@ -354,12 +354,12 @@ export default function PaperTradingPage() {
                     <span style={{fontFamily:'var(--mono)',fontWeight:700}}>{loadingEntry?'...':(entryPrice?'$'+fmt(entryPrice):'—')}</span>
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between',fontSize:'13px',marginBottom:'6px'}}>
-                    <span style={{color:'#00e664'}}>{t('الهدف (TP) +5%', 'Target (TP) +5%')}</span>
-                    <span style={{fontFamily:'var(--mono)',color:'#00e664'}}>{entryPrice?'$'+fmt(form.side==='LONG'?entryPrice*1.05:entryPrice*0.95):'—'}</span>
+                    <span style={{color:'var(--green)'}}>{t('الهدف (TP) +5%', 'Target (TP) +5%')}</span>
+                    <span style={{fontFamily:'var(--mono)',color:'var(--green)'}}>{entryPrice?'$'+fmt(form.side==='LONG'?entryPrice*1.05:entryPrice*0.95):'—'}</span>
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between',fontSize:'13px',marginBottom:'8px'}}>
-                    <span style={{color:'#ff4455'}}>{t('الوقف (SL) -3%', 'Stop (SL) -3%')}</span>
-                    <span style={{fontFamily:'var(--mono)',color:'#ff4455'}}>{entryPrice?'$'+fmt(form.side==='LONG'?entryPrice*0.97:entryPrice*1.03):'—'}</span>
+                    <span style={{color:'var(--red)'}}>{t('الوقف (SL) -3%', 'Stop (SL) -3%')}</span>
+                    <span style={{fontFamily:'var(--mono)',color:'var(--red)'}}>{entryPrice?'$'+fmt(form.side==='LONG'?entryPrice*0.97:entryPrice*1.03):'—'}</span>
                   </div>
                   <div style={{borderTop:'1px solid var(--border)',paddingTop:'8px',display:'flex',justifyContent:'space-between',fontSize:'13px'}}>
                     <span style={{color:'var(--muted)'}}>{t('الرصيد بعد', 'Balance After')}</span>

@@ -8,7 +8,7 @@ export default function Loading() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px', animation: 'pulse 1.6s ease-in-out infinite' }}>
         <div style={{
           width: '48px', height: '48px', borderRadius: '12px',
-          background: 'linear-gradient(135deg,#00c4ef,#6b1fff)',
+          background: 'linear-gradient(135deg,#00c4ef,var(--purple))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontWeight: 900, fontSize: '22px', color: '#fff',
         }}>D</div>

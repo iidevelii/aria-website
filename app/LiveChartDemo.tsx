@@ -93,7 +93,7 @@ export default function LiveChartDemo() {
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="live-dot" />
-            <span style={{ fontSize: '11px', color: '#00e664' }}>{t('توضيحي', 'illustrative')}</span>
+            <span style={{ fontSize: '11px', color: 'var(--green)' }}>{t('توضيحي', 'illustrative')}</span>
           </div>
         </div>
 

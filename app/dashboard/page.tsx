@@ -56,7 +56,7 @@ function FearGreed() {
       .then(d => { setValue(parseInt(d.data[0].value)); setLabel(d.data[0].value_classification) })
       .catch(() => { setValue(50); setLabel('Neutral') })
   }, [])
-  const color = value < 25 ? '#ff5555' : value < 45 ? '#f97316' : value < 55 ? '#fbbf24' : value < 75 ? '#84cc16' : '#00e664'
+  const color = value < 25 ? 'var(--red)' : value < 45 ? 'var(--yellow)' : value < 55 ? 'var(--yellow)' : value < 75 ? '#84cc16' : 'var(--green)'
   const pct = (value / 100) * 283
   return (
     <div className="card" style={{ textAlign: 'center', padding: '24px' }}>
@@ -98,10 +98,10 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
     else if (s.side === 'SHORT' && sl > tp) progress = Math.max(0, Math.min(100, ((sl - cur) / (sl - tp)) * 100))
   }
 
-  const statusColor = isWin ? '#00e664' : isLoss ? '#ff5555' : '#fbbf24'
-  const sideColor = s.side === 'LONG' ? '#00e664' : '#ff5555'
-  const pnlColor = levPct >= 0 ? '#00e664' : '#ff5555'
-  const barColor = progress > 70 ? '#00e664' : progress > 35 ? '#fbbf24' : '#ff5555'
+  const statusColor = isWin ? 'var(--green)' : isLoss ? 'var(--red)' : 'var(--yellow)'
+  const sideColor = s.side === 'LONG' ? 'var(--green)' : 'var(--red)'
+  const pnlColor = levPct >= 0 ? 'var(--green)' : 'var(--red)'
+  const barColor = progress > 70 ? 'var(--green)' : progress > 35 ? 'var(--yellow)' : 'var(--red)'
 
   const closedPnl = s.pnl_pct ? parseFloat(s.pnl_pct) : null
 
@@ -125,7 +125,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
           <span style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '-0.02em' }}>{s.pair}</span>
           <span style={{
             background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)',
-            color: s.market === 'SPOT' ? '#fbbf24' : '#00c4ef',
+            color: s.market === 'SPOT' ? 'var(--yellow)' : '#00c4ef',
             border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`,
             borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
           }}>{s.market === 'SPOT' ? t('🟡 سبوت', '🟡 Spot') : t('🔵 فيوتشر', '🔵 Futures')}</span>
@@ -147,7 +147,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
             {isWin ? t('✓ ربح', '✓ Win') : isLoss ? t('✗ خسارة', '✗ Loss') : t('● مفتوحة', '● Open')}
           </span>
           {closedPnl !== null && !isOpen && (
-            <span style={{ fontWeight: 800, fontSize: '13px', color: closedPnl > 0 ? '#00e664' : '#ff5555' }}>
+            <span style={{ fontWeight: 800, fontSize: '13px', color: closedPnl > 0 ? 'var(--green)' : 'var(--red)' }}>
               {closedPnl > 0 ? '+' : ''}{closedPnl.toFixed(2)}%
             </span>
           )}
@@ -180,14 +180,14 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         </div>
         {/* TP */}
         <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('هدف', 'Target')}</div>
-          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#00e664', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
+          <div style={{ fontSize: '10px', color: 'var(--green)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('هدف', 'Target')}</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
           <div style={{ fontSize: '10px', color: 'rgba(0,230,100,0.55)', marginTop: '3px' }}>+{s.tp_pct}%</div>
         </div>
         {/* SL */}
         <div style={{ background: 'rgba(255,85,85,0.05)', border: '1px solid rgba(255,85,85,0.15)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '10px', color: '#ff5555', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('وقف', 'Stop')}</div>
-          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
+          <div style={{ fontSize: '10px', color: 'var(--red)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('وقف', 'Stop')}</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
           <div style={{ fontSize: '10px', color: 'rgba(255,85,85,0.55)', marginTop: '3px' }}>-{s.sl_pct}%</div>
         </div>
         {/* Current */}
@@ -226,9 +226,9 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
             <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '3px', transition: 'width 0.6s ease' }}/>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginTop: '5px' }}>
-            <span style={{ color: '#ff5555' }}>{t('وقف', 'Stop')} ${fmt(sl)}</span>
+            <span style={{ color: 'var(--red)' }}>{t('وقف', 'Stop')} ${fmt(sl)}</span>
             <span style={{ color: barColor, fontWeight: 700 }}>{progress.toFixed(0)}% {t('نحو الهدف', 'to target')}</span>
-            <span style={{ color: '#00e664' }}>{t('هدف', 'Target')} ${fmt(tp)}</span>
+            <span style={{ color: 'var(--green)' }}>{t('هدف', 'Target')} ${fmt(tp)}</span>
           </div>
         </div>
       )}
@@ -364,7 +364,7 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       {/* Next-scan status (rest of the identity/nav chrome already lives in the shared sidebar/topbar) */}
       <div className="dash-status-bar" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#00e664', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }}/>
+        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--green)', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }}/>
         <span style={{ color: 'var(--muted)', fontSize: '13px' }}>
           {t('الفحص القادم:', 'Next scan:')} <span style={{ color: 'var(--muted)', fontFamily: 'monospace', fontVariantNumeric: 'tabular-nums' }}>{mins}:{secs.toString().padStart(2, '0')}</span>
         </span>
@@ -395,11 +395,11 @@ export default function Dashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
             { label: t('الكل', 'All'), value: total, color: 'var(--text)' },
-            { label: t('مفتوحة', 'Open'), value: open, color: '#fbbf24' },
-            { label: t('الرابحة', 'Wins'), value: wins, color: '#00e664' },
-            { label: t('الخاسرة', 'Losses'), value: losses, color: '#ff5555' },
-            { label: t('نسبة الفوز', 'Win Rate'), value: `${winRate}%`, color: winRate >= 60 ? '#00e664' : '#fbbf24' },
-            { label: t('صافي الربح', 'Net Profit'), value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? '#00e664' : '#ff5555' },
+            { label: t('مفتوحة', 'Open'), value: open, color: 'var(--yellow)' },
+            { label: t('الرابحة', 'Wins'), value: wins, color: 'var(--green)' },
+            { label: t('الخاسرة', 'Losses'), value: losses, color: 'var(--red)' },
+            { label: t('نسبة الفوز', 'Win Rate'), value: `${winRate}%`, color: winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(1)}%`, color: netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
           ].map((s, i) => (
             <div key={i} className="stat-card">
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -450,8 +450,8 @@ export default function Dashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '24px', fontWeight: 900 }}>{s.pair}</span>
-                          <span style={{ background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)', color: s.market === 'SPOT' ? '#fbbf24' : '#00c4ef', border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.market === 'SPOT' ? t('🟡 سبوت', '🟡 Spot') : t('🔵 فيوتشر', '🔵 Futures')}</span>
-                          <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.side}</span>
+                          <span style={{ background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)', color: s.market === 'SPOT' ? 'var(--yellow)' : '#00c4ef', border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.market === 'SPOT' ? t('🟡 سبوت', '🟡 Spot') : t('🔵 فيوتشر', '🔵 Futures')}</span>
+                          <span style={{ background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: s.side === 'LONG' ? 'var(--green)' : 'var(--red)', border: `1px solid ${s.side === 'LONG' ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{s.side}</span>
                           <span style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--muted)', borderRadius: '6px', padding: '4px 10px', fontSize: '12px' }}>{s.regime}</span>
                           {s.created_at && <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{fmtDate(s.created_at)}</span>}
                         </div>
@@ -467,12 +467,12 @@ export default function Dashboard() {
                           <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>×{lev}</div>
                         </div>
                         <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.15)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
-                          <div style={{ fontSize: '10px', color: '#00e664', marginBottom: '4px' }}>{t('هدف', 'Target')} +{s.tp_pct}%</div>
-                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#00e664', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--green)', marginBottom: '4px' }}>{t('هدف', 'Target')} +{s.tp_pct}%</div>
+                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.tp)}</div>
                         </div>
                         <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.15)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
-                          <div style={{ fontSize: '10px', color: '#ff5555', marginBottom: '4px' }}>{t('وقف', 'Stop')} -{s.sl_pct}%</div>
-                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--red)', marginBottom: '4px' }}>{t('وقف', 'Stop')} -{s.sl_pct}%</div>
+                          <div style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>${fmt(s.sl)}</div>
                         </div>
                         <div style={{ background: cur && s.status === 'OPEN' ? (levPct >= 0 ? 'rgba(0,230,100,0.06)' : 'rgba(255,85,85,0.06)') : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
@@ -481,8 +481,8 @@ export default function Dashboard() {
                           </div>
                           {cur ? (
                             <>
-                              <div style={{ fontFamily: 'monospace', fontWeight: 700, color: levPct >= 0 ? '#00e664' : '#ff5555', fontVariantNumeric: 'tabular-nums' }}>${fmt(cur)}</div>
-                              {s.status === 'OPEN' && <div style={{ fontSize: '11px', fontWeight: 800, color: levPct >= 0 ? '#00e664' : '#ff5555', marginTop: '2px' }}>{levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%</div>}
+                              <div style={{ fontFamily: 'monospace', fontWeight: 700, color: levPct >= 0 ? 'var(--green)' : 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>${fmt(cur)}</div>
+                              {s.status === 'OPEN' && <div style={{ fontSize: '11px', fontWeight: 800, color: levPct >= 0 ? 'var(--green)' : 'var(--red)', marginTop: '2px' }}>{levPct >= 0 ? '+' : ''}{levPct.toFixed(2)}%</div>}
                             </>
                           ) : <div style={{ color: 'var(--muted)' }}>—</div>}
                         </div>
@@ -514,7 +514,7 @@ export default function Dashboard() {
                       <span style={{ color: 'var(--muted)', fontSize: '11px', width: '16px' }}>{i + 1}</span>
                       <span style={{ fontWeight: 700, fontSize: '13px' }}>{t.symbol.replace('USDT', '')}</span>
                     </div>
-                    <span style={{ color: '#00e664', fontSize: '13px', fontWeight: 700 }}>+{parseFloat(t.priceChangePercent).toFixed(2)}%</span>
+                    <span style={{ color: 'var(--green)', fontSize: '13px', fontWeight: 700 }}>+{parseFloat(t.priceChangePercent).toFixed(2)}%</span>
                   </div>
                 ))}
               </div>
@@ -535,8 +535,8 @@ export default function Dashboard() {
                     ? (f === 'WIN' ? 'rgba(0,230,100,0.2)' : f === 'LOSS' ? 'rgba(255,85,85,0.2)' : f === 'OPEN' ? 'rgba(251,191,36,0.2)' : 'rgba(0,196,239,0.2)')
                     : 'rgba(255,255,255,0.04)',
                   color: filter === f
-                    ? (f === 'WIN' ? '#00e664' : f === 'LOSS' ? '#ff5555' : f === 'OPEN' ? '#fbbf24' : '#00c4ef')
-                    : '#6b7280',
+                    ? (f === 'WIN' ? 'var(--green)' : f === 'LOSS' ? 'var(--red)' : f === 'OPEN' ? 'var(--yellow)' : '#00c4ef')
+                    : 'var(--muted)',
                   border: filter === f
                     ? `1px solid ${f === 'WIN' ? 'rgba(0,230,100,0.35)' : f === 'LOSS' ? 'rgba(255,85,85,0.35)' : f === 'OPEN' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`
                     : '1px solid rgba(255,255,255,0.06)',
@@ -550,7 +550,7 @@ export default function Dashboard() {
             {futuresSignals.length > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
                 {sideStats.map(st => {
-                  const color = st.side === 'LONG' ? '#00e664' : '#ff5555'
+                  const color = st.side === 'LONG' ? 'var(--green)' : 'var(--red)'
                   const isBetter = betterSide === st.side
                   return (
                     <div key={st.side} className="card" style={{ padding: '16px', position: 'relative', border: isBetter ? `1px solid ${color}55` : undefined }}>
@@ -567,17 +567,17 @@ export default function Dashboard() {
                           <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('نسبة الفوز', 'Win Rate')}</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
-                          <div style={{ fontWeight: 800, fontSize: '16px', color: '#00e664' }}>{st.wins}</div>
+                          <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--green)' }}>{st.wins}</div>
                           <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('رابحة', 'Wins')}</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
-                          <div style={{ fontWeight: 800, fontSize: '16px', color: '#ff5555' }}>{st.losses}</div>
+                          <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--red)' }}>{st.losses}</div>
                           <div style={{ color: 'var(--muted)', fontSize: '10px' }}>{t('خاسرة', 'Losses')}</div>
                         </div>
                       </div>
                       <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                         <span style={{ color: 'var(--muted)' }}>{t('مفتوحة', 'Open')}: {st.open}</span>
-                        <span style={{ fontWeight: 700, color: st.net >= 0 ? '#00e664' : '#ff5555' }}>{st.net >= 0 ? '+' : ''}{st.net.toFixed(1)}% {t('صافي', 'net')}</span>
+                        <span style={{ fontWeight: 700, color: st.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{st.net >= 0 ? '+' : ''}{st.net.toFixed(1)}% {t('صافي', 'net')}</span>
                       </div>
                     </div>
                   )
@@ -595,8 +595,8 @@ export default function Dashboard() {
                     ? (m === 'SPOT' ? 'rgba(251,191,36,0.2)' : m === 'FUTURES' ? 'rgba(0,196,239,0.2)' : 'rgba(255,255,255,0.1)')
                     : 'rgba(255,255,255,0.04)',
                   color: marketFilter === m
-                    ? (m === 'SPOT' ? '#fbbf24' : m === 'FUTURES' ? '#00c4ef' : 'var(--text)')
-                    : '#6b7280',
+                    ? (m === 'SPOT' ? 'var(--yellow)' : m === 'FUTURES' ? '#00c4ef' : 'var(--text)')
+                    : 'var(--muted)',
                   border: marketFilter === m
                     ? `1px solid ${m === 'SPOT' ? 'rgba(251,191,36,0.35)' : m === 'FUTURES' ? 'rgba(0,196,239,0.35)' : 'rgba(255,255,255,0.2)'}`
                     : '1px solid rgba(255,255,255,0.06)',
@@ -631,7 +631,7 @@ export default function Dashboard() {
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }}>
               {['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'DOGE', 'AVAX'].map(sym => (
-                <button key={sym} onClick={() => setChartSymbol(sym)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00c4ef' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : '#9ca3af', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
+                <button key={sym} onClick={() => setChartSymbol(sym)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: chartSymbol === sym ? '#00c4ef' : 'rgba(255,255,255,0.05)', color: chartSymbol === sym ? 'black' : 'var(--muted)', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
                   {sym}
                 </button>
               ))}
@@ -644,9 +644,9 @@ export default function Dashboard() {
         {tab === 'market' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {[
-              { title: t('🚀 الأكثر ارتفاعاً', '🚀 Top Gainers'), data: gainers, colorFn: () => '#00e664', valFn: (t: any) => `+${parseFloat(t.priceChangePercent).toFixed(2)}%` },
-              { title: t('📉 الأكثر انخفاضاً', '📉 Top Losers'), data: losers, colorFn: () => '#ff5555', valFn: (t: any) => `${parseFloat(t.priceChangePercent).toFixed(2)}%` },
-              { title: t('👑 القيمة السوقية', '👑 Market Cap'), data: topCoins, colorFn: (c: any) => c.price_change_percentage_24h >= 0 ? '#00e664' : '#ff5555', valFn: (c: any) => `${c.price_change_percentage_24h >= 0 ? '+' : ''}${c.price_change_percentage_24h?.toFixed(2)}%`, isCG: true },
+              { title: t('🚀 الأكثر ارتفاعاً', '🚀 Top Gainers'), data: gainers, colorFn: () => 'var(--green)', valFn: (t: any) => `+${parseFloat(t.priceChangePercent).toFixed(2)}%` },
+              { title: t('📉 الأكثر انخفاضاً', '📉 Top Losers'), data: losers, colorFn: () => 'var(--red)', valFn: (t: any) => `${parseFloat(t.priceChangePercent).toFixed(2)}%` },
+              { title: t('👑 القيمة السوقية', '👑 Market Cap'), data: topCoins, colorFn: (c: any) => c.price_change_percentage_24h >= 0 ? 'var(--green)' : 'var(--red)', valFn: (c: any) => `${c.price_change_percentage_24h >= 0 ? '+' : ''}${c.price_change_percentage_24h?.toFixed(2)}%`, isCG: true },
             ].map((col, ci) => (
               <div key={ci} className="card">
                 <div style={{ fontWeight: 800, marginBottom: '20px', fontSize: '15px' }}>{col.title}</div>

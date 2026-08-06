@@ -44,7 +44,7 @@ function Avatar({ role }: { role: 'user' | 'assistant' }) {
   return (
     <div style={{
       width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-      background: role === 'assistant' ? 'linear-gradient(135deg,#00c4ef,#6b1fff)' : 'var(--surface-2)',
+      background: role === 'assistant' ? 'linear-gradient(135deg,#00c4ef,var(--purple))' : 'var(--surface-2)',
       border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontSize: '14px', fontWeight: 900, color: role === 'assistant' ? '#fff' : 'var(--muted)',
     }}>
@@ -152,7 +152,7 @@ export default function AIAssistantPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#00c4ef,#6b1fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#fff' }}>D</div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#00c4ef,var(--purple))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#fff' }}>D</div>
               <div>
                 <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em' }}>Devel</div>
                 <div style={{ fontSize: '11px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><span className="live-dot"/>{t('مساعد تداول ذكي', 'Smart trading assistant')}</div>
@@ -186,7 +186,7 @@ export default function AIAssistantPage() {
                 </div>
               </div>
             )}
-            {error && <div style={{ background: 'rgba(255,68,85,0.08)', border: '1px solid rgba(255,68,85,0.2)', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#ff4455', marginBottom: '12px' }}>{error}</div>}
+            {error && <div style={{ background: 'rgba(255,68,85,0.08)', border: '1px solid rgba(255,68,85,0.2)', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: 'var(--red)', marginBottom: '12px' }}>{error}</div>}
             <div ref={bottomRef} />
           </div>
 

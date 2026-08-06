@@ -57,7 +57,7 @@ export default function Login() {
         {/* Card */}
         <div className="glass-card">
           {error && (
-            <div style={{ background: 'rgba(255,60,60,0.08)', border: '1px solid rgba(255,60,60,0.2)', borderRadius: '12px', padding: '12px 16px', marginBottom: '24px', color: '#ff7070', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'rgba(255,60,60,0.08)', border: '1px solid rgba(255,60,60,0.2)', borderRadius: '12px', padding: '12px 16px', marginBottom: '24px', color: 'var(--red)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>⚠️</span> {error}
             </div>
           )}

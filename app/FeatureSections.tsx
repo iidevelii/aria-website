@@ -23,9 +23,9 @@ function ScannerVisual({ color }: { color: string }) {
       {rows.map((r, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 4px', borderTop: '1px solid rgba(255,255,255,0.05)', fontFamily: mono, fontSize: '12px' }}>
           <span style={{ flex: 1.4, fontWeight: 800 }}>{r.pair}</span>
-          <span style={{ flex: 1, color: r.rsi > 60 ? '#00e664' : r.rsi < 40 ? '#ff4455' : 'var(--muted)' }}>{r.rsi}</span>
-          <span style={{ flex: 1, color: r.macd === '▲' ? '#00e664' : '#ff4455' }}>{r.macd}</span>
-          <span style={{ flex: 1, textAlign: 'right', fontWeight: 900, color: r.score > 0 ? '#00e664' : '#ff4455' }}>{r.score > 0 ? '+' : ''}{r.score}</span>
+          <span style={{ flex: 1, color: r.rsi > 60 ? 'var(--green)' : r.rsi < 40 ? 'var(--red)' : 'var(--muted)' }}>{r.rsi}</span>
+          <span style={{ flex: 1, color: r.macd === '▲' ? 'var(--green)' : 'var(--red)' }}>{r.macd}</span>
+          <span style={{ flex: 1, textAlign: 'right', fontWeight: 900, color: r.score > 0 ? 'var(--green)' : 'var(--red)' }}>{r.score > 0 ? '+' : ''}{r.score}</span>
         </div>
       ))}
     </MockFrame>
@@ -143,7 +143,7 @@ function PaperTradingVisual({ color, t }: { color: string; t: (ar: string, en: s
           <div style={{ fontSize: '10px', color: 'var(--dim)', marginBottom: '4px' }}>{t('الرصيد', 'Balance')}</div>
           <div style={{ fontSize: '24px', fontWeight: 900, fontFamily: mono }}>$12,430</div>
         </div>
-        <div style={{ fontSize: '14px', fontWeight: 800, color: '#00e664', fontFamily: mono }}>+24.3%</div>
+        <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--green)', fontFamily: mono }}>+24.3%</div>
       </div>
       {[
         { pair: 'ETH/USDT', side: 'LONG', pnl: '+8.1%' },
@@ -152,7 +152,7 @@ function PaperTradingVisual({ color, t }: { color: string; t: (ar: string, en: s
         <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '12px', fontFamily: mono }}>
           <span style={{ fontWeight: 700 }}>{p.pair}</span>
           <span className={p.side === 'LONG' ? 'pill-long' : 'pill-short'} style={{ fontSize: '10px' }}>{p.side}</span>
-          <span style={{ fontWeight: 800, color: p.pnl.startsWith('+') ? '#00e664' : '#ff4455' }}>{p.pnl}</span>
+          <span style={{ fontWeight: 800, color: p.pnl.startsWith('+') ? 'var(--green)' : 'var(--red)' }}>{p.pnl}</span>
         </div>
       ))}
     </MockFrame>
@@ -218,7 +218,7 @@ function FeatureBlock({ f, index }: { f: Feature; index: number }) {
           <p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.8, marginBottom: '20px', maxWidth: '460px' }}>{f.lead}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', direction: textDir }}>
             {f.points.map((p, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13.5px', color: '#c9d1e0', lineHeight: 1.6 }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13.5px', color: 'var(--muted)', lineHeight: 1.6 }}>
                 <span style={{ color: f.color, fontWeight: 900, flexShrink: 0, marginTop: '1px', transform: textDir === 'rtl' ? 'scaleX(-1)' : 'none' }}>›</span>
                 <span>{p}</span>
               </div>
@@ -301,7 +301,7 @@ export default function FeatureSections() {
       visual: <AIAssistantVisual color="#f04060" t={t} />,
     },
     {
-      icon: '💼', color: '#00e664', eyebrow: t('09 · محفظة تجريبية', '09 · Paper Trading'),
+      icon: '💼', color: 'var(--green)', eyebrow: t('09 · محفظة تجريبية', '09 · Paper Trading'),
       title: t('جرّب بدون مخاطرة فلوسك', 'Practice without risking your money'),
       lead: t('قبل ما تدخل السوق الحقيقي بفلوس حقيقية، جرّب استراتيجيتك على محفظة محاكاة كاملة — نفس خيارات الرافعة والحجم و LONG/SHORT، بدون أي خسارة فعلية.', "Before entering the real market with real money, test your strategy on a full simulated portfolio — same leverage, size, and LONG/SHORT options, with zero real risk."),
       points: [
@@ -310,7 +310,7 @@ export default function FeatureSections() {
         t('سجل أداء كامل لكل صفقاتك التجريبية عشان تقيس نفسك قبل الجدّ.', 'A full performance log of every practice trade, so you can measure yourself before going live.'),
       ],
       href: '/paper-trading', cta: t('جرّب المحفظة ←', 'Try paper trading →'),
-      visual: <PaperTradingVisual color="#00e664" t={t} />,
+      visual: <PaperTradingVisual color="var(--green)" t={t} />,
     },
   ]
 

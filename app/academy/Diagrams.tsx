@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-const GREEN = '#00e664'
-const RED = '#ff4455'
+const GREEN = 'var(--green)'
+const RED = 'var(--red)'
 const CYAN = '#00c4ef'
 const MUTED = 'var(--dim)'
 

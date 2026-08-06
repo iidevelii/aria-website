@@ -159,7 +159,7 @@ export default function CoinTrackerPage() {
           </div>
           <div style={{background:'var(--surface-2)',borderRadius:'8px',padding:'10px'}}>
             <div style={{fontSize:'10px',color:'var(--muted)',marginBottom:'3px'}}>{t('التغير 24h', '24h change')}</div>
-            <div style={{fontFamily:'var(--mono)',fontWeight:700,fontSize:'13px',color:c!==undefined?(c>=0?'#00e664':'#ff4455'):'var(--muted)'}}>{c!==undefined?(c>=0?'+':'')+c.toFixed(2)+'%':'...'}</div>
+            <div style={{fontFamily:'var(--mono)',fontWeight:700,fontSize:'13px',color:c!==undefined?(c>=0?'var(--green)':'var(--red)'):'var(--muted)'}}>{c!==undefined?(c>=0?'+':'')+c.toFixed(2)+'%':'...'}</div>
           </div>
         </div>
 

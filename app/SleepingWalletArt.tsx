@@ -52,7 +52,7 @@ export default function SleepingWalletArt() {
       }} />
 
       <div style={{
-        position: 'relative', zIndex: 1, background: 'linear-gradient(180deg, #0b0e17 0%, #10131d 100%)',
+        position: 'relative', zIndex: 1, background: 'linear-gradient(180deg, var(--bg) 0%, #10131d 100%)',
         border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden',
         opacity: revealed ? 1 : 0, transform: revealed ? 'scale(1) translateY(0)' : 'scale(0.97) translateY(20px)',
         transition: 'opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1)',
@@ -65,11 +65,11 @@ export default function SleepingWalletArt() {
           ))}
           {/* هلال */}
           <circle cx="345" cy="42" r="18" fill="#f4e9c9" opacity="0.9" />
-          <circle cx="352" cy="36" r="16" fill="#0b0e17" />
+          <circle cx="352" cy="36" r="16" fill="var(--bg)" />
 
           {/* السرير */}
-          <rect x="60" y="196" width="230" height="14" rx="6" fill="#1c2333" />
-          <rect x="70" y="150" width="60" height="52" rx="14" fill="#1c2333" />
+          <rect x="60" y="196" width="230" height="14" rx="6" fill="var(--surface-2)" />
+          <rect x="70" y="150" width="60" height="52" rx="14" fill="var(--surface-2)" />
           {/* اللحاف */}
           <path d="M 95 170 Q 190 150 260 178 Q 270 195 260 200 L 100 200 Q 90 185 95 170 Z" fill="url(#blanket)" />
           <defs>

@@ -396,7 +396,7 @@ export default function StrategyBuilderPage() {
                         )}
 
                         <button onClick={() => remCond(c.id)} disabled={conditions.length === 1}
-                          style={{ width: '30px', height: '30px', background: 'transparent', border: '1px solid rgba(255,68,85,0.25)', color: '#ff4455', borderRadius: '7px', cursor: conditions.length===1?'not-allowed':'pointer', opacity: conditions.length===1?0.3:1, fontSize: '13px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                          style={{ width: '30px', height: '30px', background: 'transparent', border: '1px solid rgba(255,68,85,0.25)', color: 'var(--red)', borderRadius: '7px', cursor: conditions.length===1?'not-allowed':'pointer', opacity: conditions.length===1?0.3:1, fontSize: '13px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                       </div>
                     </div>
                   </div>
@@ -453,7 +453,7 @@ export default function StrategyBuilderPage() {
               style={{ width: '100%', marginTop: '8px', padding: '11px', background: 'transparent', border: '1px solid rgba(0,196,239,0.3)', color: 'var(--cyan)', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: activating ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {activating ? t('جاري التفعيل...', 'Activating...') : `📲 ${t('فعّل على تلقرام', 'Activate on Telegram')}`}
             </button>
-            {activateMsg && <div style={{ fontSize: '11.5px', color: activateMsg.startsWith('✅') ? '#00e664' : '#ff4455', marginTop: '8px' }}>{activateMsg}</div>}
+            {activateMsg && <div style={{ fontSize: '11.5px', color: activateMsg.startsWith('✅') ? 'var(--green)' : 'var(--red)', marginTop: '8px' }}>{activateMsg}</div>}
             <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', lineHeight: 1.6 }}>
               {t('البوت يراقب هذي الشروط تلقائياً ويرسل لك تنبيه خاص على تلقرام أول ما تنطبق على أي عملة. لازم يكون حسابك مربوط بتلقرام من صفحة الإعدادات.', 'The bot monitors these conditions automatically and sends you a private Telegram alert whenever a coin matches. Your account must be linked to Telegram from the Settings page.')}
             </div>
@@ -495,7 +495,7 @@ export default function StrategyBuilderPage() {
                 style={{ width: '100%', padding: '11px', background: 'transparent', border: '1px solid rgba(0,196,239,0.3)', color: 'var(--cyan)', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: patternActivating ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                 {patternActivating ? t('جاري التفعيل...', 'Activating...') : `📲 ${t('فعّل على تلقرام', 'Activate on Telegram')}`}
               </button>
-              {patternMsg && <div style={{ fontSize: '11.5px', color: patternMsg.startsWith('✅') ? '#00e664' : '#ff4455' }}>{patternMsg}</div>}
+              {patternMsg && <div style={{ fontSize: '11.5px', color: patternMsg.startsWith('✅') ? 'var(--green)' : 'var(--red)' }}>{patternMsg}</div>}
             </div>
           </div>
 
@@ -511,7 +511,7 @@ export default function StrategyBuilderPage() {
                   </div>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button onClick={() => loadSaved(s)} style={{ background: 'rgba(0,196,239,0.08)', border: '1px solid rgba(0,196,239,0.2)', color: 'var(--cyan)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>{t('تحميل', 'Load')}</button>
-                    <button onClick={() => deleteSaved(s.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
+                    <button onClick={() => deleteSaved(s.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: 'var(--red)', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
                   </div>
                 </div>
               ))}
@@ -536,10 +536,10 @@ export default function StrategyBuilderPage() {
                   </div>
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                     <button onClick={() => toggleAlert(a.id, !a.active)}
-                      style={{ background: a.active ? 'rgba(0,230,100,0.1)' : 'var(--surface-2)', border: `1px solid ${a.active ? 'rgba(0,230,100,0.25)' : 'var(--border)'}`, color: a.active ? '#00e664' : 'var(--muted)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
+                      style={{ background: a.active ? 'rgba(0,230,100,0.1)' : 'var(--surface-2)', border: `1px solid ${a.active ? 'rgba(0,230,100,0.25)' : 'var(--border)'}`, color: a.active ? 'var(--green)' : 'var(--muted)', padding: '5px 12px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
                       {a.active ? t('مفعّل', 'Active') : t('موقّف', 'Paused')}
                     </button>
-                    <button onClick={() => deleteAlert(a.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: '#ff4455', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
+                    <button onClick={() => deleteAlert(a.id)} style={{ background: 'transparent', border: '1px solid rgba(255,68,85,0.2)', color: 'var(--red)', padding: '5px 10px', borderRadius: '7px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>{t('حذف', 'Delete')}</button>
                   </div>
                 </div>
               ))}
@@ -554,7 +554,7 @@ export default function StrategyBuilderPage() {
               {[
                 { label: t('العملات المفحوصة', 'Coins scanned'), value: results.length,  color: 'var(--text)' },
                 { label: t('تطابق الشروط', 'Matched conditions'),     value: passed.length,   color: 'var(--cyan)' },
-                { label: t('نسبة التطابق', 'Match rate'),      value: `${results.length ? Math.round(passed.length/results.length*100) : 0}%`, color: passed.length>0?'#00e664':'var(--muted)' },
+                { label: t('نسبة التطابق', 'Match rate'),      value: `${results.length ? Math.round(passed.length/results.length*100) : 0}%`, color: passed.length>0?'var(--green)':'var(--muted)' },
                 { label: t('الإطار الزمني', 'Timeframe'),     value: tf,              color: 'var(--yellow)' },
               ].map(s => (
                 <div key={s.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
@@ -577,7 +577,7 @@ export default function StrategyBuilderPage() {
                 <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontWeight: 800, fontSize: '14px' }}>{t('النتائج', 'Results')}</span>
                   {passed.length > 0 && (
-                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: '#00e664', border: '1px solid rgba(0,230,100,0.2)' }}>
+                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: 'var(--green)', border: '1px solid rgba(0,230,100,0.2)' }}>
                       {passed.length} {t('فرصة مطابقة', 'matching opportunities')}
                     </span>
                   )}
@@ -596,21 +596,21 @@ export default function StrategyBuilderPage() {
                         <tr key={r.symbol} style={{ borderBottom: '1px solid var(--border)', background: r.passed ? 'rgba(0,230,100,0.03)' : i%2===0?'transparent':'rgba(255,255,255,0.01)', opacity: r.passed?1:0.55 }}>
                           <td style={{ padding: '12px 16px', fontWeight: 900, fontSize: '13px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              {r.passed && <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#00e664', flexShrink: 0, boxShadow: '0 0 6px rgba(0,230,100,0.5)' }}/>}
+                              {r.passed && <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--green)', flexShrink: 0, boxShadow: '0 0 6px rgba(0,230,100,0.5)' }}/>}
                               {r.symbol.replace('USDT','')}
                               <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 400 }}>USDT</span>
                             </div>
                           </td>
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 600 }}>${fmt(r.price)}</td>
-                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 700, color: r.chg>=0?'#00e664':'#ff4455' }}>{r.chg>=0?'+':''}{r.chg.toFixed(2)}%</td>
-                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', color: r.rsi>=70?'#ff4455':r.rsi<=30?'var(--cyan)':'var(--text)' }}>{r.rsi.toFixed(1)}</td>
+                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 700, color: r.chg>=0?'var(--green)':'var(--red)' }}>{r.chg>=0?'+':''}{r.chg.toFixed(2)}%</td>
+                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', color: r.rsi>=70?'var(--red)':r.rsi<=30?'var(--cyan)':'var(--text)' }}>{r.rsi.toFixed(1)}</td>
                           <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '12px', color: r.adx>25?'var(--yellow)':'var(--muted)' }}>{r.adx.toFixed(1)}</td>
-                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.st==='up'?'#00e664':'#ff4455' }}>{r.st==='up'?`▲ ${t('صاعد','Up')}`:`▼ ${t('هابط','Down')}`}</td>
-                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.macd?'#00e664':'#ff4455' }}>{r.macd?'▲':'▼'}</td>
-                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '13px', fontWeight: 900, color: r.score>=50?'#00e664':r.score<=-50?'#ff4455':r.score>0?'var(--cyan)':'var(--muted)' }}>{r.score>0?'+':''}{r.score}</td>
+                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.st==='up'?'var(--green)':'var(--red)' }}>{r.st==='up'?`▲ ${t('صاعد','Up')}`:`▼ ${t('هابط','Down')}`}</td>
+                          <td style={{ padding: '12px 16px', fontWeight: 800, fontSize: '13px', color: r.macd?'var(--green)':'var(--red)' }}>{r.macd?'▲':'▼'}</td>
+                          <td style={{ padding: '12px 16px', fontFamily: 'var(--mono)', fontSize: '13px', fontWeight: 900, color: r.score>=50?'var(--green)':r.score<=-50?'var(--red)':r.score>0?'var(--cyan)':'var(--muted)' }}>{r.score>0?'+':''}{r.score}</td>
                           <td style={{ padding: '12px 16px' }}>
                             {r.passed
-                              ? <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: '#00e664', border: '1px solid rgba(0,230,100,0.2)', whiteSpace: 'nowrap' }}>{`✓ ${t('مطابق','Matched')}`}</span>
+                              ? <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, background: 'rgba(0,230,100,0.1)', color: 'var(--green)', border: '1px solid rgba(0,230,100,0.2)', whiteSpace: 'nowrap' }}>{`✓ ${t('مطابق','Matched')}`}</span>
                               : <span style={{ fontSize: '11px', color: 'var(--dim)' }}>—</span>
                             }
                           </td>

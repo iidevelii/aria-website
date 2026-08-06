@@ -85,7 +85,7 @@ export default function ActivatePage() {
               <div key={n} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
                   width: '26px', height: '26px', borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#00c4ef,#6b1fff)',
+                  background: 'linear-gradient(135deg,#00c4ef,var(--purple))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '12px', fontWeight: 700, color: 'white', flexShrink: 0,
                 }}>{n}</div>

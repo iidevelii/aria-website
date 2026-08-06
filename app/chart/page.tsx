@@ -57,7 +57,7 @@ function ChartView() {
       chart = createChart(chartRef.current!, {
         width: chartRef.current!.clientWidth,
         height: 500,
-        layout: { background: { color: '#050508' }, textColor: '#9ca3af' },
+        layout: { background: { color: '#050508' }, textColor: 'var(--muted)' },
         grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
@@ -65,9 +65,9 @@ function ChartView() {
       })
 
       series = chart.addSeries(CandlestickSeries, {
-        upColor: '#00e664', downColor: '#ff5555',
-        borderUpColor: '#00e664', borderDownColor: '#ff5555',
-        wickUpColor: '#00e664', wickDownColor: '#ff5555',
+        upColor: 'var(--green)', downColor: 'var(--red)',
+        borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
+        wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
         priceLineVisible: false, lastValueVisible: false,
       })
       // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
@@ -107,10 +107,10 @@ function ChartView() {
         series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('دخول', 'Entry') })
       }
       if (tp > 0) {
-        series.createPriceLine({ price: tp, color: '#00e664', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
+        series.createPriceLine({ price: tp, color: 'var(--green)', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
       }
       if (sl > 0) {
-        series.createPriceLine({ price: sl, color: '#ff5555', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
+        series.createPriceLine({ price: sl, color: 'var(--red)', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
       }
 
       // أقرب شمعة لوقت فتح الصفقة لوضع سهم الدخول عليها
@@ -131,7 +131,7 @@ function ChartView() {
       if (entryTime != null) {
         markers.push({
           time: entryTime, position: isLong ? 'belowBar' : 'aboveBar',
-          shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? '#00e664' : '#ff5555',
+          shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? 'var(--green)' : 'var(--red)',
           text: t(isLong ? 'شراء' : 'بيع', isLong ? 'Buy' : 'Sell'),
         })
       }
@@ -175,7 +175,7 @@ function ChartView() {
     if (side === 'LONG' && tp > sl) progress = Math.max(0, Math.min(100, ((currentPrice - sl) / (tp - sl)) * 100))
     else if (side === 'SHORT' && sl > tp) progress = Math.max(0, Math.min(100, ((sl - currentPrice) / (sl - tp)) * 100))
   }
-  const barColor = status === 'WIN' ? '#00e664' : status === 'LOSS' ? '#ff5555' : progress > 70 ? '#00e664' : progress > 35 ? '#fbbf24' : '#ff5555'
+  const barColor = status === 'WIN' ? 'var(--green)' : status === 'LOSS' ? 'var(--red)' : progress > 70 ? 'var(--green)' : progress > 35 ? 'var(--yellow)' : 'var(--red)'
 
   return (
     <div style={{ minHeight: '100vh', background: '#050508', color: 'white', padding: '24px' }}>
@@ -185,23 +185,23 @@ function ChartView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 900, margin: 0 }}>{symbol.replace('USDT', '')}/USDT</h1>
-            <span style={{ background: side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: side === 'LONG' ? '#00e664' : '#ff5555', border: `1px solid ${side === 'LONG' ? 'rgba(0,230,100,0.3)' : 'rgba(255,85,85,0.3)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{side}</span>
-            {status === 'WIN' && <span style={{ background: 'rgba(0,230,100,0.15)', color: '#00e664', border: '1px solid rgba(0,230,100,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>🏆 {t('ربح', 'Win')}</span>}
-            {status === 'LOSS' && <span style={{ background: 'rgba(255,85,85,0.15)', color: '#ff5555', border: '1px solid rgba(255,85,85,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>❌ {t('خسارة', 'Loss')}</span>}
-            {status === 'OPEN' && <span style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>● {t('مفتوحة', 'Open')}</span>}
+            <span style={{ background: side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: side === 'LONG' ? 'var(--green)' : 'var(--red)', border: `1px solid ${side === 'LONG' ? 'rgba(0,230,100,0.3)' : 'rgba(255,85,85,0.3)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>{side}</span>
+            {status === 'WIN' && <span style={{ background: 'rgba(0,230,100,0.15)', color: 'var(--green)', border: '1px solid rgba(0,230,100,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>🏆 {t('ربح', 'Win')}</span>}
+            {status === 'LOSS' && <span style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--red)', border: '1px solid rgba(255,85,85,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>❌ {t('خسارة', 'Loss')}</span>}
+            {status === 'OPEN' && <span style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--yellow)', border: '1px solid rgba(251,191,36,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>● {t('مفتوحة', 'Open')}</span>}
             {duration !== '—' && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#9ca3af', fontSize: '13px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--muted)', fontSize: '13px' }}>
                 ⏱ {t('المدة', 'Duration')}: <span style={{ fontFamily: 'monospace', color: 'white', fontWeight: 700 }}>{duration}</span>
               </span>
             )}
           </div>
           {currentPrice > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {!isClosed && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: live ? '#00e664' : '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>}
-              {!isClosed && live && <span style={{ fontSize: '10px', color: '#00e664', fontWeight: 700 }}>{t('لايف', 'Live')}</span>}
+              {!isClosed && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: live ? 'var(--green)' : '#00d4ff', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>}
+              {!isClosed && live && <span style={{ fontSize: '10px', color: 'var(--green)', fontWeight: 700 }}>{t('لايف', 'Live')}</span>}
               {isClosed && <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 700 }}>{t('سعر الإغلاق', 'Close price')}</span>}
               <span style={{ fontFamily: 'monospace', fontSize: '20px', fontWeight: 900 }}>${currentPrice.toLocaleString()}</span>
-              <span style={{ fontWeight: 800, fontSize: '16px', color: pct >= 0 ? '#00e664' : '#ff5555', background: pct >= 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', padding: '4px 10px', borderRadius: '8px' }}>
+              <span style={{ fontWeight: 800, fontSize: '16px', color: pct >= 0 ? 'var(--green)' : 'var(--red)', background: pct >= 0 ? 'rgba(0,230,100,0.1)' : 'rgba(255,85,85,0.1)', padding: '4px 10px', borderRadius: '8px' }}>
                 {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
               </span>
             </div>
@@ -216,13 +216,13 @@ function ChartView() {
               <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px' }}>${entry.toLocaleString()}</div>
             </div>
             <div style={{ background: 'rgba(0,230,100,0.06)', border: '1px solid rgba(0,230,100,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#00e664', marginBottom: '6px', fontWeight: 700 }}>{t('الهدف', 'Target')}</div>
-              <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#00e664' }}>${tp.toLocaleString()}</div>
+              <div style={{ fontSize: '11px', color: 'var(--green)', marginBottom: '6px', fontWeight: 700 }}>{t('الهدف', 'Target')}</div>
+              <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: 'var(--green)' }}>${tp.toLocaleString()}</div>
               {toTargetPct !== null && <div style={{ fontSize: '11px', color: 'rgba(0,230,100,0.7)', marginTop: '4px' }}>{t('باقي', 'Remaining')} {Math.abs(toTargetPct).toFixed(2)}%</div>}
             </div>
             <div style={{ background: 'rgba(255,85,85,0.06)', border: '1px solid rgba(255,85,85,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#ff5555', marginBottom: '6px', fontWeight: 700 }}>{t('الوقف', 'Stop')}</div>
-              <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: '#ff5555' }}>${sl.toLocaleString()}</div>
+              <div style={{ fontSize: '11px', color: 'var(--red)', marginBottom: '6px', fontWeight: 700 }}>{t('الوقف', 'Stop')}</div>
+              <div style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '18px', color: 'var(--red)' }}>${sl.toLocaleString()}</div>
               {toStopPct !== null && <div style={{ fontSize: '11px', color: 'rgba(255,85,85,0.7)', marginTop: '4px' }}>{t('باقي', 'Remaining')} {Math.abs(toStopPct).toFixed(2)}%</div>}
             </div>
           </div>
@@ -235,13 +235,13 @@ function ChartView() {
               <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '4px', transition: 'width 0.6s ease' }}/>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
-              <span style={{ color: '#ff5555' }}>{t('وقف', 'Stop')}</span>
+              <span style={{ color: 'var(--red)' }}>{t('وقف', 'Stop')}</span>
               <span style={{ color: barColor, fontWeight: 700 }}>
                 {status === 'WIN' ? t('🎯 وصل الهدف', '🎯 Target hit')
                   : status === 'LOSS' ? t('⛔ وصل الوقف', '⛔ Stop hit')
                   : t(`${progress.toFixed(0)}% نحو الهدف`, `${progress.toFixed(0)}% to Target`)}
               </span>
-              <span style={{ color: '#00e664' }}>{t('هدف', 'Target')}</span>
+              <span style={{ color: 'var(--green)' }}>{t('هدف', 'Target')}</span>
             </div>
           </div>
         )}

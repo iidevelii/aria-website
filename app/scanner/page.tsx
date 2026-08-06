@@ -75,14 +75,14 @@ function Spark({ data, up }: { data: number[]; up: boolean }) {
   const pts = data.map((v,i) => `${(i/(data.length-1))*w},${h-((v-mn)/rng)*(h-2)+1}`).join(' ')
   return (
     <svg width={w} height={h} style={{ display:'block' }}>
-      <polyline points={pts} fill="none" stroke={up?'#00e664':'#ff4455'} strokeWidth="1.5" strokeLinejoin="round"/>
+      <polyline points={pts} fill="none" stroke={up?'var(--green)':'var(--red)'} strokeWidth="1.5" strokeLinejoin="round"/>
     </svg>
   )
 }
 
 // ── RSI Arc ───────────────────────────────────────────────
 function RsiArc({ v }: { v: number }) {
-  const color = v >= 70 ? '#ff4455' : v <= 30 ? '#00c4ef' : v >= 55 ? '#00e664' : '#f5c842'
+  const color = v >= 70 ? 'var(--red)' : v <= 30 ? '#00c4ef' : v >= 55 ? 'var(--green)' : '#f5c842'
   const pct = v / 100
   const r = 18, cx = 22, cy = 22, circ = 2 * Math.PI * r
   const dash = pct * circ * 0.75
@@ -104,7 +104,7 @@ function ScoreBadge({ v }: { v: number }) {
   const { t } = useLang()
   const abs = Math.abs(v)
   const label = abs >= 75 ? (v > 0 ? t('شراء قوي', 'Strong Buy') : t('بيع قوي', 'Strong Sell')) : abs >= 50 ? (v > 0 ? t('شراء', 'Buy') : t('بيع', 'Sell')) : abs >= 25 ? (v > 0 ? t('تصاعدي', 'Bullish') : t('تنازلي', 'Bearish')) : t('محايد', 'Neutral')
-  const color = v >= 50 ? '#00e664' : v <= -50 ? '#ff4455' : v > 0 ? '#00c4ef' : v < 0 ? '#f5c842' : '#606778'
+  const color = v >= 50 ? 'var(--green)' : v <= -50 ? 'var(--red)' : v > 0 ? '#00c4ef' : v < 0 ? '#f5c842' : '#606778'
   const bg = v >= 50 ? 'rgba(0,230,100,0.1)' : v <= -50 ? 'rgba(255,68,85,0.1)' : v > 0 ? 'rgba(0,196,239,0.1)' : v < 0 ? 'rgba(245,200,66,0.1)' : 'rgba(96,103,120,0.1)'
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'2px' }}>
@@ -144,7 +144,7 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
         </div>
         <div style={{ textAlign:'right' }}>
           <div style={{ fontWeight:800, fontSize:'14px', fontFamily:'var(--mono)' }}>${fmtPrice(d.price)}</div>
-          <div style={{ fontSize:'12px', fontWeight:700, color:isUp?'#00e664':'#ff4455', fontFamily:'var(--mono)' }}>{isUp?'▲':'▼'} {Math.abs(d.chg24h).toFixed(2)}%</div>
+          <div style={{ fontSize:'12px', fontWeight:700, color:isUp?'var(--green)':'var(--red)', fontFamily:'var(--mono)' }}>{isUp?'▲':'▼'} {Math.abs(d.chg24h).toFixed(2)}%</div>
         </div>
       </div>
 
@@ -155,11 +155,11 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
         <div style={{ display:'flex', flexDirection:'column', gap:'5px', alignItems:'flex-end' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
             <span style={{ fontSize:'10px', color:'var(--muted)', fontWeight:600 }}>MACD</span>
-            <span style={{ fontSize:'12px', fontWeight:800, color:d.macd.bullish?'#00e664':'#ff4455' }}>{d.macd.bullish?'▲':'▼'}</span>
+            <span style={{ fontSize:'12px', fontWeight:800, color:d.macd.bullish?'var(--green)':'var(--red)' }}>{d.macd.bullish?'▲':'▼'}</span>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
             <span style={{ fontSize:'10px', color:'var(--muted)', fontWeight:600 }}>ST</span>
-            <span style={{ fontSize:'12px', fontWeight:800, color:d.st==='up'?'#00e664':'#ff4455' }}>{d.st==='up'?'▲':'▼'}</span>
+            <span style={{ fontSize:'12px', fontWeight:800, color:d.st==='up'?'var(--green)':'var(--red)' }}>{d.st==='up'?'▲':'▼'}</span>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
             <span style={{ fontSize:'10px', color:'var(--muted)', fontWeight:600 }}>ADX</span>
@@ -171,7 +171,7 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
       {/* ADX bar */}
       <div style={{ padding:'0 16px 10px' }}>
         <div style={{ height:'3px', background:'var(--surface-2)', borderRadius:'2px', overflow:'hidden' }}>
-          <div style={{ width:`${Math.min(100,d.adx.adx)}%`, height:'100%', background:`linear-gradient(90deg,${d.adx.pdi>d.adx.mdi?'#00e664':'#ff4455'},${d.adx.pdi>d.adx.mdi?'rgba(0,230,100,0.3)':'rgba(255,68,85,0.3)'})`, borderRadius:'2px' }}/>
+          <div style={{ width:`${Math.min(100,d.adx.adx)}%`, height:'100%', background:`linear-gradient(90deg,${d.adx.pdi>d.adx.mdi?'var(--green)':'var(--red)'},${d.adx.pdi>d.adx.mdi?'rgba(0,230,100,0.3)':'rgba(255,68,85,0.3)'})`, borderRadius:'2px' }}/>
         </div>
       </div>
 
@@ -183,7 +183,7 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
           </span>
         )}
         {d.pd && (
-          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.pd==='pump'?'rgba(0,230,100,0.12)':'rgba(255,68,85,0.12)', color:d.pd==='pump'?'#00e664':'#ff4455', border:`1px solid ${d.pd==='pump'?'rgba(0,230,100,0.25)':'rgba(255,68,85,0.25)'}` }}>
+          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.pd==='pump'?'rgba(0,230,100,0.12)':'rgba(255,68,85,0.12)', color:d.pd==='pump'?'var(--green)':'var(--red)', border:`1px solid ${d.pd==='pump'?'rgba(0,230,100,0.25)':'rgba(255,68,85,0.25)'}` }}>
             {d.pd==='pump'?'🚀 Pump':'💥 Dump'}
           </span>
         )}
@@ -284,8 +284,8 @@ export default function ScannerPage() {
 
   const TABS: {id:Tab; label:string; count:number; color:string}[] = [
     { id:'all',      label:t('الكل','All'),           count:data.length, color:'var(--muted)' },
-    { id:'bull',     label:t('صعودي ▲','Bullish ▲'),  count:bull,        color:'#00e664' },
-    { id:'bear',     label:t('هبوطي ▼','Bearish ▼'),  count:bear,        color:'#ff4455' },
+    { id:'bull',     label:t('صعودي ▲','Bullish ▲'),  count:bull,        color:'var(--green)' },
+    { id:'bear',     label:t('هبوطي ▼','Bearish ▼'),  count:bear,        color:'var(--red)' },
     { id:'div',      label:t('تباعد','Divergence'),   count:divN,        color:'var(--cyan)' },
     { id:'pump',     label:'Pump/Dump',               count:pumpN,       color:'var(--yellow)' },
     { id:'patterns', label:t('نماذج','Patterns'),     count:patN,        color:'var(--purple)' },

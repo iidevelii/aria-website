@@ -29,7 +29,7 @@ export default function HowItWorks() {
     { icon: '🧹', color: '#22d06e', title: t('فلترة العملات', 'Coin filtering'), desc: t('استبعاد العملات ضعيفة السيولة أو غير المستقرة تلقائياً.', 'Automatically excluding low-liquidity or unstable coins.') },
     { icon: '📐', color: '#7c3aed', title: t('التحليل الفني وSMC', 'Technical & SMC analysis'), desc: t('فحص المؤشرات، الأنماط، وهيكل السوق (Smart Money Concepts).', 'Checking indicators, patterns, and market structure (Smart Money Concepts).') },
     { icon: '🎯', color: '#f59e0b', title: t('حساب Score', 'Scoring the opportunity'), desc: t('تقييم كل إشارة محتملة برقم واحد يلخّص قوتها.', 'Rating every candidate signal with one number summarizing its strength.') },
-    { icon: '📬', color: '#00e664', title: t('إرسال الإشارة والمتابعة', 'Signal delivery & tracking'), desc: t('وصول الإشارة فوراً على الموقع وتلقرام، مع متابعة النتيجة حتى الإغلاق.', 'The signal reaches you instantly on the site and Telegram, tracked through to close.') },
+    { icon: '📬', color: 'var(--green)', title: t('إرسال الإشارة والمتابعة', 'Signal delivery & tracking'), desc: t('وصول الإشارة فوراً على الموقع وتلقرام، مع متابعة النتيجة حتى الإغلاق.', 'The signal reaches you instantly on the site and Telegram, tracked through to close.') },
   ]
 
   return (
@@ -41,7 +41,7 @@ export default function HowItWorks() {
         </div>
 
         <div ref={ref} className="how-it-works-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px', position: 'relative' }}>
-          <div className="how-it-works-line" style={{ position: 'absolute', top: '27px', insetInlineStart: '10%', insetInlineEnd: '10%', height: '2px', background: 'linear-gradient(90deg, #00c4ef, #22d06e, #7c3aed, #f59e0b, #00e664)', opacity: revealed ? 0.35 : 0, transition: 'opacity 1s ease 0.3s' }} />
+          <div className="how-it-works-line" style={{ position: 'absolute', top: '27px', insetInlineStart: '10%', insetInlineEnd: '10%', height: '2px', background: 'linear-gradient(90deg, #00c4ef, #22d06e, #7c3aed, #f59e0b, var(--green))', opacity: revealed ? 0.35 : 0, transition: 'opacity 1s ease 0.3s' }} />
           {stages.map((s, i) => (
             <div key={i} style={{
               position: 'relative', textAlign: 'center', padding: '0 8px',
