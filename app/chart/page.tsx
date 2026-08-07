@@ -51,9 +51,12 @@ function ChartView() {
   useEffect(() => {
     if (!chartRef.current) return
     let chart: any, series: any
+    let resizeObs: ResizeObserver | null = null
+    let cancelled = false
 
     const init = async () => {
       const { createChart, CandlestickSeries, LineStyle, createSeriesMarkers } = await import('lightweight-charts')
+      if (cancelled || !chartRef.current) return
       chart = createChart(chartRef.current!, {
         width: chartRef.current!.clientWidth,
         height: 500,
@@ -63,6 +66,15 @@ function ChartView() {
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
         timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true, rightOffset: 6 },
       })
+
+      // نتابع عرض الحاوية فعلياً بدل الاعتماد على قراءة clientWidth مرة وحدة
+      // عند الإنشاء — نفس إصلاح TradeChart.tsx (كانت هذي الصفحة تلتقط 0 أحياناً
+      // قبل استقرار التخطيط/تحميل الخطوط، فيثبت الشارت على العرض الافتراضي 300px)
+      resizeObs = new ResizeObserver(entries => {
+        const w = entries[0]?.contentRect?.width
+        if (w && w > 0) chart.applyOptions({ width: Math.floor(w) })
+      })
+      resizeObs.observe(chartRef.current)
 
       series = chart.addSeries(CandlestickSeries, {
         upColor: 'var(--green)', downColor: 'var(--red)',
@@ -141,7 +153,7 @@ function ChartView() {
     }
 
     init()
-    return () => { if (chart) chart.remove() }
+    return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
   }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, side, market])
 
   // تحديث السعر الحالي لايف كل 8 ثواني — يحدّث رقم السعر بأعلى الصفحة بس
