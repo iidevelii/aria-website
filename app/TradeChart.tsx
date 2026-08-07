@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { fetchKlines } from './lib/klines'
 
 function useLazyMount<T extends HTMLElement>() {
   const ref = useRef<T>(null)
@@ -83,15 +84,8 @@ export default function TradeChart({
         },
       } as any)
       try {
-        // فيوتشر يجيب من /fapi — رموز كثيرة (زي RIVERUSDT) موجودة بالفيوتشر بس
-        // وما تشتغل عبر endpoint السبوت (يرجع "Invalid symbol")
-        const base = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
-        const res = await fetch(`${base}/klines?symbol=${symbol}&interval=15m&limit=150`)
-        const data = await res.json()
+        const candles = await fetchKlines(symbol, '15m', 150, market)
         if (cancelled) return
-        const candles = data.map((d: any) => ({
-          time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]),
-        }))
         series.setData(candles)
 
         // ثلاث خطوط: دخول أزرق، هدف أخضر، وقف أحمر

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useLang } from '../layout'
 import TradeChart from '../TradeChart'
+import { fetchKlines } from '../lib/klines'
 
 const API = 'https://web-production-97af6.up.railway.app'
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
@@ -70,12 +71,8 @@ function MarketChart({ symbol }: { symbol: string }) {
       })
 
       try {
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=${interval}&limit=200`)
-        const data = await res.json()
+        const candles = await fetchKlines(`${symbol}USDT`, interval, 200, 'SPOT')
         if (cancelled) return
-        const candles = data.map((d: any) => ({
-          time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]),
-        }))
         series.setData(candles)
         chart.timeScale().fitContent()
       } catch {}

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useLang } from '../layout'
+import { fetchKlines } from '../lib/klines'
 
 function parseTs(raw: string) {
   return new Date(raw.endsWith('Z') || raw.includes('+') ? raw : raw + 'Z').getTime()
@@ -96,17 +97,7 @@ function ChartView() {
         },
       } as any)
 
-      // جلب الكاندلز — فيوتشر من /fapi (رموز زي RIVERUSDT موجودة بالفيوتشر بس)
-      const klinesBase = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
-      const res = await fetch(`${klinesBase}/klines?symbol=${symbol}&interval=15m&limit=150`)
-      const data = await res.json()
-      const candles = data.map((d: any) => ({
-        time: d[0] / 1000,
-        open: parseFloat(d[1]),
-        high: parseFloat(d[2]),
-        low: parseFloat(d[3]),
-        close: parseFloat(d[4]),
-      }))
+      const candles = await fetchKlines(symbol, '15m', 150, market)
       series.setData(candles)
 
       // السعر الحالي (نقطة انطلاق قبل أول تحديث لايف) — للصفقات المغلقة نستخدم
