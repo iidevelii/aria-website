@@ -28,23 +28,75 @@ function fmtDate(raw: string | undefined) {
   return `${day} ${months[d.getMonth()]} · ${hr}:${mn}`
 }
 
-function TradingViewWidget({ symbol }: { symbol: string }) {
-  const container = useRef<HTMLDivElement>(null)
+const MARKET_INTERVALS = [
+  { key: '15m', label: '15m' }, { key: '1h', label: '1h' },
+  { key: '4h', label: '4h' }, { key: '1d', label: '1D' },
+]
+
+function MarketChart({ symbol }: { symbol: string }) {
+  const chartRef = useRef<HTMLDivElement>(null)
+  const [interval, setInterval_] = useState('1h')
+
   useEffect(() => {
-    if (!container.current) return
-    container.current.innerHTML = ''
-    const script = document.createElement('script')
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
-    script.async = true
-    script.innerHTML = JSON.stringify({
-      symbol: `BINANCE:${symbol}USDT`,
-      interval: '240', timezone: 'Asia/Riyadh',
-      theme: 'dark', style: '1', locale: 'ar',
-      height: 450, width: '100%',
-    })
-    container.current.appendChild(script)
-  }, [symbol])
-  return <div ref={container} style={{ height: 450 }} />
+    if (!chartRef.current) return
+    let chart: any
+    let resizeObs: ResizeObserver | null = null
+    let cancelled = false
+
+    const init = async () => {
+      const { createChart, CandlestickSeries } = await import('lightweight-charts')
+      if (cancelled || !chartRef.current) return
+      chartRef.current.innerHTML = ''
+      chart = createChart(chartRef.current, {
+        width: chartRef.current.clientWidth,
+        height: 450,
+        layout: { background: { color: 'transparent' }, textColor: 'var(--muted)' },
+        grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
+        crosshair: { mode: 1 },
+        rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
+        timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
+      })
+
+      resizeObs = new ResizeObserver(entries => {
+        const w = entries[0]?.contentRect?.width
+        if (w && w > 0) chart.applyOptions({ width: Math.floor(w) })
+      })
+      resizeObs.observe(chartRef.current)
+
+      const series = chart.addSeries(CandlestickSeries, {
+        upColor: 'var(--green)', downColor: 'var(--red)',
+        borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
+        wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
+      })
+
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=${interval}&limit=200`)
+        const data = await res.json()
+        if (cancelled) return
+        const candles = data.map((d: any) => ({
+          time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]),
+        }))
+        series.setData(candles)
+        chart.timeScale().fitContent()
+      } catch {}
+    }
+
+    init()
+    return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
+  }, [symbol, interval])
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '6px', padding: '10px 16px' }}>
+        {MARKET_INTERVALS.map(iv => (
+          <button key={iv.key} onClick={() => setInterval_(iv.key)} style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', border: 'none', fontFamily: 'inherit', background: interval === iv.key ? '#00c4ef' : 'rgba(255,255,255,0.05)', color: interval === iv.key ? 'black' : 'var(--muted)' }}>
+            {iv.label}
+          </button>
+        ))}
+      </div>
+      <div ref={chartRef} style={{ width: '100%', height: 450 }} />
+    </div>
+  )
 }
 
 function FearGreed() {
@@ -682,7 +734,7 @@ export default function Dashboard() {
                 </button>
               ))}
             </div>
-            <TradingViewWidget symbol={chartSymbol} />
+            <MarketChart symbol={chartSymbol} />
           </div>
         )}
 
