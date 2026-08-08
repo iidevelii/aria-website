@@ -5,6 +5,13 @@ import { Suspense } from 'react'
 import { useLang } from '../ClientShell'
 import { fetchKlines } from '../lib/klines'
 
+// lightweight-charts يرسم على <canvas> -- المتغيرات CSS (var(--x)) ما تنحل
+// جوا سياق الكانفاس، فالمكتبة تتجاهل القيمة بصمت وترجع للأسود الافتراضي.
+// نفس إصلاح TradeChart.tsx -- قيم hex حقيقية بس بإعدادات المكتبة.
+const CHART_GREEN = '#22d06e'
+const CHART_RED = '#f04060'
+const CHART_MUTED = '#5a6478'
+
 function parseTs(raw: string) {
   return new Date(raw.endsWith('Z') || raw.includes('+') ? raw : raw + 'Z').getTime()
 }
@@ -61,7 +68,7 @@ function ChartView() {
       chart = createChart(chartRef.current!, {
         width: chartRef.current!.clientWidth,
         height: 500,
-        layout: { background: { color: '#050508' }, textColor: 'var(--muted)' },
+        layout: { background: { color: '#050508' }, textColor: CHART_MUTED },
         grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
@@ -84,9 +91,9 @@ function ChartView() {
       const priceMinMove = 1 / Math.pow(10, pricePrecision)
 
       series = chart.addSeries(CandlestickSeries, {
-        upColor: 'var(--green)', downColor: 'var(--red)',
-        borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
-        wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
+        upColor: CHART_GREEN, downColor: CHART_RED,
+        borderUpColor: CHART_GREEN, borderDownColor: CHART_RED,
+        wickUpColor: CHART_GREEN, wickDownColor: CHART_RED,
         priceLineVisible: false, lastValueVisible: false,
         priceFormat: { type: 'price', precision: pricePrecision, minMove: priceMinMove },
       })
@@ -117,10 +124,10 @@ function ChartView() {
         series.createPriceLine({ price: entry, color: '#00d4ff', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('دخول', 'Entry') })
       }
       if (tp > 0) {
-        series.createPriceLine({ price: tp, color: 'var(--green)', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
+        series.createPriceLine({ price: tp, color: CHART_GREEN, lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('هدف', 'Target') })
       }
       if (sl > 0) {
-        series.createPriceLine({ price: sl, color: 'var(--red)', lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
+        series.createPriceLine({ price: sl, color: CHART_RED, lineWidth: 2, lineStyle: LineStyle.Dashed, title: t('وقف', 'Stop') })
       }
 
       // أقرب شمعة لوقت فتح الصفقة لوضع سهم الدخول عليها
@@ -141,7 +148,7 @@ function ChartView() {
       if (entryTime != null) {
         markers.push({
           time: entryTime, position: isLong ? 'belowBar' : 'aboveBar',
-          shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? 'var(--green)' : 'var(--red)',
+          shape: isLong ? 'arrowUp' : 'arrowDown', color: isLong ? CHART_GREEN : CHART_RED,
           text: t(isLong ? 'شراء' : 'بيع', isLong ? 'Buy' : 'Sell'),
         })
       }
