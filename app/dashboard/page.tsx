@@ -172,6 +172,13 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', gap: '8px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '-0.02em' }}>{s.pair}</span>
+          {s.confirmed && (
+            <span title={t(`إشارة مؤكدة — اتفق معها ${s.confirmed_by || ''}`, `Confirmed signal — agreed by ${s.confirmed_by || ''}`)} style={{
+              background: 'rgba(251,191,36,0.14)', color: 'var(--yellow)',
+              border: '1px solid rgba(251,191,36,0.4)',
+              borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
+            }}>{t('⭐ مؤكدة', '⭐ Confirmed')}</span>
+          )}
           <span style={{
             background: s.market === 'SPOT' ? 'rgba(251,191,36,0.12)' : 'rgba(0,196,239,0.12)',
             color: s.market === 'SPOT' ? 'var(--yellow)' : '#00c4ef',
