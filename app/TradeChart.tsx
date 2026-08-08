@@ -32,10 +32,10 @@ function useLazyMount<T extends HTMLElement>() {
  * ثلاث خطوط بس: دخول (أزرق)، هدف (أخضر)، وقف (أحمر) — بدون خط سعر حالي،
  * والدخول عليه كمان سهم شراء/بيع بالإضافة لخطه. */
 export default function TradeChart({
-  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, height = 200, market = 'FUTURES',
+  symbol, entry, tp, sl, side, status = 'OPEN', closePrice, createdAt, closedAt, height = 200, market = 'FUTURES',
 }: {
   symbol: string; entry: number; tp: number; sl: number; side: string
-  status?: string; closePrice?: number; createdAt?: string; height?: number; market?: string
+  status?: string; closePrice?: number; createdAt?: string; closedAt?: string; height?: number; market?: string
 }) {
   const { ref, visible } = useLazyMount<HTMLDivElement>()
   const chartRef = useRef<HTMLDivElement>(null)
@@ -101,7 +101,19 @@ export default function TradeChart({
         },
       } as any)
       try {
-        const candles = await fetchKlines(symbol, '15m', 150, market)
+        // نطاق زمني ثابت حول وقت الصفقة الفعلي -- بدل "آخر 150 شمعة من الآن"
+        // (نفس إصلاح chart/page.tsx: صفقة أقدم من 37.5 ساعة كانت تختفي كلياً
+        // من نطاق الشموع، فالخطوط والسهم يترسمون بمعزل عن أي شمعة حقيقية)
+        const INTERVAL_MS = 15 * 60 * 1000
+        let startMs: number | undefined, endMs: number | undefined
+        const createdMs = createdAt ? new Date(createdAt.endsWith('Z') || createdAt.includes('+') ? createdAt : createdAt + 'Z').getTime() : NaN
+        if (!isNaN(createdMs)) {
+          startMs = createdMs - 15 * INTERVAL_MS
+          const closedMs = closedAt ? new Date(closedAt.endsWith('Z') || closedAt.includes('+') ? closedAt : closedAt + 'Z').getTime() : NaN
+          const endBase = isClosed && !isNaN(closedMs) ? closedMs : Date.now()
+          endMs = Math.min(endBase + 10 * INTERVAL_MS, Date.now())
+        }
+        const candles = await fetchKlines(symbol, '15m', 500, market, startMs, endMs)
         if (cancelled) return
         series.setData(candles)
 
@@ -140,7 +152,7 @@ export default function TradeChart({
 
     init()
     return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
-  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, createdAt, isLong, height])
+  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, createdAt, closedAt, isLong, height])
 
   return (
     <div ref={ref} style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)', minHeight: visible ? height : 40 }}>

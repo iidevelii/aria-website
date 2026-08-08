@@ -10,9 +10,13 @@ const BINANCE_INTERVAL_TO_BYBIT: Record<string, string> = {
   '1h': '60', '4h': '240', '1d': 'D',
 }
 
-async function fetchBinance(symbol: string, interval: string, limit: number, market: string): Promise<Candle[]> {
+async function fetchBinance(symbol: string, interval: string, limit: number, market: string,
+                             startTime?: number, endTime?: number): Promise<Candle[]> {
   const base = market === 'FUTURES' ? 'https://fapi.binance.com/fapi/v1' : 'https://api.binance.com/api/v3'
-  const res = await fetch(`${base}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`)
+  let url = `${base}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
+  if (startTime != null) url += `&startTime=${startTime}`
+  if (endTime != null) url += `&endTime=${endTime}`
+  const res = await fetch(url)
   if (!res.ok) throw new Error(`binance ${res.status}`)
   const data = await res.json()
   if (!Array.isArray(data) || data.length === 0) throw new Error('binance empty')
@@ -21,10 +25,14 @@ async function fetchBinance(symbol: string, interval: string, limit: number, mar
   }))
 }
 
-async function fetchBybit(symbol: string, interval: string, limit: number, market: string): Promise<Candle[]> {
+async function fetchBybit(symbol: string, interval: string, limit: number, market: string,
+                           startTime?: number, endTime?: number): Promise<Candle[]> {
   const bybitInterval = BINANCE_INTERVAL_TO_BYBIT[interval] || '15'
   const category = market === 'FUTURES' ? 'linear' : 'spot'
-  const res = await fetch(`https://api.bybit.com/v5/market/kline?category=${category}&symbol=${symbol}&interval=${bybitInterval}&limit=${limit}`)
+  let url = `https://api.bybit.com/v5/market/kline?category=${category}&symbol=${symbol}&interval=${bybitInterval}&limit=${limit}`
+  if (startTime != null) url += `&start=${startTime}`
+  if (endTime != null) url += `&end=${endTime}`
+  const res = await fetch(url)
   if (!res.ok) throw new Error(`bybit ${res.status}`)
   const data = await res.json()
   const list = data?.result?.list
@@ -35,11 +43,18 @@ async function fetchBybit(symbol: string, interval: string, limit: number, marke
   }))
 }
 
-/** يجيب شموع لعملة معينة -- بايننس أولاً، Bybit تلقائياً لو فشل. */
-export async function fetchKlines(symbol: string, interval: string, limit: number, market: string): Promise<Candle[]> {
+/** يجيب شموع لعملة معينة -- بايننس أولاً، Bybit تلقائياً لو فشل.
+ * startTime/endTime (اختياريان، ميلي-ثانية) يحصرون النطاق الزمني -- بدونهم
+ * يرجع آخر `limit` شمعة لحظة الاستدعاء (سلوك قديم لأي مستدعي ما يحتاج نطاق
+ * زمني ثابت، زي شارت السوق العام بالداشبورد). أي شارت صفقة فعلية *لازم*
+ * يمرر النطاق، وإلا الشموع المجلوبة تكون "آخر N شمعة من الآن" اللي ممكن ما
+ * تتقاطع إطلاقاً مع وقت الصفقة الفعلي لو كانت أقدم من N×الفريم (خطأ حقيقي
+ * وقع فعلياً: صفقة MUBARAK عمرها يومين مع limit=150×15m=37.5 ساعة بس). */
+export async function fetchKlines(symbol: string, interval: string, limit: number, market: string,
+                                   startTime?: number, endTime?: number): Promise<Candle[]> {
   try {
-    return await fetchBinance(symbol, interval, limit, market)
+    return await fetchBinance(symbol, interval, limit, market, startTime, endTime)
   } catch {
-    return await fetchBybit(symbol, interval, limit, market)
+    return await fetchBybit(symbol, interval, limit, market, startTime, endTime)
   }
 }

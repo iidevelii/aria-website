@@ -111,7 +111,18 @@ function ChartView() {
         },
       } as any)
 
-      const candles = await fetchKlines(symbol, '15m', 150, market)
+      // نطاق زمني ثابت حول وقت الصفقة الفعلي -- بدل "آخر 150 شمعة من الآن"
+      // (خطأ حقيقي: أي صفقة أقدم من 150×15m=37.5 ساعة كانت تختفي كلياً من
+      // نطاق الشموع المجلوبة، فالخطوط/السهم يترسمون بمعزل عن أي شمعة حقيقية)
+      const INTERVAL_MS = 15 * 60 * 1000
+      let startMs: number | undefined, endMs: number | undefined
+      const createdMs = createdAt ? parseTs(createdAt) : NaN
+      if (!isNaN(createdMs)) {
+        startMs = createdMs - 15 * INTERVAL_MS
+        const endBase = isClosed && closedAt && !isNaN(parseTs(closedAt)) ? parseTs(closedAt) : Date.now()
+        endMs = Math.min(endBase + 10 * INTERVAL_MS, Date.now())
+      }
+      const candles = await fetchKlines(symbol, '15m', 500, market, startMs, endMs)
       series.setData(candles)
 
       // السعر الحالي (نقطة انطلاق قبل أول تحديث لايف) — للصفقات المغلقة نستخدم
