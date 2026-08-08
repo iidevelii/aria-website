@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 type QA = { q: [string, string]; a: [string, string] }
 type Cat = { title: [string, string]; emoji: string; items: QA[] }

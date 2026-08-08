@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
 
-const API = 'https://web-production-97af6.up.railway.app'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 function fmt(p: number | string) {
@@ -353,7 +353,7 @@ export default function Dashboard() {
           if (r.ok) setUser(await r.json())
         }
         const [sr, tr, cr, nr] = await Promise.all([
-          fetch(`${API}/signals`),
+          fetch(`${API}/signals`, { headers: authHeaders() }),
           fetch('https://api.binance.com/api/v3/ticker/24hr'),
           fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1'),
           fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss'),

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useLang, useAuth } from '../layout'
+import { useLang, useAuth } from '../ClientShell'
 
 export default function Login() {
   const router = useRouter()
@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('https://web-production-97af6.up.railway.app/login', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)

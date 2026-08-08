@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useLang } from './layout'
+import { useLang } from './ClientShell'
 
 /* قسم كامل مستقل لكل أداة من أدوات البوت — خلفية ملوّنة خفيفة مختلفة لكل
  * قسم، ومعاينة (mockup) حقيقية لواجهة الأداة نفسها بدل أيقونة عامة، عشان

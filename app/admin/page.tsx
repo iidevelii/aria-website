@@ -1,9 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
-const API = 'https://web-production-97af6.up.railway.app'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 type UserData = { id: number; email: string; username: string; is_admin: boolean }

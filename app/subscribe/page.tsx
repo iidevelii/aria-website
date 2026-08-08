@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 export default function Subscribe() {
   const { t } = useLang()

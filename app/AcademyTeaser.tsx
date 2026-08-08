@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useLang } from './layout'
+import { useLang } from './ClientShell'
 
 /** بادج/بانر ترويجي لأكاديمية DevelBot — رسمة SVG بأسلوب "فلات إلستريشن"
  * (شخصيات مسطّحة + ألوان جريئة + أشكال هندسية بالخلفية) بنفس هوية مرجع

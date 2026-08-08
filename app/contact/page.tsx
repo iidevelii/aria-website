@@ -1,5 +1,5 @@
 'use client'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 export default function ContactPage() {
   const { t } = useLang()

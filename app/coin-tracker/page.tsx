@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 type AlertType = 'price_above' | 'price_below' | 'change_above' | 'change_below'
 type WatchItem = {

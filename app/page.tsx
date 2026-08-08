@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useLang, useAuth } from './layout'
+import { useLang, useAuth } from './ClientShell'
 import LiveChartDemo from './LiveChartDemo'
 import SleepingWalletArt from './SleepingWalletArt'
 import AcademyTeaser from './AcademyTeaser'

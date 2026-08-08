@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 type Endpoint = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -16,7 +16,7 @@ type Endpoint = {
   example?: string
 }
 
-const BASE = 'https://web-production-97af6.up.railway.app'
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 const MC = {
   string: '#f5c842',
@@ -67,8 +67,8 @@ const ENDPOINTS: { section: string; emoji: string; items: Endpoint[] }[] = [
     items: [
       {
         method: 'GET', path: '/signals', title: 'جميع الإشارات', titleEn: 'All signals', auth: false,
-        desc: 'استرجاع آخر الإشارات المُولَّدة (Spot + Futures).',
-        descEn: 'Retrieve the latest generated signals (Spot + Futures).',
+        desc: 'بدون تسجيل دخول: الصفقات المغلقة الأقدم من 24 ساعة فقط (سجل نتائج شفاف). بتسجيل دخول واشتراك فعّال: كل الإشارات بما فيها المفتوحة حديثاً.',
+        descEn: 'Without login: only closed trades older than 24 hours (transparent track record). With login and an active subscription: all signals including recently opened ones.',
         params: [
           { name: 'limit',  type: 'number',  required: false, desc: 'عدد الإشارات (افتراضي: 20)', descEn: 'Number of signals (default: 20)' },
           { name: 'type',   type: 'string',  required: false, desc: '"spot" أو "futures"', descEn: '"spot" or "futures"' },
@@ -110,9 +110,9 @@ const ENDPOINTS: { section: string; emoji: string; items: Endpoint[] }[] = [
     section: 'AI Assistant', emoji: '🤖',
     items: [
       {
-        method: 'POST', path: '/ai-chat', title: 'محادثة Devel', titleEn: 'Chat with Devel', auth: false,
-        desc: 'إرسال رسالة لمساعد Devel الذكي والحصول على رد فوري.',
-        descEn: 'Send a message to the Devel AI assistant and get an instant reply.',
+        method: 'POST', path: '/ai-chat', title: 'محادثة Devel', titleEn: 'Chat with Devel', auth: true,
+        desc: 'إرسال رسالة لمساعد Devel الذكي والحصول على رد فوري. يتطلب اشتراك فعّال.',
+        descEn: 'Send a message to the Devel AI assistant and get an instant reply. Requires an active subscription.',
         body: [
           { name: 'message', type: 'string', required: true,  desc: 'رسالة المستخدم', descEn: 'The user\'s message' },
           { name: 'history', type: 'array',  required: false, desc: 'آخر 6 رسائل للسياق [{role,content}]', descEn: 'Last 6 messages for context [{role,content}]' },
@@ -120,6 +120,7 @@ const ENDPOINTS: { section: string; emoji: string; items: Endpoint[] }[] = [
         response: `{\n  "response": "RSI أو Relative Strength Index هو مؤشر يقيس...",\n}`,
         example: `curl -X POST ${BASE}/ai-chat \\
   -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
   -d '{"message": "ما هو RSI؟"}'`,
       },
     ]

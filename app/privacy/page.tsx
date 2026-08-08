@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

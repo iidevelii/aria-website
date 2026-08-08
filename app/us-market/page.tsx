@@ -1,5 +1,5 @@
 'use client'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 import ComingSoonUSMarket from '../ComingSoonUSMarket'
 
 export default function USMarketPage() {

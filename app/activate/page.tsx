@@ -1,9 +1,9 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
-const API = 'https://web-production-97af6.up.railway.app'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 export default function ActivatePage() {
   const { t } = useLang()

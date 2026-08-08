@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 export default function Stats() {
   const { t, lang } = useLang()
@@ -11,7 +11,7 @@ export default function Stats() {
   const [activeMonth, setActiveMonth] = useState('')
 
   useEffect(() => {
-    fetch('https://web-production-97af6.up.railway.app/signals')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/signals`)
       .then(r => r.json())
       .then(d => {
         setSignals(Array.isArray(d) ? d : [])

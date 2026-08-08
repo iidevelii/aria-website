@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 import { CHAPTERS, GLOSSARY, Concept } from './content'
 import Diagram from './Diagrams'
 

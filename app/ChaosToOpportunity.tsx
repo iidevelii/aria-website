@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { useLang } from './layout'
+import { useLang } from './ClientShell'
 
 function useScrollReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null)

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useLang } from './layout'
+import { useLang } from './ClientShell'
 import EquityCurve from './backtest-results/EquityCurve'
 
 type EquityCurveData = { engine: string; universe: number; totalTrades: number; netPct: number; points: { t: string; cum: number }[] }

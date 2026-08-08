@@ -1,10 +1,10 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 type Message = { role: 'user' | 'assistant'; content: string; ts: Date }
 
-const API = 'https://web-production-97af6.up.railway.app'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 const QUICK: [string, string][] = [
   ['كيف أقرأ إشارة LONG بشكل صحيح؟', 'How do I read a LONG signal correctly?'],
@@ -121,9 +121,17 @@ export default function AIAssistantPage() {
       const history = messages.slice(1).map(m => ({ role: m.role, content: m.content }))
       const res = await fetch(`${API}/ai-chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
         body: JSON.stringify({ message: msg, history }),
       })
+      if (res.status === 401 || res.status === 403) {
+        setError(t('سجّل دخولك للمتابعة مع المساعد الذكي', 'Please log in to continue with the AI assistant'))
+        setLoading(false)
+        return
+      }
       const data = await res.json()
       if (data.error && !data.response) throw new Error(data.error)
       const aiMsg: Message = { role: 'assistant', content: data.response || data.error, ts: new Date() }

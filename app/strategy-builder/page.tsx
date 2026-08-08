@@ -1,8 +1,8 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
-const API = 'https://web-production-97af6.up.railway.app'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }

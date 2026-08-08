@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 
 type Position = {
   id: string

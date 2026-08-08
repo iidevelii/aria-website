@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-import { useLang } from '../layout'
+import { useLang } from '../ClientShell'
 import { fetchKlines } from '../lib/klines'
 
 function parseTs(raw: string) {
