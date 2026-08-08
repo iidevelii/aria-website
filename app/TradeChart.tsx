@@ -64,11 +64,21 @@ export default function TradeChart({
       })
       resizeObs.observe(chartRef.current)
 
+      // الدقة الافتراضية للمكتبة ثابتة عند خانتين عشريتين -- تكفي لعملات زي
+      // BTC/ETH بس تسوّي SL/Entry/TP يبانوا نفس الرقم بالضبط ("0.01") لأي
+      // عملة سعرها تحت $1 (أغلب إشارات المشروع: MUBARAK, PENDLE, 1000SATS,
+      // NEIRO...) -- الشارت يترسم بس يطلع فارغ الفائدة بصرياً. نحسب الدقة
+      // ديناميكياً حسب حجم السعر الفعلي بدل الاعتماد على الافتراضي.
+      const refPrice = Math.max(entry, tp, sl, 0.00000001)
+      const pricePrecision = refPrice >= 100 ? 2 : refPrice >= 1 ? 4 : refPrice >= 0.01 ? 6 : 8
+      const priceMinMove = 1 / Math.pow(10, pricePrecision)
+
       const series = chart.addSeries(CandlestickSeries, {
         upColor: 'var(--green)', downColor: 'var(--red)',
         borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
         wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
         priceLineVisible: false, lastValueVisible: false,
+        priceFormat: { type: 'price', precision: pricePrecision, minMove: priceMinMove },
       })
       // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
       // الشموع الحالي (خط/marker وحدهم ما يوسّعون النطاق بشكل موثوق دايماً)

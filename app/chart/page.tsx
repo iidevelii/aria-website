@@ -77,11 +77,18 @@ function ChartView() {
       })
       resizeObs.observe(chartRef.current)
 
+      // نفس إصلاح TradeChart.tsx: دقة السعر الافتراضية بالمكتبة (خانتين
+      // عشريتين) تخلي SL/Entry/TP يبانوا نفس الرقم لأي عملة سعرها تحت $1
+      const refPrice = Math.max(entry, tp, sl, 0.00000001)
+      const pricePrecision = refPrice >= 100 ? 2 : refPrice >= 1 ? 4 : refPrice >= 0.01 ? 6 : 8
+      const priceMinMove = 1 / Math.pow(10, pricePrecision)
+
       series = chart.addSeries(CandlestickSeries, {
         upColor: 'var(--green)', downColor: 'var(--red)',
         borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
         wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
         priceLineVisible: false, lastValueVisible: false,
+        priceFormat: { type: 'price', precision: pricePrecision, minMove: priceMinMove },
       })
       // نوسّع نطاق المقياس يدوياً عشان الهدف يبقى ظاهر حتى لو بعيد عن مدى
       // الشموع الحالي (خط/marker وحدهم ما يوسّعون النطاق بشكل موثوق دايماً)
