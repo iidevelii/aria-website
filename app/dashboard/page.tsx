@@ -391,7 +391,15 @@ export default function Dashboard() {
   // يشمل فترة قبل الإصلاح.
   const STRATEGY_UPDATE_CUTOFF = new Date('2026-08-06T17:09:00Z').getTime()
   const isUpdatedEra = (s: any) => new Date(s.created_at).getTime() >= STRATEGY_UPDATE_CUTOFF
-  const updatedSignals = signals.filter(isUpdatedEra)
+
+  // دفعة تحسينات 2026-08-10 (MIN_SCORE=90+بولنجر+بوابة جسم الشمعة لـRETEST_MTF،
+  // تقسيم Breakout/Sweep + تحسين سعر دخول m1 لـSMC_MTF) -- قائمة إحصائيات
+  // ثالثة جديدة، منفصلة عن دفعة 8/6 القديمة، عشان الأداء الأحدث يبان لحاله
+  // بدل ما يتخفّى بمتوسط يشمل فترة قبل هالتحسينات.
+  const LATEST_UPDATE_CUTOFF = new Date('2026-08-10T10:55:00Z').getTime()
+  const isLatestEra = (s: any) => new Date(s.created_at).getTime() >= LATEST_UPDATE_CUTOFF
+  const latestSignals = signals.filter(isLatestEra)
+  const updatedSignals = signals.filter(s => isUpdatedEra(s) && !isLatestEra(s))
   const oldSignals = signals.filter(s => !isUpdatedEra(s))
 
   function computeEraStats(list: any[]) {
@@ -404,6 +412,7 @@ export default function Dashboard() {
     const pnlL = list.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
     return { total: t, open: o, wins: w, losses: l, winRate: wr, netPnl: pnlW + pnlL }
   }
+  const latestStats = computeEraStats(latestSignals)
   const updatedStats = computeEraStats(updatedSignals)
   const oldStats = computeEraStats(oldSignals)
   const mins = Math.floor(nextScan / 60)
@@ -468,9 +477,33 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
-        {/* Stats row -- استراتيجية محدثة (فوق) */}
+        {/* Stats row -- آخر تحسينات الاستراتيجيات (الأحدث، فوق الكل) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--cyan)' }}>🆕 {t('استراتيجية محدثة', 'Updated Strategy')}</span>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--green)' }}>✨ {t('آخر التحسينات', 'Latest Improvements')}</span>
+          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+            {t('الأداء منذ آخر دفعة تحسينات (بولنجر + بوابة جودة الدخول لـRETEST_MTF، تقسيم وتحسين سعر الدخول لـSMC_MTF) -- قيد المعايرة، الأرقام تبني تدريجياً',
+               'Performance since the latest improvement batch (Bollinger + entry-quality gate for RETEST_MTF, split + entry-price refinement for SMC_MTF) -- still calibrating, numbers build up gradually')}
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+          {[
+            { label: t('الكل', 'All'), value: latestStats.total, color: 'var(--text)' },
+            { label: t('مفتوحة', 'Open'), value: latestStats.open, color: 'var(--yellow)' },
+            { label: t('الرابحة', 'Wins'), value: latestStats.wins, color: 'var(--green)' },
+            { label: t('الخاسرة', 'Losses'), value: latestStats.losses, color: 'var(--red)' },
+            { label: t('نسبة الفوز', 'Win Rate'), value: `${latestStats.winRate}%`, color: latestStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+            { label: t('صافي الربح', 'Net Profit'), value: `${latestStats.netPnl >= 0 ? '+' : ''}${latestStats.netPnl.toFixed(1)}%`, color: latestStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+          ].map((s, i) => (
+            <div key={i} className="stat-card" style={{ border: '1px solid rgba(34,208,110,0.3)' }}>
+              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats row -- استراتيجية محدثة (وسط) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--cyan)' }}>🔄 {t('استراتيجية محدثة', 'Updated Strategy')}</span>
           <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأداء بعد آخر تحسين على إدارة الوقف', 'Performance since the latest stop-management improvement')}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
