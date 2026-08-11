@@ -64,7 +64,7 @@ function TypingDot() {
   )
 }
 
-function Bubble({ msg, last }: { msg: Message; last: boolean }) {
+function Bubble({ msg }: { msg: Message }) {
   const { lang } = useLang()
   const isAI = msg.role === 'assistant'
   const parts = msg.content.split(/(\*\*[^*]+\*\*)/g)
@@ -136,7 +136,7 @@ export default function AIAssistantPage() {
       if (data.error && !data.response) throw new Error(data.error)
       const aiMsg: Message = { role: 'assistant', content: data.response || data.error, ts: new Date() }
       setMessages(prev => [...prev, aiMsg])
-    } catch (e: any) {
+    } catch {
       setError(t('حدث خطأ في الاتصال، تحقق من الاتصال بالإنترنت', 'A connection error occurred, check your internet connection'))
     } finally {
       setLoading(false)
@@ -185,7 +185,7 @@ export default function AIAssistantPage() {
         {/* Chat window */}
         <div style={{ flex: 1, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: '420px' }}>
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-            {messages.map((m, i) => <Bubble key={i} msg={m} last={i === messages.length - 1} />)}
+            {messages.map((m, i) => <Bubble key={i} msg={m} />)}
             {loading && (
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <Avatar role="assistant" />

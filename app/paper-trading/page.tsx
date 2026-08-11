@@ -177,6 +177,7 @@ export default function PaperTradingPage() {
             </p>
           </div>
           <div style={{display:'flex',gap:'8px'}}>
+            <button onClick={resetPortfolio} style={{background:'transparent',color:'var(--muted)',border:'1px solid var(--border)',padding:'9px 16px',borderRadius:'8px',fontWeight:700,fontSize:'13px',cursor:'pointer',fontFamily:'inherit'}}>{t('إعادة تعيين', 'Reset')}</button>
             <button onClick={()=>setShowForm(true)} style={{background:'var(--cyan)',color:'#000',border:'none',padding:'9px 20px',borderRadius:'8px',fontWeight:700,fontSize:'13px',cursor:'pointer',fontFamily:'inherit'}}>{t('+ فتح صفقة', '+ Open trade')}</button>
           </div>
         </div>

@@ -117,27 +117,11 @@ export default function CoinTrackerPage() {
   const active = items.filter(i=>!i.triggered)
   const triggered = items.filter(i=>i.triggered)
 
-  const isTriggeredAlert = (item: WatchItem) => {
-    const p = item.currentPrice, c = item.change24h
-    if (p===undefined) return false
-    if (item.alertType==='price_above') return p>=item.alertValue
-    if (item.alertType==='price_below') return p<=item.alertValue
-    if (c===undefined) return false
-    if (item.alertType==='change_above') return c>=item.alertValue
-    if (item.alertType==='change_below') return c<=item.alertValue
-    return false
-  }
-
   const AlertCard = ({ item }: { item: WatchItem }) => {
     const p = item.currentPrice
     const c = item.change24h
     const trg = item.triggered
     const isPct = item.alertType.includes('change')
-    const diffMsg = p !== undefined
-      ? isPct
-        ? `${t('الحالي', 'Current')}: ${c!==undefined?(c>=0?'+':'')+c.toFixed(2)+'%':'...'}`
-        : `${t('الحالي', 'Current')}: $${fmt(p)}`
-      : t('جاري التحقق...', 'Checking...')
 
     return (
       <div style={{background:'var(--surface)',border:`1px solid ${trg?'rgba(245,200,66,0.4)':'var(--border)'}`,borderRadius:'12px',padding:'16px',transition:'border-color 0.2s'}}>

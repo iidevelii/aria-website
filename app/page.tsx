@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useLang, useAuth } from './ClientShell'
 import LiveChartDemo from './LiveChartDemo'
@@ -40,16 +40,7 @@ function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
 export default function Home() {
   const { t, lang, setLang } = useLang()
   const { user } = useAuth()
-  const [btcPrice, setBtcPrice] = useState<string|null>(null)
-  const [btcChg, setBtcChg] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  useEffect(() => {
-    fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT')
-      .then(r => r.json())
-      .then(d => { setBtcPrice(parseFloat(d.lastPrice).toLocaleString()); setBtcChg(parseFloat(d.priceChangePercent)) })
-      .catch(() => {})
-  }, [])
 
   const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('كل المميزات','All Features'),'/features'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
 

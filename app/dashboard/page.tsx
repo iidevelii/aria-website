@@ -381,10 +381,6 @@ export default function Dashboard() {
   const losses = signals.filter(s => s.status === 'LOSS').length
   const open = signals.filter(s => s.status === 'OPEN').length
   const total = signals.length
-  const winRate = (wins + losses) > 0 ? Math.round((wins / (wins + losses)) * 100) : 0
-  const totalPnlWin = signals.filter(s => s.status === 'WIN').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
-  const totalPnlLoss = signals.filter(s => s.status === 'LOSS').reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
-  const netPnl = totalPnlWin + totalPnlLoss
 
   // E1 (تأكيد الوقف بإغلاق شمعة) دخل الإنتاج بهالتوقيت -- نقسم الإحصائيات
   // قبله/بعده عشان الأداء المحدّث يبان لحاله، بدون ما يتخفّى بمتوسط تاريخي

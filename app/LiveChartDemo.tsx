@@ -54,7 +54,7 @@ const TP_IDX = CANDLES.findIndex(k => k.c >= TP)
  * بحركة scroll-reveal، ونقطة السعر الحالي تنبض باستمرار (نفس نمط live-dot
  * بالموقع). بيانات توضيحية ثابتة (deterministic) مو Live فعلي — موضّح بالتسمية. */
 export default function LiveChartDemo() {
-  const { t, lang } = useLang()
+  const { t } = useLang()
   const { ref, revealed } = useScrollReveal<HTMLDivElement>()
 
   const W = 1000, H = 440, PAD_X = 16, PAD_Y = 28
