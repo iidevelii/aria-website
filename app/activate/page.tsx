@@ -8,8 +8,11 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.
 export default function ActivatePage() {
   const { t } = useLang()
   const [txid, setTxid]     = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error' | 'needs_password'>('idle')
   const [msg, setMsg]       = useState('')
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [pwStatus, setPwStatus] = useState<'idle' | 'loading' | 'error'>('idle')
 
   const handleActivate = async () => {
     const txidValue = txid.trim()
@@ -34,12 +37,49 @@ export default function ActivatePage() {
 
       localStorage.setItem('token',   data.token)
       localStorage.setItem('user_id', String(data.user_id))
+
+      if (data.needs_password) {
+        setStatus('needs_password')
+        return
+      }
       setStatus('ok')
       setMsg(t(`مرحباً ${data.username || ''}! جاري التوجيه...`, `Welcome ${data.username || ''}! Redirecting...`))
       setTimeout(() => { window.location.href = '/dashboard' }, 1500)
     } catch {
       setMsg(t('حدث خطأ في الاتصال', 'A connection error occurred'))
       setStatus('error')
+    }
+  }
+
+  const handleSetPassword = async () => {
+    if (password.length < 8) {
+      setMsg(t('كلمة السر لازم تكون 8 أحرف على الأقل', 'Password must be at least 8 characters'))
+      setPwStatus('error')
+      return
+    }
+    setPwStatus('loading')
+    setMsg('')
+    try {
+      const r = await fetch(`${API}/auth/set-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+        body: JSON.stringify({ password, email: email.trim() }),
+      })
+      const data = await r.json()
+      if (!r.ok) {
+        setMsg(data.detail || t('فشل ضبط كلمة السر', 'Failed to set password'))
+        setPwStatus('error')
+        return
+      }
+      setStatus('ok')
+      setMsg(t('تم! جاري التوجيه...', 'Done! Redirecting...'))
+      setTimeout(() => { window.location.href = '/dashboard' }, 1200)
+    } catch {
+      setMsg(t('حدث خطأ في الاتصال', 'A connection error occurred'))
+      setPwStatus('error')
     }
   }
 
@@ -75,77 +115,146 @@ export default function ActivatePage() {
         {/* Card */}
         <div className="glass-card">
 
-          {/* Steps */}
-          <div style={{ marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {([
-              ['1', 'افتح @Develpay_bot في تلقرام', 'Open @Develpay_bot on Telegram'],
-              ['2', 'ادفع واحصل على TXID', 'Pay and get your TXID'],
-              ['3', 'الصق TXID هنا لتفعيل حسابك', 'Paste the TXID here to activate your account'],
-            ] as [string, string, string][]).map(([n, ar, en]) => (
-              <div key={n} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '26px', height: '26px', borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#00c4ef,var(--purple))',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '12px', fontWeight: 700, color: 'white', flexShrink: 0,
-                }}>{n}</div>
-                <span style={{ color: 'var(--muted)', fontSize: '14px' }}>{t(ar, en)}</span>
+          {status !== 'needs_password' ? (
+            <>
+              {/* Steps */}
+              <div style={{ marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {([
+                  ['1', 'افتح @Develpay_bot في تلقرام', 'Open @Develpay_bot on Telegram'],
+                  ['2', 'ادفع واحصل على TXID', 'Pay and get your TXID'],
+                  ['3', 'الصق TXID هنا لتفعيل حسابك', 'Paste the TXID here to activate your account'],
+                ] as [string, string, string][]).map(([n, ar, en]) => (
+                  <div key={n} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '26px', height: '26px', borderRadius: '50%',
+                      background: 'linear-gradient(135deg,#00c4ef,var(--purple))',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '12px', fontWeight: 700, color: 'white', flexShrink: 0,
+                    }}>{n}</div>
+                    <span style={{ color: 'var(--muted)', fontSize: '14px' }}>{t(ar, en)}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Input */}
-          <div style={{ marginBottom: '16px' }}>
-            <label className="label">{t('رقم التحويل (TXID)', 'Transfer Number (TXID)')}</label>
-            <input
-              value={txid}
-              onChange={e => setTxid(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleActivate()}
-              placeholder="abc123def456..."
-              className="input"
-              style={{
-                fontFamily: 'monospace',
-                direction: 'ltr',
-                borderColor: status === 'error' ? 'rgba(239,68,68,0.5)' : undefined,
-              }}
-            />
-          </div>
+              {/* Input */}
+              <div style={{ marginBottom: '16px' }}>
+                <label className="label">{t('رقم التحويل (TXID)', 'Transfer Number (TXID)')}</label>
+                <input
+                  value={txid}
+                  onChange={e => setTxid(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleActivate()}
+                  placeholder="abc123def456..."
+                  className="input"
+                  style={{
+                    fontFamily: 'monospace',
+                    direction: 'ltr',
+                    borderColor: status === 'error' ? 'rgba(239,68,68,0.5)' : undefined,
+                  }}
+                />
+              </div>
 
-          {/* Message */}
-          {msg && (
-            <div style={{
-              marginBottom: '16px',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              background: status === 'ok'
-                ? 'rgba(16,185,129,0.1)'
-                : 'rgba(239,68,68,0.1)',
-              border: `1px solid ${status === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
-              color: status === 'ok' ? 'var(--green)' : 'var(--red)',
-            }}>
-              {msg}
-            </div>
+              {/* Message */}
+              {msg && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  background: status === 'ok' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                  border: `1px solid ${status === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                  color: status === 'ok' ? 'var(--green)' : 'var(--red)',
+                }}>
+                  {msg}
+                </div>
+              )}
+
+              {/* Button */}
+              <button
+                onClick={handleActivate}
+                disabled={status === 'loading'}
+                className="btn-primary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  opacity: status === 'loading' ? 0.6 : 1,
+                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {status === 'loading' ? t('⏳ جاري التحقق...', '⏳ Verifying...') : t('✅ تفعيل الحساب', '✅ Activate Account')}
+              </button>
+
+              <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '12px', marginTop: '16px' }}>
+                {t('كل رقم تحويل يفعّل حساباً واحداً فقط، لا مشاركة', 'Each transfer number activates only one account, no sharing')}
+              </p>
+            </>
+          ) : (
+            <>
+              {/* خطوة ضبط كلمة السر -- تظهر مرة وحدة بعد أول تفعيل ناجح، عشان
+                  رقم التحويل ما يبقى وسيلة الدخول الوحيدة (رقم عام على البلوكشين) */}
+              <div style={{ marginBottom: '20px' }}>
+                <p style={{ color: 'var(--text)', fontSize: '14px', fontWeight: 700, marginBottom: '6px' }}>
+                  {t('✅ تفعّل حسابك — خطوة أخيرة', '✅ Account activated — one last step')}
+                </p>
+                <p style={{ color: 'var(--muted)', fontSize: '13px' }}>
+                  {t('اضبط إيميل وكلمة سر عشان تدخل بهم بعد كذا، بدل رقم التحويل (ما ينفع يُستخدم مرة ثانية).',
+                     'Set an email and password to log in with next time, instead of the transfer number (it can\'t be reused).')}
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label className="label">{t('الإيميل (اختياري)', 'Email (optional)')}</label>
+                <input
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  type="email"
+                  className="input"
+                  style={{ direction: 'ltr' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="label">{t('كلمة السر', 'Password')}</label>
+                <input
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSetPassword()}
+                  placeholder={t('8 أحرف على الأقل', 'At least 8 characters')}
+                  type="password"
+                  className="input"
+                  style={{ direction: 'ltr' }}
+                />
+              </div>
+
+              {msg && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  background: pwStatus === 'error' ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                  border: `1px solid ${pwStatus === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
+                  color: pwStatus === 'error' ? 'var(--red)' : 'var(--green)',
+                }}>
+                  {msg}
+                </div>
+              )}
+
+              <button
+                onClick={handleSetPassword}
+                disabled={pwStatus === 'loading'}
+                className="btn-primary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  opacity: pwStatus === 'loading' ? 0.6 : 1,
+                  cursor: pwStatus === 'loading' ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {pwStatus === 'loading' ? t('⏳ جاري الحفظ...', '⏳ Saving...') : t('حفظ ومتابعة', 'Save and continue')}
+              </button>
+            </>
           )}
-
-          {/* Button */}
-          <button
-            onClick={handleActivate}
-            disabled={status === 'loading'}
-            className="btn-primary"
-            style={{
-              width: '100%',
-              justifyContent: 'center',
-              opacity: status === 'loading' ? 0.6 : 1,
-              cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {status === 'loading' ? t('⏳ جاري التحقق...', '⏳ Verifying...') : t('✅ تفعيل الحساب', '✅ Activate Account')}
-          </button>
-
-          <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '12px', marginTop: '16px' }}>
-            {t('كل رقم تحويل يفعّل حساباً واحداً فقط، لا مشاركة', 'Each transfer number activates only one account, no sharing')}
-          </p>
         </div>
 
         {/* Footer links */}
