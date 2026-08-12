@@ -185,6 +185,12 @@ export default function Home() {
 
       <HowItWorks />
 
+      {/* نتائج موثقة أول شي بعد "كيف يعمل" -- بالترتيب مباشرة، مو مدفونة
+          بعد جولة مميزات طويلة (مراجعة تحسينات.md: "نتيجة حقيقية موثقة"
+          هي السؤال الثالث اللي لازم الصفحة تجاوب عليه بسرعة). */}
+      <RealTradeShowcase />
+      <PerformancePreview />
+
       {/* ══ شارت حي + الفلوس تشتغل وأنت نايم ══ */}
       <section className="section">
         <div className="hero-visuals-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '32px', alignItems: 'stretch' }}>
@@ -291,8 +297,6 @@ export default function Home() {
         </div>
       </section>
 
-      <RealTradeShowcase />
-
       <FeatureSections />
 
       <ComingSoonUSMarket />
@@ -322,8 +326,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <PerformancePreview />
 
       {/* ══ الأسعار ══ */}
       <section className="section">

@@ -136,7 +136,7 @@ Neckline: 0.9797 (broke up ↑)
     <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(34,208,110,0.07), transparent 70%)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ marginBottom: '36px', textAlign: 'center' }}>
-          <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('03 · نتائج حقيقية', '03 · Real results')}</div>
+          <div className="section-eyebrow" style={{ textAlign: 'center' }}>{t('نتائج حقيقية', 'Real results')}</div>
           <h2 className="section-title" style={{ textAlign: 'center' }}>{t('لقطات فعلية من تلقرام، بدون تجميل', 'Actual Telegram screenshots, no dressing up')}</h2>
           <p className="section-sub" style={{ textAlign: 'center', margin: '0 auto' }}>{t('صفقة وصلت هدفها، وصفقة ضربت وقف الخسارة مع تحليل صريح ليه صار كذا، وتنبيه نمط — كلها رسائل حقيقية وصلت لمشتركين فعليين.', 'A trade that hit its target, one that hit stop loss with an honest analysis of why, and a pattern alert — all real messages that reached real subscribers.')}</p>
         </div>
