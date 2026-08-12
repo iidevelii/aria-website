@@ -352,29 +352,43 @@ export default function Dashboard() {
   }, [signals])
 
   useEffect(() => {
+    // كل مصدر بيانات بمحاولته المستقلة -- قبل كان try/catch وحد يلف الكل،
+    // فأي مصدر ثانوي يفشل (RSS، CoinGecko...) كان يفرّغ حتى الإشارات نفسها
+    // (المصدر الأهم بالصفحة) بدون سبب. تحسينات.md: "Error State مستقل لكل
+    // Widget؛ فشل الأخبار لا يعطل الإشارات."
     const uid = localStorage.getItem('user_id')
-    ;(async () => {
-      try {
-        if (uid) {
-          const r = await fetch(`${API}/user/${uid}`, { headers: authHeaders() })
-          if (r.ok) setUser(await r.json())
-        }
-        const [sr, tr, cr, nr] = await Promise.all([
-          fetch(`${API}/signals`, { headers: authHeaders() }),
-          fetch('https://api.binance.com/api/v3/ticker/24hr'),
-          fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1'),
-          fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss'),
-        ])
-        const s = await sr.json(); setSignals(Array.isArray(s) ? s : [])
-        const tk = await tr.json()
-        const usdt = tk.filter((t: any) => t.symbol.endsWith('USDT'))
+
+    if (uid) {
+      fetch(`${API}/user/${uid}`, { headers: authHeaders() })
+        .then(r => r.ok ? r.json() : null)
+        .then(u => { if (u) setUser(u) })
+        .catch(() => {})
+    }
+
+    fetch(`${API}/signals`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(s => setSignals(Array.isArray(s) ? s : []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+
+    fetch('https://api.binance.com/api/v3/ticker/24hr')
+      .then(r => r.json())
+      .then(tk => {
+        const usdt = tk.filter((x: any) => x.symbol.endsWith('USDT'))
         const sorted = [...usdt].sort((a: any, b: any) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent))
         setGainers(sorted.slice(0, 10)); setLosers(sorted.slice(-10).reverse())
-        setTopCoins(await cr.json())
-        const nd = await nr.json(); setNews(nd.items?.slice(0, 6) || [])
-      } catch {}
-      setLoading(false)
-    })()
+      })
+      .catch(() => {})
+
+    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1')
+      .then(r => r.json())
+      .then(setTopCoins)
+      .catch(() => {})
+
+    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss')
+      .then(r => r.json())
+      .then(nd => setNews(nd.items?.slice(0, 6) || []))
+      .catch(() => {})
   }, [])
 
   const wins = signals.filter(s => s.status === 'WIN').length
@@ -473,73 +487,8 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
 
-        {/* Stats row -- آخر تحسينات الاستراتيجيات (الأحدث، فوق الكل) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--green)' }}>✨ {t('آخر التحسينات', 'Latest Improvements')}</span>
-          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-            {t('الأداء منذ آخر دفعة تحسينات (بولنجر + بوابة جودة الدخول لـRETEST_MTF، تقسيم وتحسين سعر الدخول لـSMC_MTF) -- قيد المعايرة، الأرقام تبني تدريجياً',
-               'Performance since the latest improvement batch (Bollinger + entry-quality gate for RETEST_MTF, split + entry-price refinement for SMC_MTF) -- still calibrating, numbers build up gradually')}
-          </span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-          {[
-            { label: t('الكل', 'All'), value: latestStats.total, color: 'var(--text)' },
-            { label: t('مفتوحة', 'Open'), value: latestStats.open, color: 'var(--yellow)' },
-            { label: t('الرابحة', 'Wins'), value: latestStats.wins, color: 'var(--green)' },
-            { label: t('الخاسرة', 'Losses'), value: latestStats.losses, color: 'var(--red)' },
-            { label: t('نسبة الفوز', 'Win Rate'), value: `${latestStats.winRate}%`, color: latestStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
-            { label: t('صافي الربح', 'Net Profit'), value: `${latestStats.netPnl >= 0 ? '+' : ''}${latestStats.netPnl.toFixed(1)}%`, color: latestStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
-          ].map((s, i) => (
-            <div key={i} className="stat-card" style={{ border: '1px solid rgba(34,208,110,0.3)' }}>
-              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats row -- استراتيجية محدثة (وسط) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--cyan)' }}>🔄 {t('استراتيجية محدثة', 'Updated Strategy')}</span>
-          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأداء بعد آخر تحسين على إدارة الوقف', 'Performance since the latest stop-management improvement')}</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-          {[
-            { label: t('الكل', 'All'), value: updatedStats.total, color: 'var(--text)' },
-            { label: t('مفتوحة', 'Open'), value: updatedStats.open, color: 'var(--yellow)' },
-            { label: t('الرابحة', 'Wins'), value: updatedStats.wins, color: 'var(--green)' },
-            { label: t('الخاسرة', 'Losses'), value: updatedStats.losses, color: 'var(--red)' },
-            { label: t('نسبة الفوز', 'Win Rate'), value: `${updatedStats.winRate}%`, color: updatedStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
-            { label: t('صافي الربح', 'Net Profit'), value: `${updatedStats.netPnl >= 0 ? '+' : ''}${updatedStats.netPnl.toFixed(1)}%`, color: updatedStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
-          ].map((s, i) => (
-            <div key={i} className="stat-card" style={{ border: '1px solid rgba(0,196,239,0.25)' }}>
-              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats row -- استراتيجية قديمة (تحت) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--muted)' }}>📁 {t('استراتيجية قديمة', 'Old Strategy')}</span>
-          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأرشيف -- قبل آخر تحسين', 'Archive -- before the latest improvement')}</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px', opacity: 0.7 }}>
-          {[
-            { label: t('الكل', 'All'), value: oldStats.total, color: 'var(--text)' },
-            { label: t('مفتوحة', 'Open'), value: oldStats.open, color: 'var(--yellow)' },
-            { label: t('الرابحة', 'Wins'), value: oldStats.wins, color: 'var(--green)' },
-            { label: t('الخاسرة', 'Losses'), value: oldStats.losses, color: 'var(--red)' },
-            { label: t('نسبة الفوز', 'Win Rate'), value: `${oldStats.winRate}%`, color: oldStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
-            { label: t('صافي الربح', 'Net Profit'), value: `${oldStats.netPnl >= 0 ? '+' : ''}${oldStats.netPnl.toFixed(1)}%`, color: oldStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
-          ].map((s, i) => (
-            <div key={i} className="stat-card">
-              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Tabs */}
+        {/* Tabs -- الإشارات المفتوحة أول شي (مراجعة تحسينات.md: "ماذا يحتاج
+            انتباهي الآن؟" قبل إحصائيات الأداء التاريخية) */}
         <div className="tabs" style={{ marginBottom: '20px' }}>
           {[
             { id: 'overview', label: t('نظرة عامة', 'Overview') },
@@ -816,6 +765,80 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+
+        {/* أداء النظام -- ثانوي، بعد ما المستخدم يشوف إشاراته المفتوحة أولاً
+            (مراجعة تحسينات.md). الحسابات نفسها ما تغيّرت، بس الموضع تحرّك. */}
+        <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
+            {t('أداء النظام', 'System Performance')}
+          </div>
+
+          {/* Stats row -- آخر تحسينات الاستراتيجيات (الأحدث، فوق الكل) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--green)' }}>✨ {t('آخر التحسينات', 'Latest Improvements')}</span>
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+              {t('الأداء منذ آخر دفعة تحسينات (بولنجر + بوابة جودة الدخول لـRETEST_MTF، تقسيم وتحسين سعر الدخول لـSMC_MTF) -- قيد المعايرة، الأرقام تبني تدريجياً',
+                 'Performance since the latest improvement batch (Bollinger + entry-quality gate for RETEST_MTF, split + entry-price refinement for SMC_MTF) -- still calibrating, numbers build up gradually')}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+            {[
+              { label: t('الكل', 'All'), value: latestStats.total, color: 'var(--text)' },
+              { label: t('مفتوحة', 'Open'), value: latestStats.open, color: 'var(--yellow)' },
+              { label: t('الرابحة', 'Wins'), value: latestStats.wins, color: 'var(--green)' },
+              { label: t('الخاسرة', 'Losses'), value: latestStats.losses, color: 'var(--red)' },
+              { label: t('نسبة الفوز', 'Win Rate'), value: `${latestStats.winRate}%`, color: latestStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+              { label: t('صافي الربح', 'Net Profit'), value: `${latestStats.netPnl >= 0 ? '+' : ''}${latestStats.netPnl.toFixed(1)}%`, color: latestStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+            ].map((s, i) => (
+              <div key={i} className="stat-card" style={{ border: '1px solid rgba(34,208,110,0.3)' }}>
+                <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats row -- استراتيجية محدثة (وسط) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--cyan)' }}>🔄 {t('استراتيجية محدثة', 'Updated Strategy')}</span>
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأداء بعد آخر تحسين على إدارة الوقف', 'Performance since the latest stop-management improvement')}</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+            {[
+              { label: t('الكل', 'All'), value: updatedStats.total, color: 'var(--text)' },
+              { label: t('مفتوحة', 'Open'), value: updatedStats.open, color: 'var(--yellow)' },
+              { label: t('الرابحة', 'Wins'), value: updatedStats.wins, color: 'var(--green)' },
+              { label: t('الخاسرة', 'Losses'), value: updatedStats.losses, color: 'var(--red)' },
+              { label: t('نسبة الفوز', 'Win Rate'), value: `${updatedStats.winRate}%`, color: updatedStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+              { label: t('صافي الربح', 'Net Profit'), value: `${updatedStats.netPnl >= 0 ? '+' : ''}${updatedStats.netPnl.toFixed(1)}%`, color: updatedStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+            ].map((s, i) => (
+              <div key={i} className="stat-card" style={{ border: '1px solid rgba(0,196,239,0.25)' }}>
+                <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats row -- استراتيجية قديمة (تحت) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--muted)' }}>📁 {t('استراتيجية قديمة', 'Old Strategy')}</span>
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('الأرشيف -- قبل آخر تحسين', 'Archive -- before the latest improvement')}</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px', opacity: 0.7 }}>
+            {[
+              { label: t('الكل', 'All'), value: oldStats.total, color: 'var(--text)' },
+              { label: t('مفتوحة', 'Open'), value: oldStats.open, color: 'var(--yellow)' },
+              { label: t('الرابحة', 'Wins'), value: oldStats.wins, color: 'var(--green)' },
+              { label: t('الخاسرة', 'Losses'), value: oldStats.losses, color: 'var(--red)' },
+              { label: t('نسبة الفوز', 'Win Rate'), value: `${oldStats.winRate}%`, color: oldStats.winRate >= 60 ? 'var(--green)' : 'var(--yellow)' },
+              { label: t('صافي الربح', 'Net Profit'), value: `${oldStats.netPnl >= 0 ? '+' : ''}${oldStats.netPnl.toFixed(1)}%`, color: oldStats.netPnl >= 0 ? 'var(--green)' : 'var(--red)' },
+            ].map((s, i) => (
+              <div key={i} className="stat-card">
+                <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div style={{ marginTop: '32px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href="https://t.me/devel_support" target="_blank" style={{ background: 'linear-gradient(135deg,rgba(0,196,239,0.1),rgba(107,31,255,0.1))', border: '1px solid rgba(0,196,239,0.25)', color: '#00c4ef', textDecoration: 'none', fontWeight: 700, padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}>💬 {t('تواصل مع الدعم', 'Contact Support')}</a>
