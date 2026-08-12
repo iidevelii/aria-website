@@ -121,10 +121,8 @@ export default function AIAssistantPage() {
       const history = messages.slice(1).map(m => ({ role: m.role, content: m.content }))
       const res = await fetch(`${API}/ai-chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, history }),
       })
       if (res.status === 401 || res.status === 403) {

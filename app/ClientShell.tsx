@@ -4,7 +4,14 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 
 // ── Auth Context ──────────────────────────────────────────
-type AuthCtx = { user: any; loading: boolean; refresh: () => void }
+// شكل رد /user/{id} بباك اند aria-bot (main.py get_user) -- موحّد هنا
+// عشان كل الصفحات اللي تستخدم useAuth() تعرف شكله بدل any مبعثرة بكل مكان.
+export type User = {
+  id: number; email: string; username: string; telegram_id: string | null
+  is_active: boolean; days_left: number; subscription_end: string | null
+  is_admin: boolean; notify_prefs: Record<string, boolean>; personal_blacklist: string[]
+}
+type AuthCtx = { user: User | null; loading: boolean; refresh: () => void }
 const AuthContext = createContext<AuthCtx>({ user: null, loading: true, refresh: () => {} })
 export const useAuth = () => useContext(AuthContext)
 
@@ -53,8 +60,8 @@ function TickerBar() {
     const load = async () => {
       try {
         const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(TICKER_PAIRS)}`)
-        const d = await r.json()
-        setTicks(d.map((t:any) => ({
+        const d: { symbol: string; lastPrice: string; priceChangePercent: string }[] = await r.json()
+        setTicks(d.map((t) => ({
           s: t.symbol.replace('USDT',''),
           p: parseFloat(t.lastPrice)>=1000 ? parseFloat(t.lastPrice).toLocaleString('en',{maximumFractionDigits:0}) : parseFloat(t.lastPrice)>=1 ? parseFloat(t.lastPrice).toFixed(2) : parseFloat(t.lastPrice).toFixed(4),
           c: (parseFloat(t.priceChangePercent)>=0?'+':'')+parseFloat(t.priceChangePercent).toFixed(2)+'%',
@@ -135,7 +142,7 @@ function HelpModal({path,onClose}:{path:string;onClose:()=>void}) {
 }
 
 // ── Auth Gate ─────────────────────────────────────────────
-function AuthGate({children,user,loading,pathname}:{children:React.ReactNode;user:any;loading:boolean;pathname:string}) {
+function AuthGate({children,user,loading,pathname}:{children:React.ReactNode;user:User|null;loading:boolean;pathname:string}) {
   const router=useRouter()
   const isPublic=PUBLIC.includes(pathname)
   useEffect(()=>{if(!loading&&!user&&!isPublic)router.push('/login')},[loading,user,isPublic,router])
@@ -146,12 +153,16 @@ function AuthGate({children,user,loading,pathname}:{children:React.ReactNode;use
 
 // ── Sidebar ───────────────────────────────────────────────
 function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed,setCollapsed,isMobile,mobileOpen,setMobileOpen}:{
-  theme:string; toggleTheme:()=>void; user:any; pathname:string;
+  theme:string; toggleTheme:()=>void; user:User|null; pathname:string;
   helpOpen:boolean; setHelpOpen:(v:boolean)=>void; collapsed:boolean; setCollapsed:(v:boolean)=>void
   isMobile:boolean; mobileOpen:boolean; setMobileOpen:(v:boolean)=>void
 }) {
   const { lang, setLang, t } = useLang()
-  const logout=()=>{localStorage.removeItem('token');localStorage.removeItem('user_id');window.location.href='/'}
+  const logout=()=>{
+    // كوكي HttpOnly ما تُمسح من جافاسكربت -- لازم نداء سيرفري يمسحها فعلياً
+    fetch(`${API}/logout`,{method:'POST',credentials:'include'}).catch(()=>{})
+    localStorage.removeItem('token');localStorage.removeItem('user_id');window.location.href='/'
+  }
   const isApp = !PUBLIC.includes(pathname)
   if (!isApp) return null
 
@@ -271,7 +282,7 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
 }
 
 // ── Top bar for app pages ─────────────────────────────────
-function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:any;isMobile:boolean;onMenuClick:()=>void}) {
+function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:User|null;isMobile:boolean;onMenuClick:()=>void}) {
   const { t } = useLang()
   const pageNames: Record<string,[string,string]> = {
     '/dashboard':['الداشبورد','Dashboard'],'/binance-guide':['شرح Binance','Binance Guide'],'/scanner':['السكانر','Scanner'],'/strategy-builder':['منشئ الاستراتيجيات','Strategy Builder'],
@@ -309,7 +320,7 @@ function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:any;i
 export default function ClientShell({children}:{children:React.ReactNode}) {
   const [theme,setTheme]         = useState('dark')
   const [mounted,setMounted]     = useState(false)
-  const [user,setUser]           = useState<any>(null)
+  const [user,setUser]           = useState<User|null>(null)
   const [authLoading,setAuthLoading] = useState(true)
   const [helpOpen,setHelpOpen]   = useState(false)
   const [collapsed,setCollapsed] = useState(false)
@@ -328,15 +339,16 @@ export default function ClientShell({children}:{children:React.ReactNode}) {
   useEffect(()=>{setMobileNavOpen(false)},[pathname])
 
   const fetchUser = async () => {
-    const token=localStorage.getItem('token'), userId=localStorage.getItem('user_id')
-    if(token&&userId){
-      try{
-        const r=await fetch(`${API}/user/${userId}`,{headers:{Authorization:`Bearer ${token}`}})
-        if(r.status===401){localStorage.removeItem('token');localStorage.removeItem('user_id');setUser(null);setAuthLoading(false);return}
-        const d=await r.json();if(d.username)setUser(d);else setUser(null)
-      }
-      catch{setUser(null)}
-    }else setUser(null)
+    // الهوية تُشتق من كوكي الجلسة (HttpOnly) عبر /me -- ما نحتاج نعرف
+    // user_id أو نقرأ توكن من localStorage قبل المحاولة أصلاً. credentials:
+    // 'include' إلزامي هنا (والعبر كل نداء API محمي بالموقع) عشان المتصفح
+    // يرسل الكوكي مع طلب cross-site (devel-bot.space -> railway.app).
+    try{
+      const r=await fetch(`${API}/me`,{credentials:'include'})
+      if(!r.ok){localStorage.removeItem('token');localStorage.removeItem('user_id');setUser(null);setAuthLoading(false);return}
+      const d=await r.json();if(d.username){setUser(d);localStorage.setItem('user_id',String(d.id))}else setUser(null)
+    }
+    catch{setUser(null)}
     setAuthLoading(false)
   }
 

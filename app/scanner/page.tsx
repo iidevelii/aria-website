@@ -10,7 +10,9 @@ function macdCalc(c: number[]) { if(c.length<35)return{bullish:false,rising:fals
 function adxCalc(hi: number[], lo: number[], c: number[], p=14) { if(c.length<p*2)return{adx:0,pdi:50,mdi:50};const pdm=[],mdm=[],tr=[];for(let i=1;i<c.length;i++){const up=hi[i]-hi[i-1],dn=lo[i-1]-lo[i];pdm.push(up>dn&&up>0?up:0);mdm.push(dn>up&&dn>0?dn:0);tr.push(Math.max(hi[i]-lo[i],Math.abs(hi[i]-c[i-1]),Math.abs(lo[i]-c[i-1])))}let sTR=tr.slice(0,p).reduce((a,b)=>a+b,0),sPDM=pdm.slice(0,p).reduce((a,b)=>a+b,0),sMDM=mdm.slice(0,p).reduce((a,b)=>a+b,0);const dx=[];let lp=0,lm=0;for(let i=p;i<tr.length;i++){sTR=sTR-sTR/p+tr[i];sPDM=sPDM-sPDM/p+pdm[i];sMDM=sMDM-sMDM/p+mdm[i];lp=(sPDM/sTR)*100;lm=(sMDM/sTR)*100;dx.push(Math.abs(lp-lm)/(lp+lm+0.001)*100)}return{adx:dx.slice(-p).reduce((a,b)=>a+b,0)/p,pdi:lp,mdi:lm} }
 function stCalc(hi: number[], lo: number[], c: number[], p=10, m=3): 'up'|'down' { if(c.length<p+2)return'up';const atrs=[];let a=0;for(let i=1;i<c.length;i++){const t=Math.max(hi[i]-lo[i],Math.abs(hi[i]-c[i-1]),Math.abs(lo[i]-c[i-1]));if(i<=p)a+=t/p;else a=(a*(p-1)+t)/p;if(i>=p)atrs.push(a)}let dir:'up'|'down'='up',upper=0,lower=0;for(let i=0;i<atrs.length;i++){const idx=c.length-atrs.length+i,hl2=(hi[idx]+lo[idx])/2,nu=hl2+m*atrs[i],nl=hl2-m*atrs[i];if(i===0){upper=nu;lower=nl}else{upper=nu<upper||c[idx-1]>upper?nu:upper;lower=nl>lower||c[idx-1]<lower?nl:lower}if(dir==='up'&&c[idx]<lower)dir='down';else if(dir==='down'&&c[idx]>upper)dir='up'}return dir }
 function bbPct(c: number[], p=20) { const sl=c.slice(-p),m=sl.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(sl.reduce((a,b)=>a+(b-m)**2,0)/p);return Math.max(0,Math.min(100,(c[c.length-1]-(m-2*std))/(4*std)*100)) }
-function scoreCalc(r: number, mc: any, ax: any, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=mc.bullish?(mc.rising?25:15):(mc.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
+type Macd = { bullish: boolean; rising: boolean }
+type Adx = { adx: number; pdi: number; mdi: number }
+function scoreCalc(r: number, mc: Macd, ax: Adx, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=mc.bullish?(mc.rising?25:15):(mc.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
 function divCalc(c: number[], rs: number[], lb=20): 'bullish'|'bearish'|null { if(c.length<lb+5||rs.length<lb+5)return null;const pc=c.slice(-lb-5,-5),rc=c.slice(-5),pr=rs.slice(-lb-5,-5),rr=rs.slice(-5);if(Math.min(...rc)<Math.min(...pc)&&Math.min(...rr)>Math.min(...pr)+2)return'bullish';if(Math.max(...rc)>Math.max(...pc)&&Math.max(...rr)<Math.max(...pr)-2)return'bearish';return null }
 // كان يتطلب فوليوم 3x + حركة 3% على نفس الشمعة الأخيرة بالضبط — على فريم 4h
 // الافتراضي هذا نادر جداً (يحتاج القفزتين تصير بنفس الشمعة بالضبط)، وما يفحص
@@ -50,7 +52,7 @@ function detectPat(hi: number[], lo: number[], c: number[]): Pat[] {
 // ── Types ────────────────────────────────────────────────
 type PairData = {
   symbol: string; price: number; chg24h: number
-  rsi: number; macd: any; adx: any; st: 'up'|'down'; bb: number; score: number
+  rsi: number; macd: Macd; adx: Adx; st: 'up'|'down'; bb: number; score: number
   div: 'bullish'|'bearish'|null; pd: 'pump'|'dump'|null
   patterns: Pat[]; closes: number[]
 }
@@ -235,7 +237,7 @@ export default function ScannerPage() {
           ])
           const k = await kr.json(), t = await tr.json()
           if (!Array.isArray(k) || k.length < 50) return null
-          const hi=k.map((x:any)=>parseFloat(x[2])),lo=k.map((x:any)=>parseFloat(x[3])),c=k.map((x:any)=>parseFloat(x[4])),v=k.map((x:any)=>parseFloat(x[5]))
+          const hi=k.map((x:(string|number)[])=>parseFloat(String(x[2]))),lo=k.map((x:(string|number)[])=>parseFloat(String(x[3]))),c=k.map((x:(string|number)[])=>parseFloat(String(x[4]))),v=k.map((x:(string|number)[])=>parseFloat(String(x[5])))
           const rsi=rsiVal(c), rs=rsiSeries(c), macd=macdCalc(c), adx=adxCalc(hi,lo,c), st=stCalc(hi,lo,c), bb=bbPct(c), score=scoreCalc(rsi,macd,adx,st)
           return {
             symbol:sym, price:parseFloat(t.lastPrice||c[c.length-1]), chg24h:parseFloat(t.priceChangePercent||'0'),
@@ -316,7 +318,7 @@ export default function ScannerPage() {
               ))}
             </div>
             {/* Sort */}
-            <select value={sort} onChange={e => setSort(e.target.value as any)}
+            <select value={sort} onChange={e => setSort(e.target.value as 'score'|'rsi'|'chg')}
               style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:'7px', padding:'6px 10px', color:'var(--text)', fontSize:'11px', fontFamily:'inherit', fontWeight:600 }}>
               <option value="score">{t('ترتيب: Score', 'Sort: Score')}</option>
               <option value="rsi">{t('ترتيب: RSI', 'Sort: RSI')}</option>

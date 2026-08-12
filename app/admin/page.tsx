@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useLang } from '../ClientShell'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
-const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 type UserData = { id: number; email: string; username: string; is_admin: boolean }
 
@@ -40,10 +39,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     (async () => {
-      const uid = localStorage.getItem('user_id')
-      if (!uid) { setLoading(false); return }
       try {
-        const r = await fetch(`${API}/user/${uid}`, { headers: authHeaders() })
+        const r = await fetch(`${API}/me`, { credentials: 'include' })
         if (r.ok) setUser(await r.json())
       } catch {}
       setLoading(false)
@@ -61,7 +58,7 @@ export default function AdminPage() {
     setChannelBusy(true)
     try {
       const r = await fetch(`${API}/admin/channel-broadcast`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enabled: !channelEnabled }),
       })
       if (r.ok) {
@@ -89,7 +86,7 @@ export default function AdminPage() {
     setBcSending(true); setBcMsg('')
     try {
       const r = await fetch(`${API}/admin/broadcast`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: bcText.trim(),
           image_base64: bcImage,
@@ -115,7 +112,7 @@ export default function AdminPage() {
     setGranting(true); setMsg('')
     try {
       const r = await fetch(`${API}/admin/grant-subscription`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), days }),
       })
       const d = await r.json()

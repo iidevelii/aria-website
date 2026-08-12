@@ -3,7 +3,6 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLang } from '../ClientShell'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
-const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
 function _rsi(c: number[], p=14) { if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}const ag=g/p,al=l/p;return al===0?100:100-100/(1+ag/al) }
@@ -11,19 +10,19 @@ function _macd(c: number[]) { if(c.length<35)return{bullish:false,rising:false};
 function _adx(hi: number[], lo: number[], c: number[], p=14) { if(c.length<p*2)return{adx:0,pdi:50,mdi:50};const pdm=[],mdm=[],tr=[];for(let i=1;i<c.length;i++){const up=hi[i]-hi[i-1],dn=lo[i-1]-lo[i];pdm.push(up>dn&&up>0?up:0);mdm.push(dn>up&&dn>0?dn:0);tr.push(Math.max(hi[i]-lo[i],Math.abs(hi[i]-c[i-1]),Math.abs(lo[i]-c[i-1])))}let sTR=tr.slice(0,p).reduce((a,b)=>a+b,0),sPDM=pdm.slice(0,p).reduce((a,b)=>a+b,0),sMDM=mdm.slice(0,p).reduce((a,b)=>a+b,0);const dx=[];let lp=0,lm=0;for(let i=p;i<tr.length;i++){sTR=sTR-sTR/p+tr[i];sPDM=sPDM-sPDM/p+pdm[i];sMDM=sMDM-sMDM/p+mdm[i];lp=(sPDM/sTR)*100;lm=(sMDM/sTR)*100;dx.push(Math.abs(lp-lm)/(lp+lm+0.001)*100)}return{adx:dx.slice(-p).reduce((a,b)=>a+b,0)/p,pdi:lp,mdi:lm} }
 function _st(hi: number[], lo: number[], c: number[], p=10, m=3): 'up'|'down' { if(c.length<p+2)return'up';const atrs=[];let a=0;for(let i=1;i<c.length;i++){const t=Math.max(hi[i]-lo[i],Math.abs(hi[i]-c[i-1]),Math.abs(lo[i]-c[i-1]));if(i<=p)a+=t/p;else a=(a*(p-1)+t)/p;if(i>=p)atrs.push(a)}let dir:'up'|'down'='up',upper=0,lower=0;for(let i=0;i<atrs.length;i++){const idx=c.length-atrs.length+i,hl2=(hi[idx]+lo[idx])/2,nu=hl2+m*atrs[i],nl=hl2-m*atrs[i];if(i===0){upper=nu;lower=nl}else{upper=nu<upper||c[idx-1]>upper?nu:upper;lower=nl>lower||c[idx-1]<lower?nl:lower}if(dir==='up'&&c[idx]<lower)dir='down';else if(dir==='down'&&c[idx]>upper)dir='up'}return dir }
 function _bb(c: number[], p=20) { const sl=c.slice(-p),mn=sl.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(sl.reduce((a,b)=>a+(b-mn)**2,0)/p);return Math.max(0,Math.min(100,(c[c.length-1]-(mn-2*std))/(4*std)*100)) }
-function _score(r: number, md: any, ax: any, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=md.bullish?(md.rising?25:15):(md.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
+function _score(r: number, md: { bullish: boolean; rising: boolean }, ax: { adx: number; pdi: number; mdi: number }, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=md.bullish?(md.rising?25:15):(md.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
 
 const fmt = (p: number) => p>=10000?p.toLocaleString('en',{maximumFractionDigits:0}):p>=1?p.toFixed(3):p>=0.01?p.toFixed(5):p.toFixed(8)
 
 async function fetchAllUsdtPairs(limit: number): Promise<string[]> {
   try {
     const r = await fetch('https://api.binance.com/api/v3/ticker/24hr')
-    const data = await r.json()
-    return (data as any[])
-      .filter((t: any) => t.symbol.endsWith('USDT') && !t.symbol.includes('UP') && !t.symbol.includes('DOWN') && !t.symbol.includes('BEAR') && !t.symbol.includes('BULL'))
-      .sort((a: any, b: any) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
+    const data: { symbol: string; quoteVolume: string }[] = await r.json()
+    return data
+      .filter((t) => t.symbol.endsWith('USDT') && !t.symbol.includes('UP') && !t.symbol.includes('DOWN') && !t.symbol.includes('BEAR') && !t.symbol.includes('BULL'))
+      .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
       .slice(0, limit)
-      .map((t: any) => t.symbol)
+      .map((t) => t.symbol)
   } catch {
     return ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','AVAXUSDT','ADAUSDT','LINKUSDT','ATOMUSDT']
   }
@@ -154,7 +153,7 @@ export default function StrategyBuilderPage() {
     const uid = localStorage.getItem('user_id')
     if (!uid) return
     try {
-      const r = await fetch(`${API}/custom-alerts?user_id=${uid}`, { headers: authHeaders() })
+      const r = await fetch(`${API}/custom-alerts?user_id=${uid}`, { credentials: 'include' })
       if (r.ok) setCustomAlerts(await r.json())
     } catch {}
   }
@@ -168,7 +167,7 @@ export default function StrategyBuilderPage() {
     setActivating(true); setActivateMsg('')
     try {
       const r = await fetch(`${API}/custom-alerts`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: Number(uid), name: stratName, conditions, logic, timeframe: tf, pair_count: pairCount }),
       })
       const d = await r.json()
@@ -181,7 +180,7 @@ export default function StrategyBuilderPage() {
   const toggleAlert = async (id: number, active: boolean) => {
     try {
       await fetch(`${API}/custom-alerts/${id}/toggle`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active }),
       })
       setCustomAlerts(cs => cs.map(a => a.id === id ? { ...a, active } : a))
@@ -190,7 +189,7 @@ export default function StrategyBuilderPage() {
 
   const deleteAlert = async (id: number) => {
     try {
-      await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE', headers: authHeaders() })
+      await fetch(`${API}/custom-alerts/${id}`, { method: 'DELETE', credentials: 'include' })
       setCustomAlerts(cs => cs.filter(a => a.id !== id))
     } catch {}
   }
@@ -212,7 +211,7 @@ export default function StrategyBuilderPage() {
     setPatternActivating(true); setPatternMsg('')
     try {
       const r = await fetch(`${API}/custom-alerts`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: Number(uid), name: `نمط: ${patternLabel(patternType)}`,
           alert_type: 'pattern', pattern_type: patternType,
@@ -299,7 +298,7 @@ export default function StrategyBuilderPage() {
           ])
           const k = await kr.json(), t = await tr.json()
           if (!Array.isArray(k) || k.length < 50) return null
-          const hi=k.map((x:any)=>parseFloat(x[2])),lo=k.map((x:any)=>parseFloat(x[3])),c=k.map((x:any)=>parseFloat(x[4]))
+          const hi=k.map((x:(string|number)[])=>parseFloat(String(x[2]))),lo=k.map((x:(string|number)[])=>parseFloat(String(x[3]))),c=k.map((x:(string|number)[])=>parseFloat(String(x[4])))
           const rsi=_rsi(c),md=_macd(c),ax=_adx(hi,lo,c),st=_st(hi,lo,c),bb=_bb(c),sc=_score(rsi,md,ax,st)
           const r: Result = { symbol:sym, price:parseFloat(t.lastPrice||c[c.length-1]), chg:parseFloat(t.priceChangePercent||'0'), rsi, adx:ax.adx, st, macd:md.bullish, bb, score:sc, passed:false }
           r.passed = evalStrategy(r, conditions, logic)

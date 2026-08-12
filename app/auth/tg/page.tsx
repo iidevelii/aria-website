@@ -17,11 +17,10 @@ export default function TgAuthPage() {
     const token = params.get('token');
     if (!token) { setStatus('error'); setMsg(t('رابط غير صالح', 'Invalid link')); return; }
 
-    fetch(`${API}/auth/tg-verify?token=${token}`)
+    fetch(`${API}/auth/tg-verify?token=${token}`, { credentials: 'include' })
       .then(r => r.json())
       .then(async data => {
         if (data.token) {
-          localStorage.setItem('token', data.token);
           localStorage.setItem('user_id', String(data.user_id));
           await refresh();
           router.replace('/dashboard');

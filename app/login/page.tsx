@@ -19,12 +19,14 @@ export default function Login() {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       })
       const data = await res.json()
       if (res.ok) {
-        localStorage.setItem('token', data.token)
+        // الجلسة الحين كوكي HttpOnly مضبوطة من الباك اند مباشرة -- ما نخزّن
+        // التوكن بـlocalStorage (كان يقدر أي XSS يقرأه). user_id بس، مو حساس.
         localStorage.setItem('user_id', data.user_id)
         await refresh()
         router.push('/dashboard')

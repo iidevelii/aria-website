@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useLang } from '../../ClientShell'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
-const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
 
 type WatchItem = { symbol: string; added_at: string | null }
 
@@ -15,10 +14,8 @@ export default function USMarketWatchlistPage() {
   const [newSymbol, setNewSymbol] = useState('')
 
   const load = () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-    if (!token) { setLoggedIn(false); setLoading(false); return }
-    fetch(`${API}/us/watchlist`, { headers: authHeaders() })
-      .then(r => { if (r.status === 401) { setLoggedIn(false); return [] } return r.json() })
+    fetch(`${API}/us/watchlist`, { credentials: 'include' })
+      .then(r => { if (r.status === 401) { setLoggedIn(false); return [] } setLoggedIn(true); return r.json() })
       .then(setItems)
       .catch(() => setItems([]))
       .finally(() => setLoading(false))
@@ -31,14 +28,14 @@ export default function USMarketWatchlistPage() {
     if (!symbol) return
     setNewSymbol('')
     await fetch(`${API}/us/watchlist`, {
-      method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ symbol }),
     })
     load()
   }
 
   const removeSymbol = async (symbol: string) => {
-    await fetch(`${API}/us/watchlist/${symbol}`, { method: 'DELETE', headers: authHeaders() })
+    await fetch(`${API}/us/watchlist/${symbol}`, { method: 'DELETE', credentials: 'include' })
     load()
   }
 

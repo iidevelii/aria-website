@@ -20,8 +20,8 @@ async function fetchBinance(symbol: string, interval: string, limit: number, mar
   if (!res.ok) throw new Error(`binance ${res.status}`)
   const data = await res.json()
   if (!Array.isArray(data) || data.length === 0) throw new Error('binance empty')
-  return data.map((d: any) => ({
-    time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]),
+  return data.map((d: (string | number)[]) => ({
+    time: Number(d[0]) / 1000, open: parseFloat(String(d[1])), high: parseFloat(String(d[2])), low: parseFloat(String(d[3])), close: parseFloat(String(d[4])),
   }))
 }
 

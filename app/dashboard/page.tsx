@@ -6,7 +6,17 @@ import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
-const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token') || ''}` })
+
+// شكل صف signals بباك اند aria-bot (database.py Signal model، مصفّى للحقول
+// اللي فعلياً تُستخدم بهالصفحة) -- موحّد هنا بدل any مبعثرة بكل استخدام.
+type Signal = {
+  id: number; pair: string; side: 'LONG' | 'SHORT'
+  entry: string; tp: string; sl: string; tp_pct: string; sl_pct: string
+  regime: string | null; ai_score: number; status: 'OPEN' | 'WIN' | 'LOSS'
+  leverage: number; created_at: string; closed_at: string | null
+  close_price: string | null; pnl_pct: string | null; market: 'SPOT' | 'FUTURES'
+  engine: string | null; confirmed: boolean; confirmed_by: string | null
+}
 
 function fmt(p: number | string) {
   const n = parseFloat(String(p))
@@ -123,7 +133,7 @@ function FearGreed() {
   )
 }
 
-function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
+function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }) {
   const { t } = useLang()
   const sym = (s.pair || '').replace('/', '')
   const cur = prices[sym]
@@ -294,7 +304,7 @@ function SignalCard({ s, prices }: { s: any, prices: Record<string, number> }) {
         <TradeChart
           symbol={sym}
           entry={parseFloat(s.entry)} tp={parseFloat(s.tp)} sl={parseFloat(s.sl)}
-          side={s.side} status={s.status} createdAt={s.created_at} closedAt={s.closed_at}
+          side={s.side} status={s.status} createdAt={s.created_at} closedAt={s.closed_at ?? undefined}
           closePrice={s.close_price ? parseFloat(s.close_price) : undefined}
           market={s.market}
         />
@@ -356,16 +366,12 @@ export default function Dashboard() {
     // فأي مصدر ثانوي يفشل (RSS، CoinGecko...) كان يفرّغ حتى الإشارات نفسها
     // (المصدر الأهم بالصفحة) بدون سبب. تحسينات.md: "Error State مستقل لكل
     // Widget؛ فشل الأخبار لا يعطل الإشارات."
-    const uid = localStorage.getItem('user_id')
+    fetch(`${API}/me`, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => { if (u) setUser(u) })
+      .catch(() => {})
 
-    if (uid) {
-      fetch(`${API}/user/${uid}`, { headers: authHeaders() })
-        .then(r => r.ok ? r.json() : null)
-        .then(u => { if (u) setUser(u) })
-        .catch(() => {})
-    }
-
-    fetch(`${API}/signals`, { headers: authHeaders() })
+    fetch(`${API}/signals`, { credentials: 'include' })
       .then(r => r.json())
       .then(s => setSignals(Array.isArray(s) ? s : []))
       .catch(() => {})

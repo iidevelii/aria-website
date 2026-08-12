@@ -24,6 +24,7 @@ export default function ActivatePage() {
     try {
       const r = await fetch(`${API}/auth/txid-login`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ txid: txidValue }),
       })
@@ -35,7 +36,6 @@ export default function ActivatePage() {
         return
       }
 
-      localStorage.setItem('token',   data.token)
       localStorage.setItem('user_id', String(data.user_id))
 
       if (data.needs_password) {
@@ -62,10 +62,8 @@ export default function ActivatePage() {
     try {
       const r = await fetch(`${API}/auth/set-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, email: email.trim() }),
       })
       const data = await r.json()
