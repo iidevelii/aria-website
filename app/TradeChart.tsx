@@ -152,7 +152,7 @@ export default function TradeChart({
 
     init()
     return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
-  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, createdAt, closedAt, isLong, height])
+  }, [visible, symbol, entry, tp, sl, isClosed, closePrice, createdAt, closedAt, isLong, height, market])
 
   return (
     <div ref={ref} style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)', minHeight: visible ? height : 40 }}>

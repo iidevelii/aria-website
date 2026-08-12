@@ -119,7 +119,7 @@ export default function PaperTradingPage() {
     setLoadingEntry(false)
   }, [])
 
-  useEffect(() => { if (showForm) fetchEntry(form.symbol) }, [showForm, form.symbol])
+  useEffect(() => { if (showForm) fetchEntry(form.symbol) }, [showForm, form.symbol, fetchEntry])
 
   const openTrade = () => {
     if (!entryPrice || form.sizeUSDT > portfolio.balance) return

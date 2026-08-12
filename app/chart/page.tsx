@@ -17,7 +17,7 @@ function parseTs(raw: string) {
 }
 
 function ChartView() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const searchParams = useSearchParams()
   const symbol = searchParams.get('symbol') || 'BTCUSDT'
   const entry = parseFloat(searchParams.get('entry') || '0')
@@ -50,7 +50,11 @@ function ChartView() {
     if (isClosed) return
     const iv = setInterval(update, 60000)
     return () => clearInterval(iv)
-  }, [createdAt, closedAt, isClosed])
+    // نستخدم lang بدل t بالتبعيات -- t دالة جديدة كل render (مو memoized
+    // بـClientShell)، إضافتها كانت تعيد تشغيل المؤقّت كل render. لغة الواجهة
+    // (lang) كافية فعلياً: نص المدة يعتمد عليها هي بس، مو على أي شي ثاني بـt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdAt, closedAt, isClosed, lang])
 
   const chartRef = useRef<HTMLDivElement>(null)
   const [currentPrice, setCurrentPrice] = useState(0)
@@ -170,7 +174,10 @@ function ChartView() {
 
     init()
     return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
-  }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, side, market])
+    // نفس سبب lang بدل t فوق -- closedAt مضافة لأنها فعلاً تدخل بحساب
+    // entryTime/نطاق الشموع جوا init() ولازم تعيد رسم الشارت لو تغيّرت.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [symbol, entry, tp, sl, isClosed, closePriceParam, createdAt, closedAt, side, market, lang])
 
   // تحديث السعر الحالي لايف كل 8 ثواني — يحدّث رقم السعر بأعلى الصفحة بس
   // (بدون خط على الشارت نفسه). الصفقات المغلقة ما تحتاج تحديث حي.

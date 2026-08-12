@@ -31,6 +31,12 @@ export default function TgAuthPage() {
         }
       })
       .catch(() => { setStatus('error'); setMsg(t('خطأ في الاتصال', 'Connection error')); });
+    // عمداً مرة وحدة بس عند التحميل -- تحقّق التوكن عملية لمرة واحدة (توكن
+    // Telegram قد يكون Single-use بالباك اند). إضافة router/refresh/t/params
+    // (ولا وحدة منهم مضمونة الثبات بين الرندرات) كانت تخاطر بإعادة التحقق
+    // مرة ثانية بعد نجاح الأولى، فيطلع خطأ "الرابط منتهي" للمستخدم بعد ما
+    // كان دخل بنجاح فعلاً.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -253,6 +253,11 @@ export default function ScannerPage() {
     setLoading(false); setLastScan(new Date()); setCountdown(900)
   }, [tf])
 
+  // مسح واحد عند التحميل الأول بس -- عمداً بدون scan بالتبعيات. scan
+  // مبني بـuseCallback([tf])، فمرجعه يتغيّر كل ما يتغيّر tf، ولو أضفناه هنا
+  // كل تغيير فريم كان يشغّل مسح مضاعف (فوق نداء scan(t) اليدوي الموجود
+  // أصلاً بزر اختيار الفريم بالأسفل).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { scan() }, [])
 
   useEffect(() => {
