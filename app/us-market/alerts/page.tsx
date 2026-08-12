@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useLang } from '../../ClientShell'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
+import { API_ORIGIN as API } from '../../lib/api'
 
 type Alert = {
   symbol: string

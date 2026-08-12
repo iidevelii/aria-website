@@ -1,10 +1,9 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useLang } from '../ClientShell'
+import { API_ORIGIN as API } from '../lib/api'
 
 type Message = { role: 'user' | 'assistant'; content: string; ts: Date }
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 const QUICK: [string, string][] = [
   ['كيف أقرأ إشارة LONG بشكل صحيح؟', 'How do I read a LONG signal correctly?'],

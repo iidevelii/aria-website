@@ -1,8 +1,7 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react'
 import { useLang } from '../ClientShell'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
+import { API_ORIGIN as API } from '../lib/api'
 
 function _ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
 function _rsi(c: number[], p=14) { if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}const ag=g/p,al=l/p;return al===0?100:100-100/(1+ag/al) }

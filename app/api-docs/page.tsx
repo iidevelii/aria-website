@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useLang } from '../ClientShell'
+import { API_ORIGIN as BASE } from '../lib/api'
 
 type Endpoint = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -15,8 +16,6 @@ type Endpoint = {
   response: string
   example?: string
 }
-
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 const MC = {
   string: '#f5c842',

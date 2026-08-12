@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { useLang } from '../ClientShell'
 import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
+import { API_ORIGIN as API } from '../lib/api'
 
 // شكل صف signals بباك اند aria-bot (database.py Signal model، مصفّى للحقول
 // اللي فعلياً تُستخدم بهالصفحة) -- موحّد هنا بدل any مبعثرة بكل استخدام.

@@ -3,6 +3,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
+import { API_ORIGIN } from '../lib/api'
 
 function ResetForm() {
   const searchParams = useSearchParams()
@@ -21,7 +22,7 @@ function ResetForm() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/reset-password`, {
+      const res = await fetch(`${API_ORIGIN}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, new_password: password })

@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
+import { API_ORIGIN as API } from '../lib/api'
 
 export default function ActivatePage() {
   const { t } = useLang()

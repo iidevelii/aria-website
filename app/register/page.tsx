@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLang, useAuth } from '../ClientShell'
+import { API_ORIGIN } from '../lib/api'
 
 export default function Register() {
   const router = useRouter()
@@ -17,7 +18,7 @@ export default function Register() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/register`, {
+      const res = await fetch(`${API_ORIGIN}/register`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

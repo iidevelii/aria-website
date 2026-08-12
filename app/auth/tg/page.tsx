@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useLang } from '../../ClientShell';
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app';
+import { API_ORIGIN as API } from '../../lib/api';
 
 export default function TgAuthPage() {
   const router = useRouter();

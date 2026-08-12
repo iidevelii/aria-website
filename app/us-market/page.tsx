@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
 import ComingSoonUSMarket from '../ComingSoonUSMarket'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
+import { API_ORIGIN as API } from '../lib/api'
 
 type HomeSummary = {
   count_24h: number

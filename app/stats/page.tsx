@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
+import { API_ORIGIN } from '../lib/api'
 
 export default function Stats() {
   const { t, lang } = useLang()
@@ -11,7 +12,7 @@ export default function Stats() {
   const [activeMonth, setActiveMonth] = useState('')
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/signals`)
+    fetch(`${API_ORIGIN}/signals`)
       .then(r => r.json())
       .then(d => {
         setSignals(Array.isArray(d) ? d : [])

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
+import { API_ORIGIN } from '../lib/api'
 
 export default function ForgotPassword() {
   const { t } = useLang()
@@ -15,7 +16,7 @@ export default function ForgotPassword() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'}/forgot-password`, {
+      const res = await fetch(`${API_ORIGIN}/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

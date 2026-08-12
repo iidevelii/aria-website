@@ -2,6 +2,7 @@
 import { useState, useEffect, useLayoutEffect, createContext, useContext } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import { API_ORIGIN as API } from './lib/api'
 
 // ── Auth Context ──────────────────────────────────────────
 // شكل رد /user/{id} بباك اند aria-bot (main.py get_user) -- موحّد هنا
@@ -26,8 +27,6 @@ const PUBLIC = ['/', '/login', '/register', '/forgot-password', '/reset-password
 // صفحات "standalone" — تُفتح كنافذة منبثقة مستقلة (window.open) وعندها هيدر خاص فيها،
 // فما نبي القائمة الجانبية/التيكر/الهيدر العام يتكرر فوقها
 const STANDALONE = ['/chart']
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-97af6.up.railway.app'
 
 // ── SVG Icons ─────────────────────────────────────────────
 const Icons = {
@@ -341,8 +340,11 @@ export default function ClientShell({children}:{children:React.ReactNode}) {
   const fetchUser = async () => {
     // الهوية تُشتق من كوكي الجلسة (HttpOnly) عبر /me -- ما نحتاج نعرف
     // user_id أو نقرأ توكن من localStorage قبل المحاولة أصلاً. credentials:
-    // 'include' إلزامي هنا (والعبر كل نداء API محمي بالموقع) عشان المتصفح
-    // يرسل الكوكي مع طلب cross-site (devel-bot.space -> railway.app).
+    // 'include' إلزامي هنا (وعبر كل نداء API محمي بالموقع) عشان المتصفح يرسل
+    // الكوكي. الـ API على دومين فرعي بنفس النطاق المسجّل (api.devel-bot.space)
+    // فالكوكي same-site -- بدون هذا الدومين المخصص كان الطلب cross-site
+    // (devel-bot.space -> دومين Railway مختلف) وكان يُحظر بمتصفحات
+    // Safari ITP/Brave/Chrome Incognito/Firefox strict (راجع P0-2).
     try{
       const r=await fetch(`${API}/me`,{credentials:'include'})
       if(!r.ok){localStorage.removeItem('token');localStorage.removeItem('user_id');setUser(null);setAuthLoading(false);return}
