@@ -41,11 +41,17 @@
   --lh-tight: 1.1; --lh-normal: 1.5; --lh-relaxed: 1.7;
 
   /* ── Shadow / glow tokens ── */
+  /* الوهج قُلّل (كان 0.18 لكل الثلاثة) بناءً على مراجعة تحسينات.md --
+     "تقليل Gradients والوهج، الإحساس بلوحة أدوات تقنية مزدحمة" -- يبقى
+     محسوس بس أخف، مو نقطة تركيز بصرية تنافس المحتوى نفسه. */
   --shadow-card: 0 8px 24px rgba(0,0,0,0.28);
   --shadow-card-lg: 0 20px 60px rgba(0,0,0,0.35);
-  --glow-cyan:   0 0 40px rgba(0,196,239,0.18);
-  --glow-purple: 0 0 40px rgba(124,58,237,0.18);
-  --glow-green:  0 0 40px rgba(34,208,110,0.18);
+  --glow-cyan:   0 0 48px rgba(0,196,239,0.10);
+  --glow-purple: 0 0 48px rgba(124,58,237,0.10);
+  --glow-green:  0 0 48px rgba(34,208,110,0.10);
+
+  /* ── Focus ring موحّد (توحيد حالات الأزرار/المدخلات -- تحسينات.md) ── */
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--cyan);
 }
 
 html { scroll-behavior: smooth; }
@@ -71,6 +77,7 @@ body {
   white-space: nowrap;
 }
 .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .btn-ghost {
   display: inline-flex; align-items: center; gap: 6px;
@@ -190,8 +197,8 @@ body {
   position: absolute; border-radius: 50%; filter: blur(90px);
   pointer-events: none; z-index: 0;
 }
-.orb-1 { top: -12%; inset-inline-start: -12%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(0,196,239,0.16), transparent 70%); }
-.orb-2 { bottom: -18%; inset-inline-end: -12%; width: 480px; height: 480px; background: radial-gradient(circle, rgba(124,58,237,0.16), transparent 70%); }
+.orb-1 { top: -12%; inset-inline-start: -12%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(0,196,239,0.10), transparent 70%); }
+.orb-2 { bottom: -18%; inset-inline-end: -12%; width: 480px; height: 480px; background: radial-gradient(circle, rgba(124,58,237,0.10), transparent 70%); }
 .grid-bg {
   position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
@@ -204,6 +211,25 @@ body {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+/* ── Focus indicators (وصولية -- تحسينات.md: "Focus Indicators واضحة") ──
+   :focus-visible بدل :focus العام -- يظهر بس مع لوحة المفاتيح (Tab)، مو
+   عند كل نقرة فأرة، وهذا السلوك المتوقع بمعظم المتصفحات والمستخدمين. */
+a:focus-visible, button:focus-visible, .btn-primary:focus-visible,
+.btn-ghost:focus-visible, .btn-secondary:focus-visible,
+.input:focus-visible, [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* ── Marquee ── */
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
