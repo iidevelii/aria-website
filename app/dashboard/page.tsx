@@ -43,6 +43,16 @@ const MARKET_INTERVALS = [
   { key: '4h', label: '4h' }, { key: '1d', label: '1D' },
 ]
 
+// lightweight-charts يرسم على canvas -- ما يفهم متغيرات CSS (var(--green))،
+// يفشل بصمت ويرجع للأسود الافتراضي. لازم نقرأ القيمة الفعلية المحسوبة
+// (getComputedStyle) بدل تمرير النص var(...) مباشرة (مراجعة DevelBot_review.md
+// بند 21). fallback احتياطي لو تعذّر القراءة لأي سبب.
+function _cssVar(name: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return v || fallback
+}
+
 function MarketChart({ symbol }: { symbol: string }) {
   const chartRef = useRef<HTMLDivElement>(null)
   const [interval, setInterval_] = useState('1h')
@@ -50,8 +60,23 @@ function MarketChart({ symbol }: { symbol: string }) {
   useEffect(() => {
     if (!chartRef.current) return
     let chart: any
+    let series: any
     let resizeObs: ResizeObserver | null = null
+    let themeObs: MutationObserver | null = null
     let cancelled = false
+
+    const applyThemeColors = () => {
+      if (!chart || !series) return
+      const green = _cssVar('--green', '#22d06e')
+      const red = _cssVar('--red', '#f04060')
+      const muted = _cssVar('--muted', '#5a6478')
+      chart.applyOptions({ layout: { textColor: muted } })
+      series.applyOptions({
+        upColor: green, downColor: red,
+        borderUpColor: green, borderDownColor: red,
+        wickUpColor: green, wickDownColor: red,
+      })
+    }
 
     const init = async () => {
       const { createChart, CandlestickSeries } = await import('lightweight-charts')
@@ -60,7 +85,7 @@ function MarketChart({ symbol }: { symbol: string }) {
       chart = createChart(chartRef.current, {
         width: chartRef.current.clientWidth,
         height: 450,
-        layout: { background: { color: 'transparent' }, textColor: 'var(--muted)' },
+        layout: { background: { color: 'transparent' }, textColor: _cssVar('--muted', '#5a6478') },
         grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
         crosshair: { mode: 1 },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
@@ -73,11 +98,18 @@ function MarketChart({ symbol }: { symbol: string }) {
       })
       resizeObs.observe(chartRef.current)
 
-      const series = chart.addSeries(CandlestickSeries, {
-        upColor: 'var(--green)', downColor: 'var(--red)',
-        borderUpColor: 'var(--green)', borderDownColor: 'var(--red)',
-        wickUpColor: 'var(--green)', wickDownColor: 'var(--red)',
+      const green = _cssVar('--green', '#22d06e')
+      const red = _cssVar('--red', '#f04060')
+      series = chart.addSeries(CandlestickSeries, {
+        upColor: green, downColor: red,
+        borderUpColor: green, borderDownColor: red,
+        wickUpColor: green, wickDownColor: red,
       })
+
+      // إعادة حساب الألوان لحظة تبديل الثيم (data-theme على <html>) --
+      // بدونها الشارت يبقى بألوان الثيم القديم لحد ما تُعاد فتح الصفحة
+      themeObs = new MutationObserver(applyThemeColors)
+      themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 
       try {
         const candles = await fetchKlines(`${symbol}USDT`, interval, 200, 'SPOT')
@@ -88,7 +120,7 @@ function MarketChart({ symbol }: { symbol: string }) {
     }
 
     init()
-    return () => { cancelled = true; resizeObs?.disconnect(); if (chart) chart.remove() }
+    return () => { cancelled = true; resizeObs?.disconnect(); themeObs?.disconnect(); if (chart) chart.remove() }
   }, [symbol, interval])
 
   return (
