@@ -5,6 +5,7 @@ import { useLang } from '../ClientShell'
 import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
 import { API_ORIGIN as API } from '../lib/api'
+import { apiFetch } from '../lib/apiFetch'
 
 // شكل صف signals بباك اند aria-bot (database.py Signal model، مصفّى للحقول
 // اللي فعلياً تُستخدم بهالصفحة) -- موحّد هنا بدل any مبعثرة بكل استخدام.
@@ -355,6 +356,7 @@ export default function Dashboard() {
   const { t, lang } = useLang()
   const [user, setUser] = useState<any>(null)
   const [signals, setSignals] = useState<any[]>([])
+  const [signalsError, setSignalsError] = useState(false)
   const [news, setNews] = useState<any[]>([])
   const [gainers, setGainers] = useState<any[]>([])
   const [losers, setLosers] = useState<any[]>([])
@@ -402,10 +404,15 @@ export default function Dashboard() {
       .then(u => { if (u) setUser(u) })
       .catch(() => {})
 
-    fetch(`${API}/signals`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(s => setSignals(Array.isArray(s) ? s : []))
-      .catch(() => {})
+    apiFetch<any[]>(`${API}/signals`, { credentials: 'include' })
+      .then(res => {
+        if (res.ok) {
+          setSignals(Array.isArray(res.data) ? res.data : [])
+          setSignalsError(false)
+        } else {
+          setSignalsError(true)
+        }
+      })
       .finally(() => setLoading(false))
 
     fetch('https://api.binance.com/api/v3/ticker/24hr')
@@ -548,7 +555,13 @@ export default function Dashboard() {
               {/* Latest signal */}
               <div className="card-glow-cyan" style={{ padding: '24px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>{t('آخر اشارة', 'Latest Signal')}</div>
-                {signals.length === 0 ? (
+                {signalsError ? (
+                  <div style={{ textAlign: 'center', padding: '32px', color: 'var(--muted)' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
+                    <div style={{ fontWeight: 600 }}>{t('تعذّر تحميل الإشارات', 'Failed to load signals')}</div>
+                    <div style={{ fontSize: '13px', marginTop: '4px' }}>{t('تحقق من الاتصال وحدّث الصفحة', 'Check your connection and refresh the page')}</div>
+                  </div>
+                ) : signals.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '32px', color: 'var(--muted)' }}>
                     <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔍</div>
                     <div style={{ fontWeight: 600 }}>{t('البوت يراقب السوق', 'The bot is watching the market')}</div>
@@ -723,7 +736,13 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {filteredSignals.length === 0 ? (
+            {signalsError ? (
+              <div className="card" style={{ textAlign: 'center', padding: '64px' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+                <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>{t('تعذّر تحميل الإشارات', 'Failed to load signals')}</div>
+                <div style={{ color: 'var(--muted)' }}>{t('تحقق من الاتصال وحدّث الصفحة', 'Check your connection and refresh the page')}</div>
+              </div>
+            ) : filteredSignals.length === 0 ? (
               <div className="card" style={{ textAlign: 'center', padding: '64px' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
                 <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
