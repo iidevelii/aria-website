@@ -7,18 +7,23 @@ import { API_ORIGIN } from '../lib/api'
 export default function Stats() {
   const { t, lang } = useLang()
   const [signals, setSignals] = useState<any[]>([])
+  const [activeEngines, setActiveEngines] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [activeMonth, setActiveMonth] = useState('')
 
   useEffect(() => {
-    fetch(`${API_ORIGIN}/signals`)
+    fetch(`${API_ORIGIN}/signals?limit=1000`)
       .then(r => r.json())
       .then(d => {
         setSignals(Array.isArray(d) ? d : [])
         setLoading(false)
       })
       .catch(() => { setLoadError(true); setLoading(false) })
+    fetch(`${API_ORIGIN}/bot-state/active_engines`)
+      .then(r => r.json())
+      .then(d => { try { setActiveEngines(JSON.parse(d.value) || {}) } catch { /* ignore */ } })
+      .catch(() => { /* شارة النشاط اختيارية -- ما توقف الصفحة لو فشلت */ })
   }, [])
 
   // تجميع الصفقات حسب الشهر
@@ -42,6 +47,22 @@ export default function Stats() {
   const totalPnlWin = wins.reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const totalPnlLoss = losses.reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const netPnl = totalPnlWin + totalPnlLoss
+
+  // تفصيل حسب الاستراتيجية (كل الوقت، مو مقيّد بالشهر المختار -- "منذ متى
+  // شغالة" يحتاج أول صفقة فعلية لكل محرك)
+  const ENGINE_LABELS: Record<string, string> = { TREND_MTF: '🌊 Trend MTF', SMC_MTF: '🧿 SMC MTF', RETEST_MTF: '🔁 Retest MTF' }
+  const engineStats = Object.keys(ENGINE_LABELS).map(eng => {
+    const eSigs = signals.filter(s => s.engine === eng)
+    if (eSigs.length === 0) return null
+    const eWins = eSigs.filter(s => s.status === 'WIN')
+    const eLosses = eSigs.filter(s => s.status === 'LOSS')
+    const eClosed = eWins.length + eLosses.length
+    const eWr = eClosed > 0 ? Math.round(eWins.length / eClosed * 100) : 0
+    const eNet = [...eWins, ...eLosses].reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+    const firstDate = eSigs.reduce((min, s) => { const d = new Date(s.created_at).getTime(); return d < min ? d : min }, Date.now())
+    const daysLive = Math.max(1, Math.floor((Date.now() - firstDate) / 86400000))
+    return { engine: eng, label: ENGINE_LABELS[eng], closed: eClosed, wins: eWins.length, losses: eLosses.length, wr: eWr, net: eNet, daysLive, active: activeEngines[eng] ?? null }
+  }).filter(Boolean) as { engine: string; label: string; closed: number; wins: number; losses: number; wr: number; net: number; daysLive: number; active: boolean | null }[]
 
   const getDuration = (s: any) => {
     if (!s.closed_at) return '—'
@@ -112,6 +133,39 @@ export default function Stats() {
             </div>
           ))}
         </div>
+
+        {/* Per-Strategy Breakdown */}
+        {engineStats.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '12px' }}>{t('نتائج كل استراتيجية', 'Results by strategy')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+              {engineStats.map(e => (
+                <div key={e.engine} className="stat-card" style={{ padding: '18px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontWeight: 800, fontSize: '14px' }}>{e.label}</span>
+                    {e.active !== null && (
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: e.active ? 'var(--green)' : 'var(--muted)' }}>
+                        {e.active ? t('🟢 شغالة', '🟢 Live') : t('⏸️ متوقفة', '⏸️ Paused')}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>
+                    {t(`منذ ${e.daysLive} يوم`, `Running for ${e.daysLive} days`)}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span>{t('صفقات', 'Trades')}: <b>{e.closed}</b></span>
+                    <span style={{ color: 'var(--green)' }}>✅ {e.wins}</span>
+                    <span style={{ color: 'var(--red)' }}>❌ {e.losses}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginTop: '8px' }}>
+                    <span>{t('نسبة الفوز', 'Win rate')}: <b style={{ color: e.wr >= 60 ? 'var(--green)' : 'var(--yellow)' }}>{e.wr}%</b></span>
+                    <span>{t('صافي', 'Net')}: <b style={{ color: e.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{e.net >= 0 ? '+' : ''}{e.net.toFixed(1)}%</b></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Signals Table */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden' }}>
