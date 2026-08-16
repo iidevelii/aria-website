@@ -50,19 +50,46 @@ export default function Stats() {
 
   // تفصيل حسب الاستراتيجية (كل الوقت، مو مقيّد بالشهر المختار -- "منذ متى
   // شغالة" يحتاج أول صفقة فعلية لكل محرك)
-  const ENGINE_LABELS: Record<string, string> = { TREND_MTF: '🌊 Trend MTF', SMC_MTF: '🧿 SMC MTF', RETEST_MTF: '🔁 Retest MTF' }
-  const engineStats = Object.keys(ENGINE_LABELS).map(eng => {
-    const eSigs = signals.filter(s => s.engine === eng)
-    if (eSigs.length === 0) return null
-    const eWins = eSigs.filter(s => s.status === 'WIN')
-    const eLosses = eSigs.filter(s => s.status === 'LOSS')
-    const eClosed = eWins.length + eLosses.length
-    const eWr = eClosed > 0 ? Math.round(eWins.length / eClosed * 100) : 0
-    const eNet = [...eWins, ...eLosses].reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
-    const firstDate = eSigs.reduce((min, s) => { const d = new Date(s.created_at).getTime(); return d < min ? d : min }, Date.now())
-    const daysLive = Math.max(1, Math.floor((Date.now() - firstDate) / 86400000))
-    return { engine: eng, label: ENGINE_LABELS[eng], closed: eClosed, wins: eWins.length, losses: eLosses.length, wr: eWr, net: eNet, daysLive, active: activeEngines[eng] ?? null }
-  }).filter(Boolean) as { engine: string; label: string; closed: number; wins: number; losses: number; wr: number; net: number; daysLive: number; active: boolean | null }[]
+  const ENGINE_LABELS: Record<string, string> = {
+    TREND_MTF: '🌊 Trend MTF', SMC_MTF: '🧿 SMC MTF', RETEST_MTF: '🔁 Retest MTF',
+    SMART_MONEY_BREAKOUT: '🟢 Smart Money Breakout', IMBA_ALGO: '🔴 IMBA Algo',
+  }
+
+  function summarize(rows: any[]) {
+    const w = rows.filter(s => s.status === 'WIN')
+    const l = rows.filter(s => s.status === 'LOSS')
+    const o = rows.filter(s => s.status === 'OPEN')
+    const closedN = w.length + l.length
+    const wr = closedN > 0 ? Math.round(w.length / closedN * 100) : 0
+    const net = [...w, ...l].reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
+    return { total: rows.length, closed: closedN, wins: w.length, losses: l.length, open: o.length, wr, net }
+  }
+
+  function engineBreakdown(rows: any[]) {
+    return Object.keys(ENGINE_LABELS).map(eng => {
+      const eSigs = rows.filter(s => s.engine === eng)
+      if (eSigs.length === 0) return null
+      const s = summarize(eSigs)
+      const firstDate = eSigs.reduce((min, x) => { const d = new Date(x.created_at).getTime(); return d < min ? d : min }, Date.now())
+      const daysLive = Math.max(1, Math.floor((Date.now() - firstDate) / 86400000))
+      return { engine: eng, label: ENGINE_LABELS[eng], ...s, daysLive, active: activeEngines[eng] ?? null }
+    }).filter(Boolean) as { engine: string; label: string; total: number; closed: number; wins: number; losses: number; open: number; wr: number; net: number; daysLive: number; active: boolean | null }[]
+  }
+
+  // إعادة هيكلة الاستراتيجيات (إصدار ٢): من أول صفقة Retest MTF فصاعداً --
+  // نقطة التحوّل مُستنتَجة من البيانات نفسها (أول إشارة RETEST_MTF فعلية)
+  // بدل تاريخ مثبّت بالكود، فتبقى صحيحة تلقائياً بدون صيانة يدوية.
+  const retestSignals = signals.filter(s => s.engine === 'RETEST_MTF')
+  const retestCutoverTs = retestSignals.length > 0
+    ? Math.min(...retestSignals.map(s => new Date(s.created_at).getTime()))
+    : null
+
+  const v1Signals = retestCutoverTs ? signals.filter(s => new Date(s.created_at).getTime() < retestCutoverTs) : []
+  const v2Signals = retestCutoverTs ? signals.filter(s => new Date(s.created_at).getTime() >= retestCutoverTs) : signals
+
+  const v1Summary = summarize(v1Signals)
+  const v2Summary = summarize(v2Signals)
+  const engineStats = engineBreakdown(v2Signals)
 
   const getDuration = (s: any) => {
     if (!s.closed_at) return '—'
@@ -134,10 +161,37 @@ export default function Stats() {
           ))}
         </div>
 
-        {/* Per-Strategy Breakdown */}
+        {/* إصدار سابق (متوقف) -- كل الاستراتيجيات قبل إضافة Retest MTF،
+            معروض كأرشيف مجمَّع وليس بتفصيل كل استراتيجية على حدة */}
+        {retestCutoverTs && v1Summary.total > 0 && (
+          <div style={{ marginBottom: '16px', background: 'var(--surface)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '18px 20px' }}>
+            <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--muted)', marginBottom: '8px' }}>
+              {t('⏸️ إصدار سابق (متوقف) — قبل إضافة Retest MTF', '⏸️ Previous version (discontinued) — before Retest MTF')}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '12px', lineHeight: 1.6 }}>
+              {t('يضم الاستراتيجيات القديمة (Trend MTF + SMC MTF) قبل إعادة الهيكلة — معروض للأرشيف فقط، غير مستخدم بالتوليد الحالي.',
+                 'Includes the old strategies (Trend MTF + SMC MTF) before the restructure — shown for archive only, not part of current signal generation.')}
+            </div>
+            <div style={{ display: 'flex', gap: '24px', fontSize: '13px', flexWrap: 'wrap' }}>
+              <span>{t('صفقات', 'Trades')}: <b>{v1Summary.closed}</b></span>
+              <span>{t('نسبة الفوز', 'Win rate')}: <b>{v1Summary.wr}%</b></span>
+              <span>{t('صافي', 'Net')}: <b style={{ color: v1Summary.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{v1Summary.net >= 0 ? '+' : ''}{v1Summary.net.toFixed(2)}%</b></span>
+            </div>
+          </div>
+        )}
+
+        {/* Per-Strategy Breakdown -- الإصدار الحالي (من Retest MTF فصاعداً
+            لو فيه تحوّل مسجَّل، وإلا كل السجل زي ما هو) */}
         {engineStats.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '12px' }}>{t('نتائج كل استراتيجية', 'Results by strategy')}</div>
+            <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '4px' }}>
+              {retestCutoverTs ? t('🟢 الإصدار الحالي — نتائج كل استراتيجية', '🟢 Current version — results by strategy') : t('نتائج كل استراتيجية', 'Results by strategy')}
+            </div>
+            {retestCutoverTs && (
+              <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '12px' }}>
+                {t('من إضافة Retest MTF فصاعداً', 'Since Retest MTF was added')}
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
               {engineStats.map(e => (
                 <div key={e.engine} className="stat-card" style={{ padding: '18px' }}>
@@ -164,6 +218,12 @@ export default function Stats() {
                 </div>
               ))}
             </div>
+            {retestCutoverTs && (
+              <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end', gap: '8px', fontSize: '14px' }}>
+                <span style={{ fontWeight: 700 }}>{t('الصافي الإجمالي (الإصدار الحالي)', 'Total net (current version)')}:</span>
+                <b style={{ color: v2Summary.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{v2Summary.net >= 0 ? '+' : ''}{v2Summary.net.toFixed(2)}%</b>
+              </div>
+            )}
           </div>
         )}
 
