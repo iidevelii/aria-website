@@ -404,7 +404,7 @@ export default function Dashboard() {
       .then(u => { if (u) setUser(u) })
       .catch(() => {})
 
-    apiFetch<any[]>(`${API}/signals`, { credentials: 'include' })
+    const fetchSignals = () => apiFetch<any[]>(`${API}/signals`, { credentials: 'include' })
       .then(res => {
         if (res.ok) {
           setSignals(Array.isArray(res.data) ? res.data : [])
@@ -414,6 +414,10 @@ export default function Dashboard() {
         }
       })
       .finally(() => setLoading(false))
+    fetchSignals()
+    // تحديث دوري -- بدونه محاكي المحفظة (وباقي التبويبات) يجمد على أول تحميل
+    // للصفحة، لازم يبقى حي مع كل صفقة جديدة تُقفل بدون ما المستخدم يعيد التحميل يدوياً
+    const signalsPoll = setInterval(fetchSignals, 60000)
 
     fetch('https://api.binance.com/api/v3/ticker/24hr')
       .then(r => r.json())
@@ -433,6 +437,8 @@ export default function Dashboard() {
       .then(r => r.json())
       .then(nd => setNews(nd.items?.slice(0, 6) || []))
       .catch(() => {})
+
+    return () => clearInterval(signalsPoll)
   }, [])
 
   const wins = signals.filter(s => s.status === 'WIN').length
@@ -491,6 +497,35 @@ export default function Dashboard() {
   })
   const betterSide = sideStats[0].net === sideStats[1].net ? null : (sideStats[0].net > sideStats[1].net ? sideStats[0].side : sideStats[1].side)
 
+  // ── محاكي المحفظة: "لو دخلت بـ1000$" -- يُعاد حسابه من صفر كل مرة signals
+  // يتحدّث (مو state منفصل)، فيبقى حي مع كل صفقة تُقفل بدون أي منطق تخزين
+  // إضافي. صفقات مقفولة فقط (WIN/LOSS) -- المفتوحة نتيجتها غير معروفة بعد. ──
+  const PORTFOLIO_START = 1000
+  const PORTFOLIO_SLOTS = 5 // لكل سوق (5 سبوت + 5 فيوتشر = 10 حصص من رأس المال)
+  const closedChrono = signals
+    .filter(s => s.status === 'WIN' || s.status === 'LOSS')
+    .slice()
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+
+  // سيناريو 1: رأس المال مقسّم -- 500$ سبوت (5 حصص × 100$) + 500$ فيوتشر
+  // (5 حصص × 100$)، كل صفقة تاخذ حصة ثابتة (بدون إعادة استثمار الربح/الخسارة
+  // على الصفقة اللي بعدها -- توزيع محافظ، مو Compounding)
+  const diversifiedStake = (PORTFOLIO_START / 2) / PORTFOLIO_SLOTS // 100$ لكل صفقة
+  const spotClosed = closedChrono.filter(s => s.market === 'SPOT')
+  const futuresClosed = closedChrono.filter(s => s.market === 'FUTURES')
+  const spotPnlUsd = spotClosed.reduce((sum, s) => sum + diversifiedStake * (parseFloat(s.pnl_pct || '0') / 100), 0)
+  const futuresPnlUsd = futuresClosed.reduce((sum, s) => sum + diversifiedStake * (parseFloat(s.pnl_pct || '0') / 100), 0)
+  const diversifiedEnd = PORTFOLIO_START + spotPnlUsd + futuresPnlUsd
+
+  // سيناريو 2: ALL-IN -- رأس مال مستقل 1000$ لكل مسار (سبوت/فيوتشر)، كل
+  // صفقة تاخذ الرصيد بالكامل وتعيد استثمار النتيجة بالصفقة اللي بعدها
+  // (Compounding حقيقي -- هذا اللي يفسّر تقلّب الرقم بقوة صعوداً أو هبوطاً)
+  function allInCapital(rows: Signal[]) {
+    return rows.reduce((cap, s) => cap * (1 + parseFloat(s.pnl_pct || '0') / 100), PORTFOLIO_START)
+  }
+  const allInSpotEnd = allInCapital(spotClosed)
+  const allInFuturesEnd = allInCapital(futuresClosed)
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
@@ -536,6 +571,7 @@ export default function Dashboard() {
         <div className="tabs" style={{ marginBottom: '20px' }}>
           {[
             { id: 'overview', label: t('نظرة عامة', 'Overview') },
+            { id: 'portfolio', label: t('محاكي المحفظة', 'Portfolio Sim') },
             { id: 'signals', label: `${t('الاشارات', 'Signals')} (${total})` },
             { id: 'chart', label: t('الشارت', 'Chart') },
             { id: 'market', label: t('السوق', 'Market') },
@@ -651,6 +687,84 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* ── PORTFOLIO SIMULATOR ── */}
+        {tab === 'portfolio' && (() => {
+          const diversifiedNet = diversifiedEnd - PORTFOLIO_START
+          const diversifiedNetPct = (diversifiedNet / PORTFOLIO_START) * 100
+          const allInSpotNet = allInSpotEnd - PORTFOLIO_START
+          const allInFuturesNet = allInFuturesEnd - PORTFOLIO_START
+          const money = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          const PnlCard = ({ label, sub, start, end, netPct, count }: { label: string; sub: string; start: number; end: number; netPct: number; count: number }) => {
+            const up = end >= start
+            return (
+              <div className="card" style={{ padding: '20px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '2px' }}>{label}</div>
+                <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '16px' }}>{sub}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{t('رأس المال', 'Capital')}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '15px', color: 'var(--muted)', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>${money(start)}</span>
+                  <span style={{ color: 'var(--muted)' }}>←</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 900, color: up ? 'var(--green)' : 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>${money(end)}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ background: up ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)', color: up ? 'var(--green)' : 'var(--red)', border: `1px solid ${up ? 'rgba(0,230,100,0.25)' : 'rgba(255,85,85,0.25)'}`, borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                    {up ? '+' : ''}{netPct.toFixed(2)}%
+                  </span>
+                  <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{count} {t('صفقة مقفولة', 'closed trades')}</span>
+                </div>
+              </div>
+            )
+          }
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.15)', borderRadius: '14px', padding: '14px 18px', fontSize: '13px', color: 'var(--muted)' }}>
+                {t(
+                  'محاكاة توضيحية فقط، مبنية على صفقات البوت المقفولة الفعلية (WIN/LOSS) بترتيبها الزمني الحقيقي — تتحدّث تلقائياً مع كل صفقة جديدة تُقفل. مو نصيحة استثمارية، وأداء الماضي لا يضمن نتيجة مستقبلية.',
+                  'Illustrative simulation only, built from the bot\'s actual closed trades (WIN/LOSS) in real chronological order — updates automatically as each new trade closes. Not investment advice; past performance does not guarantee future results.'
+                )}
+              </div>
+
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '12px' }}>{t('السيناريو 1 — رأس مال موزَّع', 'Scenario 1 — Diversified capital')}</div>
+                <PnlCard
+                  label={t('1,000$ مقسومة: 5 صفقات سبوت + 5 صفقات فيوتشر', '$1,000 split: 5 spot + 5 futures trades')}
+                  sub={t(`كل صفقة تاخذ حصة ثابتة 100$ (500$ سبوت + 500$ فيوتشر) — بدون إعادة استثمار`, 'Each trade gets a fixed $100 slot ($500 spot + $500 futures) — no reinvestment')}
+                  start={PORTFOLIO_START} end={diversifiedEnd} netPct={diversifiedNetPct} count={spotClosed.length + futuresClosed.length}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+                  <div className="card" style={{ padding: '14px 18px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--yellow)', fontWeight: 700, marginBottom: '6px' }}>🟡 {t('مساهمة السبوت', 'Spot contribution')}</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '18px', color: spotPnlUsd >= 0 ? 'var(--green)' : 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>{spotPnlUsd >= 0 ? '+' : ''}${money(spotPnlUsd)}</div>
+                  </div>
+                  <div className="card" style={{ padding: '14px 18px' }}>
+                    <div style={{ fontSize: '11px', color: '#00c4ef', fontWeight: 700, marginBottom: '6px' }}>🔵 {t('مساهمة الفيوتشر', 'Futures contribution')}</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '18px', color: futuresPnlUsd >= 0 ? 'var(--green)' : 'var(--red)', fontVariantNumeric: 'tabular-nums' }}>{futuresPnlUsd >= 0 ? '+' : ''}${money(futuresPnlUsd)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '4px' }}>{t('السيناريو 2 — ALL-IN (رأس المال كامل كل صفقة)', 'Scenario 2 — ALL-IN (full balance every trade)')}</div>
+                <div style={{ fontSize: '12px', color: 'var(--red)', marginBottom: '12px' }}>
+                  ⚠️ {t('توضيحي بحت لإظهار أثر التركيز الكامل — مخاطرة قصوى وغير مُوصى بها إطلاقاً عملياً (خسارة صفقة وحدة تمسح كل شي).', 'Purely illustrative to show the effect of full concentration — extreme risk, never recommended in practice (a single loss wipes everything).')}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <PnlCard
+                    label={t('🟡 ALL-IN سبوت', '🟡 ALL-IN Spot')}
+                    sub={t('كل صفقة سبوت تاخذ الرصيد بالكامل، إعادة استثمار كاملة', 'Every spot trade takes the full balance, fully compounded')}
+                    start={PORTFOLIO_START} end={allInSpotEnd} netPct={(allInSpotNet / PORTFOLIO_START) * 100} count={spotClosed.length}
+                  />
+                  <PnlCard
+                    label={t('🔵 ALL-IN فيوتشر', '🔵 ALL-IN Futures')}
+                    sub={t('كل صفقة فيوتشر تاخذ الرصيد بالكامل، إعادة استثمار كاملة', 'Every futures trade takes the full balance, fully compounded')}
+                    start={PORTFOLIO_START} end={allInFuturesEnd} netPct={(allInFuturesNet / PORTFOLIO_START) * 100} count={futuresClosed.length}
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ── SIGNALS ── */}
         {tab === 'signals' && (
