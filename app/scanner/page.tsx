@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useLang } from '../ClientShell'
+import PatternChart from '../PatternChart'
+import { API_ORIGIN } from '../lib/api'
 
 // ── Indicators ───────────────────────────────────────────
 function ema(v: number[], p: number) { const k=2/(p+1),r=[v[0]];for(let i=1;i<v.length;i++)r.push(v[i]*k+r[i-1]*(1-k));return r }
@@ -13,47 +15,128 @@ function bbPct(c: number[], p=20) { const sl=c.slice(-p),m=sl.reduce((a,b)=>a+b,
 type Macd = { bullish: boolean; rising: boolean }
 type Adx = { adx: number; pdi: number; mdi: number }
 function scoreCalc(r: number, mc: Macd, ax: Adx, st: string) { let s=0;if(r>=70)s-=20;else if(r>=60)s+=25;else if(r>=50)s+=10;else if(r<=30)s+=20;else if(r<=40)s-=25;else s-=10;s+=mc.bullish?(mc.rising?25:15):(mc.rising?-15:-25);s+=ax.adx>25?(ax.pdi>ax.mdi?25:-25):(ax.pdi>ax.mdi?10:-10);s+=st==='up'?20:-20;return Math.max(-100,Math.min(100,s)) }
-function divCalc(c: number[], rs: number[], lb=20): 'bullish'|'bearish'|null { if(c.length<lb+5||rs.length<lb+5)return null;const pc=c.slice(-lb-5,-5),rc=c.slice(-5),pr=rs.slice(-lb-5,-5),rr=rs.slice(-5);if(Math.min(...rc)<Math.min(...pc)&&Math.min(...rr)>Math.min(...pr)+2)return'bullish';if(Math.max(...rc)>Math.max(...pc)&&Math.max(...rr)<Math.max(...pr)-2)return'bearish';return null }
+
+// نقطة قابلة للرسم على الشارت (وقت Unix بالثواني + سعر) -- تُحسب مباشرة
+// وقت الكشف (مو فهرس مصفوفة محلي) عشان تبقى صحيحة حتى لو PatternChart
+// جلب شموعه هو بنفسه بنطاق مختلف شوي عن مسح scan().
+type LinePt = { time: number; price: number }
+function idxOfExtreme(arr: number[], start: number, end: number, mode: 'min'|'max'): number {
+  let best = start
+  for (let i = start+1; i < end; i++) if (mode==='min' ? arr[i]<arr[best] : arr[i]>arr[best]) best = i
+  return best
+}
+
+function divCalc(c: number[], rs: number[], times: number[], lb=20): { type:'bullish'|'bearish'; lines: LinePt[][] } | null {
+  if(c.length<lb+5||rs.length<lb+5) return null
+  const pStart=c.length-lb-5, pEnd=c.length-5, rStart=c.length-5, rEnd=c.length
+  const pc=c.slice(pStart,pEnd), rc=c.slice(rStart,rEnd), pr=rs.slice(-lb-5,-5), rr=rs.slice(-5)
+  if(Math.min(...rc)<Math.min(...pc)&&Math.min(...rr)>Math.min(...pr)+2){
+    const i1=idxOfExtreme(c,pStart,pEnd,'min'), i2=idxOfExtreme(c,rStart,rEnd,'min')
+    return { type:'bullish', lines:[[{time:times[i1],price:c[i1]},{time:times[i2],price:c[i2]}]] }
+  }
+  if(Math.max(...rc)>Math.max(...pc)&&Math.max(...rr)<Math.max(...pr)-2){
+    const i1=idxOfExtreme(c,pStart,pEnd,'max'), i2=idxOfExtreme(c,rStart,rEnd,'max')
+    return { type:'bearish', lines:[[{time:times[i1],price:c[i1]},{time:times[i2],price:c[i2]}]] }
+  }
+  return null
+}
 // كان يتطلب فوليوم 3x + حركة 3% على نفس الشمعة الأخيرة بالضبط — على فريم 4h
 // الافتراضي هذا نادر جداً (يحتاج القفزتين تصير بنفس الشمعة بالضبط)، وما يفحص
 // إلا آخر شمعة وقت الفحص، فأي بمب/دمب صار قبل شمعة أو شمعتين يفوت تماماً.
 // خفّضنا الحدود (فوليوم 2x، حركة 2%) ونفحص آخر 3 شموع مو الأخيرة بس.
-function pdCalc(vols: number[], c: number[]): 'pump'|'dump'|null {
+function pdCalc(vols: number[], c: number[], times: number[]): { type:'pump'|'dump'; time: number } | null {
   if (vols.length < 22) return null
   const avg = vols.slice(-21, -1).reduce((a, b) => a + b, 0) / 20
   for (let i = vols.length - 3; i < vols.length; i++) {
     if (i < 1) continue
     const chg = (c[i] - c[i - 1]) / c[i - 1] * 100
     if (vols[i] > avg * 2) {
-      if (chg > 2) return 'pump'
-      if (chg < -2) return 'dump'
+      if (chg > 2) return { type: 'pump', time: times[i] }
+      if (chg < -2) return { type: 'dump', time: times[i] }
     }
   }
   return null
 }
 
 // ── Pattern Detection ────────────────────────────────────
-type Pat = { type: string; emoji: string; bullish: boolean|null; confidence: number; desc: { ar: string; en: string } }
+type Pat = { type: string; emoji: string; bullish: boolean|null; confidence: number; desc: { ar: string; en: string }; lines: LinePt[][] }
 type Pv  = { idx: number; val: number }
 function pivH(hi: number[], n=5): Pv[] { const r:Pv[]=[];for(let i=n;i<hi.length-n;i++)if(hi[i]===Math.max(...hi.slice(i-n,i+n+1)))r.push({idx:i,val:hi[i]});return r }
 function pivL(lo: number[], n=5): Pv[] { const r:Pv[]=[];for(let i=n;i<lo.length-n;i++)if(lo[i]===Math.min(...lo.slice(i-n,i+n+1)))r.push({idx:i,val:lo[i]});return r }
-function detectPat(hi: number[], lo: number[], c: number[]): Pat[] {
+function nearestPivotBetween(pivs: Pv[], startIdx: number, endIdx: number): Pv | null {
+  const mid = (startIdx+endIdx)/2
+  const cands = pivs.filter(p => p.idx > startIdx && p.idx < endIdx)
+  if (!cands.length) return null
+  return cands.reduce((a,b) => Math.abs(a.idx-mid) < Math.abs(b.idx-mid) ? a : b)
+}
+function detectPat(hi: number[], lo: number[], c: number[], times: number[]): Pat[] {
   const ph=pivH(hi),pl=pivL(lo),res:Pat[]=[]
-  if(pl.length>=2){const[a,b]=[pl[pl.length-2],pl[pl.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Bottom',emoji:'W',bullish:true,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قاع مزدوج',en:'Double bottom'}})}
-  if(ph.length>=2){const[a,b]=[ph[ph.length-2],ph[ph.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Top',emoji:'M',bullish:false,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قمة مزدوجة',en:'Double top'}})}
-  if(ph.length>=3){const[ls,hd,rs]=ph.slice(-3);if(hd.val>ls.val&&hd.val>rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Head & Shoulders',emoji:'⛰️',bullish:false,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان هبوطي',en:'Bearish head & shoulders'}})}}
-  if(pl.length>=3){const[ls,hd,rs]=pl.slice(-3);if(hd.val<ls.val&&hd.val<rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05)res.push({type:'Inv H&S',emoji:'🏔️',bullish:true,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان صعودي',en:'Bullish inverse head & shoulders'}})}}
-  if(c.length>=30){const pole=(c[c.length-15]-c[c.length-25])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bull Flag',emoji:'🚩',bullish:true,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بول فلاق +${pole.toFixed(1)}%`,en:`Bull flag +${pole.toFixed(1)}%`}})}
-  if(c.length>=30){const pole=(c[c.length-25]-c[c.length-15])/c[c.length-25]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8)res.push({type:'Bear Flag',emoji:'🏴',bullish:false,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بير فلاق -${pole.toFixed(1)}%`,en:`Bear flag -${pole.toFixed(1)}%`}})}
-  if(c.length>=60){const cs=c[c.length-50],ce=c[c.length-5],mid=Math.min(...c.slice(-45,-5));const s=Math.abs(cs-ce)/((cs+ce)/2),d=(Math.min(cs,ce)-mid)/Math.min(cs,ce);if(s<0.05&&d>0.10)res.push({type:'Cup & Handle',emoji:'☕',bullish:true,confidence:Math.round((1-s/0.05)*85),desc:{ar:'كوب وعروة صعودي',en:'Bullish cup & handle'}})}
+  const T = (i:number, price:number): LinePt => ({ time: times[i], price })
+
+  if(pl.length>=2){const[a,b]=[pl[pl.length-2],pl[pl.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Bottom',emoji:'W',bullish:true,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قاع مزدوج',en:'Double bottom'},lines:[[T(a.idx,a.val),T(b.idx,b.val)]]})}
+  if(ph.length>=2){const[a,b]=[ph[ph.length-2],ph[ph.length-1]];const s=Math.abs(a.val-b.val)/((a.val+b.val)/2);if(s<0.03&&b.idx-a.idx>=5)res.push({type:'Double Top',emoji:'M',bullish:false,confidence:Math.round((1-s/0.03)*90),desc:{ar:'قمة مزدوجة',en:'Double top'},lines:[[T(a.idx,a.val),T(b.idx,b.val)]]})}
+  if(ph.length>=3){const[ls,hd,rs]=ph.slice(-3);if(hd.val>ls.val&&hd.val>rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05){
+    const n1=nearestPivotBetween(pl,ls.idx,hd.idx), n2=nearestPivotBetween(pl,hd.idx,rs.idx)
+    const lines: LinePt[][] = [[T(ls.idx,ls.val),T(hd.idx,hd.val),T(rs.idx,rs.val)]]
+    if(n1&&n2) lines.push([T(n1.idx,n1.val),T(n2.idx,n2.val)])
+    res.push({type:'Head & Shoulders',emoji:'⛰️',bullish:false,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان هبوطي',en:'Bearish head & shoulders'},lines})
+  }}}
+  if(pl.length>=3){const[ls,hd,rs]=pl.slice(-3);if(hd.val<ls.val&&hd.val<rs.val){const sd=Math.abs(ls.val-rs.val)/((ls.val+rs.val)/2);if(sd<0.05){
+    const n1=nearestPivotBetween(ph,ls.idx,hd.idx), n2=nearestPivotBetween(ph,hd.idx,rs.idx)
+    const lines: LinePt[][] = [[T(ls.idx,ls.val),T(hd.idx,hd.val),T(rs.idx,rs.val)]]
+    if(n1&&n2) lines.push([T(n1.idx,n1.val),T(n2.idx,n2.val)])
+    res.push({type:'Inv H&S',emoji:'🏔️',bullish:true,confidence:Math.round((1-sd/0.05)*80),desc:{ar:'رأس وكتفان صعودي',en:'Bullish inverse head & shoulders'},lines})
+  }}}
+  if(c.length>=30){const i1=c.length-25,i2=c.length-15;const pole=(c[i2]-c[i1])/c[i1]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8){
+    const boxHi=Math.max(...hi.slice(-10)), boxLo=Math.min(...lo.slice(-10))
+    res.push({type:'Bull Flag',emoji:'🚩',bullish:true,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بول فلاق +${pole.toFixed(1)}%`,en:`Bull flag +${pole.toFixed(1)}%`},
+      lines:[[T(i1,c[i1]),T(i2,c[i2])],[T(c.length-10,boxHi),T(c.length-1,boxHi)],[T(c.length-10,boxLo),T(c.length-1,boxLo)]]})
+  }}
+  if(c.length>=30){const i1=c.length-25,i2=c.length-15;const pole=(c[i1]-c[i2])/c[i1]*100;const fr=(Math.max(...hi.slice(-10))-Math.min(...lo.slice(-10)))/c[c.length-10]*100;if(pole>10&&fr<8){
+    const boxHi=Math.max(...hi.slice(-10)), boxLo=Math.min(...lo.slice(-10))
+    res.push({type:'Bear Flag',emoji:'🏴',bullish:false,confidence:Math.min(90,Math.round(pole*4)),desc:{ar:`بير فلاق -${pole.toFixed(1)}%`,en:`Bear flag -${pole.toFixed(1)}%`},
+      lines:[[T(i1,c[i1]),T(i2,c[i2])],[T(c.length-10,boxHi),T(c.length-1,boxHi)],[T(c.length-10,boxLo),T(c.length-1,boxLo)]]})
+  }}
+  if(c.length>=60){const i1=c.length-50,i2=c.length-5,midStart=c.length-45,midEnd=c.length-5;const midIdx=idxOfExtreme(c,midStart,midEnd,'min');const cs=c[i1],ce=c[i2],mid=c[midIdx];const s=Math.abs(cs-ce)/((cs+ce)/2),d=(Math.min(cs,ce)-mid)/Math.min(cs,ce);if(s<0.05&&d>0.10)res.push({type:'Cup & Handle',emoji:'☕',bullish:true,confidence:Math.round((1-s/0.05)*85),desc:{ar:'كوب وعروة صعودي',en:'Bullish cup & handle'},lines:[[T(i1,cs),T(midIdx,mid),T(i2,ce)]]})}
   return res.sort((a,b)=>b.confidence-a.confidence).slice(0,2)
+}
+
+// ── Model selector (المرحلة 1: قائمة النماذج القابلة للاختيار) ──────
+const MODELS = [
+  { id:'all',               label:{ar:'كل النماذج',en:'All models'} },
+  { id:'Double Top',        label:{ar:'قمة مزدوجة',en:'Double Top'} },
+  { id:'Double Bottom',     label:{ar:'قاع مزدوج',en:'Double Bottom'} },
+  { id:'Head & Shoulders',  label:{ar:'رأس وكتفان',en:'Head & Shoulders'} },
+  { id:'Inv H&S',           label:{ar:'رأس وكتفان معكوس',en:'Inverse H&S'} },
+  { id:'Bull Flag',         label:{ar:'بول فلاق',en:'Bull Flag'} },
+  { id:'Bear Flag',         label:{ar:'بير فلاق',en:'Bear Flag'} },
+  { id:'Cup & Handle',      label:{ar:'كوب وعروة',en:'Cup & Handle'} },
+  { id:'Divergence',        label:{ar:'تباعد RSI',en:'RSI Divergence'} },
+  { id:'Pump',              label:{ar:'بمب',en:'Pump'} },
+  { id:'Dump',              label:{ar:'دمب',en:'Dump'} },
+] as const
+type ModelId = typeof MODELS[number]['id']
+
+function overlayFor(d: PairData, model: ModelId): { lines: LinePt[][]; markerTime?: number; bullish: boolean|null } | null {
+  if (model === 'all') {
+    if (d.patterns.length) return { lines: d.patterns[0].lines, bullish: d.patterns[0].bullish }
+    if (d.div) return { lines: d.div.lines, bullish: d.div.type==='bullish' }
+    if (d.pd) return { lines: [], markerTime: d.pd.time, bullish: d.pd.type==='pump' }
+    return null
+  }
+  if (model === 'Divergence') return d.div ? { lines: d.div.lines, bullish: d.div.type==='bullish' } : null
+  if (model === 'Pump') return d.pd?.type==='pump' ? { lines: [], markerTime: d.pd.time, bullish: true } : null
+  if (model === 'Dump') return d.pd?.type==='dump' ? { lines: [], markerTime: d.pd.time, bullish: false } : null
+  const p = d.patterns.find(p => p.type === model)
+  return p ? { lines: p.lines, bullish: p.bullish } : null
 }
 
 // ── Types ────────────────────────────────────────────────
 type PairData = {
   symbol: string; price: number; chg24h: number
   rsi: number; macd: Macd; adx: Adx; st: 'up'|'down'; bb: number; score: number
-  div: 'bullish'|'bearish'|null; pd: 'pump'|'dump'|null
+  div: { type:'bullish'|'bearish'; lines: LinePt[][] } | null
+  pd: { type:'pump'|'dump'; time: number } | null
   patterns: Pat[]; closes: number[]
 }
 
@@ -69,18 +152,6 @@ const PAIRS = [
 const TFS = ['15m','1h','4h','1d'] as const
 
 const fmtPrice = (p: number) => p>=10000?p.toLocaleString('en',{maximumFractionDigits:0}):p>=1?p.toFixed(3):p>=0.01?p.toFixed(5):p.toFixed(8)
-
-// ── Sparkline ─────────────────────────────────────────────
-function Spark({ data, up }: { data: number[]; up: boolean }) {
-  if (data.length < 2) return null
-  const w=80, h=28, mn=Math.min(...data), mx=Math.max(...data), rng=mx-mn||1
-  const pts = data.map((v,i) => `${(i/(data.length-1))*w},${h-((v-mn)/rng)*(h-2)+1}`).join(' ')
-  return (
-    <svg width={w} height={h} style={{ display:'block' }}>
-      <polyline points={pts} fill="none" stroke={up?'var(--green)':'var(--red)'} strokeWidth="1.5" strokeLinejoin="round"/>
-    </svg>
-  )
-}
 
 // ── RSI Arc ───────────────────────────────────────────────
 function RsiArc({ v }: { v: number }) {
@@ -117,12 +188,15 @@ function ScoreBadge({ v }: { v: number }) {
 }
 
 // ── Coin Card ─────────────────────────────────────────────
-function CoinCard({ d, tf }: { d: PairData; tf: string }) {
+function CoinCard({ d, tf, model }: { d: PairData; tf: string; model: ModelId }) {
   const { t } = useLang()
   const sym = d.symbol.replace('USDT','')
   const isUp = d.chg24h >= 0
-  const hasPat = d.patterns.length > 0
   const topPat = d.patterns[0]
+  const overlay = overlayFor(d, model)
+  // لما يُختار نموذج معيّن، الشارة/الوصف تحت الشارت لازم تعكس *ذاك* النموذج
+  // تحديداً (قد يكون مو أقوى نموذج على هالعملة) -- لا يبقى ثابت على topPat
+  const shownPat = model === 'all' ? topPat : d.patterns.find(p => p.type === model)
 
   return (
     <div style={{
@@ -180,31 +254,83 @@ function CoinCard({ d, tf }: { d: PairData; tf: string }) {
       {/* Badges row */}
       <div style={{ padding:'0 12px 10px', display:'flex', gap:'5px', flexWrap:'wrap' }}>
         {d.div && (
-          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.div==='bullish'?'rgba(0,196,239,0.12)':'rgba(245,200,66,0.12)', color:d.div==='bullish'?'var(--cyan)':'var(--yellow)', border:`1px solid ${d.div==='bullish'?'rgba(0,196,239,0.25)':'rgba(245,200,66,0.25)'}` }}>
-            {d.div==='bullish'?'↗ Div+':'↘ Div-'}
+          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.div.type==='bullish'?'rgba(0,196,239,0.12)':'rgba(245,200,66,0.12)', color:d.div.type==='bullish'?'var(--cyan)':'var(--yellow)', border:`1px solid ${d.div.type==='bullish'?'rgba(0,196,239,0.25)':'rgba(245,200,66,0.25)'}` }}>
+            {d.div.type==='bullish'?'↗ Div+':'↘ Div-'}
           </span>
         )}
         {d.pd && (
-          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.pd==='pump'?'rgba(0,230,100,0.12)':'rgba(255,68,85,0.12)', color:d.pd==='pump'?'var(--green)':'var(--red)', border:`1px solid ${d.pd==='pump'?'rgba(0,230,100,0.25)':'rgba(255,68,85,0.25)'}` }}>
-            {d.pd==='pump'?'🚀 Pump':'💥 Dump'}
+          <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:d.pd.type==='pump'?'rgba(0,230,100,0.12)':'rgba(255,68,85,0.12)', color:d.pd.type==='pump'?'var(--green)':'var(--red)', border:`1px solid ${d.pd.type==='pump'?'rgba(0,230,100,0.25)':'rgba(255,68,85,0.25)'}` }}>
+            {d.pd.type==='pump'?'🚀 Pump':'💥 Dump'}
           </span>
         )}
-        {hasPat && (
+        {shownPat && (
           <span style={{ padding:'2px 7px', borderRadius:'5px', fontSize:'10px', fontWeight:800, background:'rgba(107,31,255,0.12)', color:'var(--purple)', border:'1px solid rgba(107,31,255,0.25)' }}>
-            {topPat.emoji} {topPat.type}
+            {shownPat.emoji} {shownPat.type}
           </span>
         )}
       </div>
 
-      {/* Sparkline footer */}
-      <div style={{ padding:'0 16px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <Spark data={d.closes.slice(-30)} up={isUp} />
-        {hasPat && (
-          <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:'9px', color:'var(--muted)' }}>{t(topPat.desc.ar, topPat.desc.en)}</div>
-            <div style={{ fontSize:'10px', fontWeight:700, color:'var(--purple)' }}>{t(`${topPat.confidence}% ثقة`, `${topPat.confidence}% confidence`)}</div>
+      {/* شارت شموع كامل -- النموذج (المختار أو الأقوى تلقائياً بوضع "الكل")
+          مرسوم عليه فعلياً عبر overlay، بدل sparkline مصغّر بلا تفاصيل */}
+      <div style={{ padding:'0 12px 12px' }}>
+        <PatternChart symbol={d.symbol} timeframe={tf} overlay={overlay} height={160} />
+        {shownPat && (
+          <div style={{ marginTop:'6px', textAlign:'center' }}>
+            <span style={{ fontSize:'9px', color:'var(--muted)' }}>{t(shownPat.desc.ar, shownPat.desc.en)}</span>
+            {' · '}
+            <span style={{ fontSize:'10px', fontWeight:700, color:'var(--purple)' }}>{t(`${shownPat.confidence}% ثقة`, `${shownPat.confidence}% confidence`)}</span>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ── تكامل الباك إند (سكانر كامل السوق) ───────────────────
+// المسح المحلي فوق (JS بالمتصفح) محصور بـ50 عملة PAIRS -- كافي لعرض "كل
+// النماذج" الافتراضي. لما يُختار نموذج معيّن، نضيف له مطابقات كامل السوق
+// (~900 عملة فيوتشر+سبوت) من /v1/scanner/patterns (الباك إند يفحصها دورياً
+// كل 30 دقيقة، راجع KNOWLEDGE.md §5.56) -- عملات إضافية غير الـ50 المحلية،
+// بس بلا RSI/MACD/ADX/Score (الباك إند ما يحسبها لكل نموذج حالياً، بس
+// الهندسة والاتجاه)، فبطاقتها أبسط من CoinCard العادية.
+type ApiPatternMatch = {
+  symbol: string; market: string; timeframe: string; model: string
+  bullish: boolean | null; confidence: number | null; price_ref: number | null
+  geometry: { lines: LinePt[][]; marker_time?: number | null; bullish?: boolean | null }
+  detected_at: string
+}
+
+function ApiCoinCard({ m, lang }: { m: ApiPatternMatch; lang: string }) {
+  const { t } = useLang()
+  const sym = m.symbol.replace('USDT', '')
+  return (
+    <div style={{
+      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
+      boxShadow: 'var(--shadow-card)', overflow: 'hidden',
+    }}>
+      <div style={{ padding: '14px 16px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,rgba(0,196,239,0.15),rgba(107,31,255,0.15))', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '13px', color: 'var(--cyan)' }}>
+            {sym.slice(0, 3)}
+          </div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '-0.02em' }}>{sym}</div>
+            <div style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 600 }}>{m.market} · {m.timeframe}</div>
+          </div>
+        </div>
+        <span style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '10px', fontWeight: 800, background: 'rgba(107,31,255,0.12)', color: 'var(--purple)', border: '1px solid rgba(107,31,255,0.25)' }}>
+          {t('كامل السوق', 'Full market')}
+        </span>
+      </div>
+      <div style={{ padding: '0 12px 12px' }}>
+        <PatternChart symbol={m.symbol} timeframe={m.timeframe} market={m.market}
+          overlay={{ lines: m.geometry.lines, markerTime: m.geometry.marker_time ?? undefined, bullish: m.bullish }}
+          height={160} />
+        <div style={{ marginTop: '6px', textAlign: 'center' }}>
+          <span style={{ fontSize: '10px', fontWeight: 700, color: m.bullish ? 'var(--green)' : 'var(--red)' }}>
+            {m.model} {m.confidence != null ? `· ${m.confidence}%` : ''}
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -223,6 +349,23 @@ export default function ScannerPage() {
   const [countdown, setCountdown] = useState(900)
   const [lastScan, setLastScan]   = useState<Date|null>(null)
   const [sort, setSort]     = useState<'score'|'rsi'|'chg'>('score')
+  const [model, setModel]   = useState<ModelId>('all')
+  const [apiMatches, setApiMatches] = useState<ApiPatternMatch[]>([])
+  const [apiLoading, setApiLoading] = useState(false)
+
+  // نموذج معيّن (غير "الكل") -- نجيب مطابقاته من كامل السوق عبر الباك إند،
+  // إضافة على المسح المحلي (50 عملة)، لا بديل عنه.
+  useEffect(() => {
+    if (model === 'all') { setApiMatches([]); return }
+    let cancelled = false
+    setApiLoading(true)
+    fetch(`${API_ORIGIN}/v1/scanner/patterns?model=${encodeURIComponent(model)}&timeframe=${encodeURIComponent(tf)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then((rows: ApiPatternMatch[]) => { if (!cancelled) setApiMatches(Array.isArray(rows) ? rows : []) })
+      .catch(() => { if (!cancelled) setApiMatches([]) })
+      .finally(() => { if (!cancelled) setApiLoading(false) })
+    return () => { cancelled = true }
+  }, [model, tf])
 
   const scan = useCallback(async (timeframe = tf) => {
     setLoading(true); setProgress(0); setData([])
@@ -238,12 +381,13 @@ export default function ScannerPage() {
           const k = await kr.json(), t = await tr.json()
           if (!Array.isArray(k) || k.length < 50) return null
           const hi=k.map((x:(string|number)[])=>parseFloat(String(x[2]))),lo=k.map((x:(string|number)[])=>parseFloat(String(x[3]))),c=k.map((x:(string|number)[])=>parseFloat(String(x[4]))),v=k.map((x:(string|number)[])=>parseFloat(String(x[5])))
+          const times=k.map((x:(string|number)[])=>Number(x[0])/1000)
           const rsi=rsiVal(c), rs=rsiSeries(c), macd=macdCalc(c), adx=adxCalc(hi,lo,c), st=stCalc(hi,lo,c), bb=bbPct(c), score=scoreCalc(rsi,macd,adx,st)
           return {
             symbol:sym, price:parseFloat(t.lastPrice||c[c.length-1]), chg24h:parseFloat(t.priceChangePercent||'0'),
             rsi, macd, adx, st, bb, score,
-            div:divCalc(c,rs), pd:pdCalc(v,c),
-            patterns:detectPat(hi,lo,c), closes:c.slice(-50),
+            div:divCalc(c,rs,times), pd:pdCalc(v,c,times),
+            patterns:detectPat(hi,lo,c,times), closes:c.slice(-50),
           } as PairData
         } catch { return null }
       }))
@@ -273,6 +417,7 @@ export default function ScannerPage() {
   const sorted = [...data].sort((a,b) => sort==='score' ? b.score-a.score : sort==='rsi' ? b.rsi-a.rsi : b.chg24h-a.chg24h)
 
   const filtered = sorted.filter(d => {
+    if (model !== 'all' && overlayFor(d, model) === null) return false
     if (tab === 'bull')     return d.score >= 30
     if (tab === 'bear')     return d.score <= -30
     if (tab === 'div')      return d.div !== null
@@ -280,6 +425,11 @@ export default function ScannerPage() {
     if (tab === 'patterns') return d.patterns.length > 0
     return true
   })
+
+  // مطابقات كامل السوق (API) اللي مو موجودة أصلاً بالـ50 عملة المحلية --
+  // تفادي عرض نفس العملة مرتين لو صادف كانت ضمن PAIRS كمان
+  const localSymbols = new Set(data.map(d => d.symbol))
+  const extraApiMatches = apiMatches.filter(m => !localSymbols.has(m.symbol))
 
   const bull   = data.filter(d => d.score >= 30).length
   const bear   = data.filter(d => d.score <= -30).length
@@ -317,6 +467,11 @@ export default function ScannerPage() {
                   style={{ padding:'5px 12px', borderRadius:'6px', fontSize:'11px', fontWeight:700, background:tf===t?'var(--cyan)':'transparent', color:tf===t?'#000':'var(--muted)', border:'none', cursor:'pointer', fontFamily:'inherit' }}>{t}</button>
               ))}
             </div>
+            {/* Model -- اختيار نموذج معيّن يفلتر العملات ويرسمه فعلياً على شارت كل بطاقة */}
+            <select value={model} onChange={e => setModel(e.target.value as ModelId)}
+              style={{ background:model!=='all'?'rgba(107,31,255,0.12)':'var(--surface-2)', border:`1px solid ${model!=='all'?'rgba(107,31,255,0.35)':'var(--border)'}`, borderRadius:'7px', padding:'6px 10px', color:model!=='all'?'var(--purple)':'var(--text)', fontSize:'11px', fontFamily:'inherit', fontWeight:700 }}>
+              {MODELS.map(m => <option key={m.id} value={m.id}>{t(m.label.ar, m.label.en)}</option>)}
+            </select>
             {/* Sort */}
             <select value={sort} onChange={e => setSort(e.target.value as 'score'|'rsi'|'chg')}
               style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:'7px', padding:'6px 10px', color:'var(--text)', fontSize:'11px', fontFamily:'inherit', fontWeight:600 }}>
@@ -371,12 +526,34 @@ export default function ScannerPage() {
           </div>
         ) : (
           <>
-            {filtered.length === 0 && data.length > 0 && (
+            {filtered.length === 0 && extraApiMatches.length === 0 && !apiLoading && data.length > 0 && (
               <div style={{ textAlign:'center', padding:'60px', color:'var(--muted)' }}>{t('لا توجد عملات تطابق هذا الفلتر حالياً', 'No coins currently match this filter')}</div>
             )}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'12px' }}>
-              {filtered.map(d => <CoinCard key={d.symbol} d={d} tf={tf} />)}
-            </div>
+            {filtered.length > 0 && (
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'12px' }}>
+                {filtered.map(d => <CoinCard key={d.symbol} d={d} tf={tf} model={model} />)}
+              </div>
+            )}
+
+            {model !== 'all' && (
+              <div style={{ marginTop: filtered.length > 0 ? '28px' : 0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' }}>
+                  <span style={{ fontSize:'13px', fontWeight:800, color:'var(--purple)' }}>
+                    {t('كامل السوق', 'Full market')}
+                  </span>
+                  {apiLoading && <span style={{ fontSize:'11px', color:'var(--muted)' }}>{t('يجيب...', 'loading...')}</span>}
+                  {!apiLoading && <span style={{ fontSize:'11px', color:'var(--muted)' }}>{extraApiMatches.length}</span>}
+                </div>
+                {!apiLoading && extraApiMatches.length === 0 && (
+                  <div style={{ textAlign:'center', padding:'24px', color:'var(--muted)', fontSize:'13px' }}>
+                    {t('ما فيه تطابق إضافي بكامل السوق حالياً', 'No additional full-market matches right now')}
+                  </div>
+                )}
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'12px' }}>
+                  {extraApiMatches.map(m => <ApiCoinCard key={`${m.symbol}-${m.market}`} m={m} lang={lang} />)}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
