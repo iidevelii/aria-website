@@ -244,13 +244,13 @@ export default function BacktestResults() {
         {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '60px 0' }}>{t('جاري التحميل...', 'Loading...')}</p>}
         {!loading && !data && <p style={{ textAlign: 'center', color: 'var(--red)', padding: '60px 0' }}>{t('تعذّر تحميل البيانات', 'Failed to load data')}</p>}
 
-        {equity && (
+        {equity && data && !data.futures.engine.startsWith('TREND_MTF') && (
           <div style={{ marginBottom: '8px' }}>
             <EquityCurve
               points={equity.points}
               netPct={equity.netPct}
               totalTrades={equity.totalTrades}
-              label={`🔵 ${t('منحنى الفيوتشر (TREND_MTF)', 'Futures Equity Curve (TREND_MTF)')}`}
+              label={`🔵 ${t('منحنى الفيوتشر', 'Futures Equity Curve')}`}
             />
             <p style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '-8px', marginBottom: '32px', lineHeight: 1.7 }}>
               {t(
@@ -263,7 +263,9 @@ export default function BacktestResults() {
 
         {data && (
           <>
-            <MarketSection data={data.futures} emoji="🔵" market={['الفيوتشر', 'Futures']} />
+            {!data.futures.engine.startsWith('TREND_MTF') && (
+              <MarketSection data={data.futures} emoji="🔵" market={['الفيوتشر', 'Futures']} />
+            )}
 
             {spotEquity && (
               <div style={{ marginBottom: '8px' }}>
@@ -282,7 +284,7 @@ export default function BacktestResults() {
               </div>
             )}
 
-            {data.spotStrategies.map((s, i) => (
+            {data.spotStrategies.filter(s => !s.engine.startsWith('TREND_MTF')).map((s, i) => (
               <MarketSection key={s.key || i} data={s} emoji="🟡" market={['السبوت', 'Spot']} />
             ))}
           </>
