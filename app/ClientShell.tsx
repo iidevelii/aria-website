@@ -43,6 +43,7 @@ const Icons = {
   academy:   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>,
   bank:      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="21" x2="5" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/><line x1="14" y1="21" x2="14" y2="10"/><line x1="19" y1="21" x2="19" y2="10"/><polygon points="12 2 21 8 3 8"/></svg>,
   usMarket:  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="19" x2="20" y2="19"/><polyline points="4 15 9 9 13 12 20 5"/><polyline points="15 5 20 5 20 10"/></svg>,
+  autoTrade: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>,
   moon:      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   sun:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   logout:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
@@ -100,6 +101,7 @@ const NAV = [
   { href:'/academy',          label:'الأكاديمية',      labelEn:'Academy',         icon:Icons.academy },
   { href:'/us-market',        label:'السوق الأمريكي',  labelEn:'US Market',       icon:Icons.usMarket },
   { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
+  { href:'/exchange-link',    label:'التداول الآلي',   labelEn:'Auto-Trade',      icon:Icons.autoTrade },
   { href:'/settings',         label:'الإعدادات',       labelEn:'Settings',        icon:Icons.settings },
 ]
 
@@ -112,6 +114,7 @@ const PAGE_HELP: Record<string,{title:[string,string];sections:{icon:string;head
   '/coin-tracker':     {title:['دليل تتبع العملات','Coin Tracker Guide'],sections:[{icon:'🔔',heading:['إنشاء تنبيه','Creating an alert'],body:['أضف عملة وحدد نوع التنبيه: السعر فوق/تحت قيمة، أو نسبة تغير 24h.','Add a coin and set the alert type: price above/below a value, or 24h change percentage.']},{icon:'⚡',heading:['التشغيل','How it runs'],body:['يُفحص التنبيه كل 30 ثانية.','Alerts are checked every 30 seconds.']},{icon:'📋',heading:['التبويبات','Tabs'],body:['النشطة: لم تتحقق. المُشغَّلة: تحققت.','Active: not yet triggered. Triggered: already fired.']}]},
   '/ai-assistant':     {title:['دليل المساعد الذكي','AI Assistant Guide'],sections:[{icon:'🤖',heading:['ما يستطيع فعله','What it can do'],body:['شرح المؤشرات، تفسير الإشارات، نصائح إدارة المخاطر.','Explaining indicators, interpreting signals, and risk-management tips.']},{icon:'⚠️',heading:['تنبيه','Notice'],body:['تحليل تعليمي فقط، ليس نصيحة مالية.','Educational analysis only, not financial advice.']}]},
   '/api-docs':         {title:['دليل API','API Guide'],sections:[{icon:'🔗',heading:['Base URL','Base URL'],body:[`جميع الطلبات ترسل لـ ${API}`,`All requests are sent to ${API}`]},{icon:'📋',heading:['الصيغة','Format'],body:['Content-Type: application/json','Content-Type: application/json']}]},
+  '/exchange-link':    {title:['دليل التداول الآلي','Auto-Trade Guide'],sections:[{icon:'🔑',heading:['ربط المفتاح','Linking your key'],body:['مفتاح API بصلاحية تداول فقط، بدون صلاحية سحب أموال (Withdrawal) — نرفضه تلقائياً لو كانت مفعّلة.','A trade-only API key, no withdrawal permission — we auto-reject keys that have it enabled.']},{icon:'⚠️',heading:['المخاطرة','Risk'],body:['ينفّذ صفقات حقيقية بحسابك مباشرة بدون تأكيد يدوي. المسؤولية كاملة عليك.','Executes real trades on your account directly with no manual confirmation. Full responsibility is yours.']},{icon:'⚙️',heading:['الإعدادات','Settings'],body:['نسبة مخاطرة أو مبلغ ثابت لكل صفقة، رافعة قصوى، وأي سوق (سبوت/فيوتشر) يشتغل عليه.','Risk percent or a fixed amount per trade, max leverage, and which market (spot/futures) it trades.']}]},
 }
 
 function HelpModal({path,onClose}:{path:string;onClose:()=>void}) {
@@ -288,7 +291,7 @@ function TopBar({pathname,user,isMobile,onMenuClick}:{pathname:string;user:User|
     '/paper-trading':['التداول التجريبي','Paper Trading'],'/coin-tracker':['تتبع العملات','Coin Tracker'],'/ai-assistant':['مساعد AI','AI Assistant'],
     '/academy':['الأكاديمية','Academy'], '/us-market':['السوق الأمريكي','US Market'],
     '/api-docs':['توثيق API','API Docs'],'/subscribe':['الاشتراك','Subscribe'],'/backtest-results':['نتائج الباك تست','Backtest Results'],
-    '/settings':['الإعدادات','Settings'],
+    '/settings':['الإعدادات','Settings'],'/exchange-link':['التداول الآلي','Auto-Trade'],
   }
   const name=pageNames[pathname]
   if(!name && !isMobile) return null
