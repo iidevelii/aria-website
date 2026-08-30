@@ -30,7 +30,7 @@ function ChartView() {
   const closedAt = searchParams.get('closed_at') || ''
   const closePriceParam = parseFloat(searchParams.get('close_price') || '0')
   const pnlPctParam = parseFloat(searchParams.get('pnl_pct') || '0')
-  const isClosed = status === 'WIN' || status === 'LOSS'
+  const isClosed = status === 'WIN' || status === 'LOSS' || status === 'VOID'
 
   const [duration, setDuration] = useState('—')
   useEffect(() => {
@@ -224,6 +224,7 @@ function ChartView() {
             {status === 'WIN' && <span style={{ background: 'rgba(0,230,100,0.15)', color: 'var(--green)', border: '1px solid rgba(0,230,100,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>🏆 {t('ربح', 'Win')}</span>}
             {status === 'LOSS' && <span style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--red)', border: '1px solid rgba(255,85,85,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>❌ {t('خسارة', 'Loss')}</span>}
             {status === 'OPEN' && <span style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--yellow)', border: '1px solid rgba(251,191,36,0.35)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>● {t('مفتوحة', 'Open')}</span>}
+            {status === 'VOID' && <span title={t('أُلغيت إدارياً — العملة اتلغت من المنصة، عطل تقني مو نتيجة تحليل', 'Administratively voided — the symbol was delisted, a technical issue not a trading outcome')} style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--muted)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '8px', padding: '4px 12px', fontSize: '13px', fontWeight: 800 }}>⊘ {t('ملغاة', 'Void')}</span>}
             {duration !== '—' && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--muted)', fontSize: '13px' }}>
                 ⏱ {t('المدة', 'Duration')}: <span style={{ fontFamily: 'monospace', color: 'white', fontWeight: 700 }}>{duration}</span>
@@ -274,6 +275,7 @@ function ChartView() {
               <span style={{ color: barColor, fontWeight: 700 }}>
                 {status === 'WIN' ? t('🎯 وصل الهدف', '🎯 Target hit')
                   : status === 'LOSS' ? t('⛔ وصل الوقف', '⛔ Stop hit')
+                  : status === 'VOID' ? t('⊘ إلغاء إداري', '⊘ Administratively voided')
                   : t(`${progress.toFixed(0)}% نحو الهدف`, `${progress.toFixed(0)}% to Target`)}
               </span>
               <span style={{ color: 'var(--green)' }}>{t('هدف', 'Target')}</span>

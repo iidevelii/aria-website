@@ -147,8 +147,8 @@ export default function Stats() {
                       <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: 'var(--green)' }}>${s.tp}</td>
                       <td style={{ padding: '14px 16px', fontFamily: 'monospace', color: 'var(--red)' }}>${s.sl}</td>
                       <td style={{ padding: '14px 16px' }}>
-                        <span style={{ background: s.status === 'WIN' ? 'rgba(0,230,100,0.1)' : s.status === 'LOSS' ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)', color: s.status === 'WIN' ? 'var(--green)' : s.status === 'LOSS' ? 'var(--red)' : 'var(--yellow)', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700 }}>
-                          {s.status === 'WIN' ? t('✓ ربح', '✓ Win') : s.status === 'LOSS' ? t('✗ خسارة', '✗ Loss') : t('● مفتوحة', '● Open')}
+                        <span title={s.status === 'VOID' ? t('أُلغيت إدارياً — عطل تقني (رمز مُلغى)، مو نتيجة تحليل', 'Administratively voided — a technical issue, not a trading outcome') : undefined} style={{ background: s.status === 'WIN' ? 'rgba(0,230,100,0.1)' : s.status === 'LOSS' ? 'rgba(255,85,85,0.1)' : s.status === 'VOID' ? 'rgba(255,255,255,0.06)' : 'rgba(251,191,36,0.1)', color: s.status === 'WIN' ? 'var(--green)' : s.status === 'LOSS' ? 'var(--red)' : s.status === 'VOID' ? 'var(--muted)' : 'var(--yellow)', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 700 }}>
+                          {s.status === 'WIN' ? t('✓ ربح', '✓ Win') : s.status === 'LOSS' ? t('✗ خسارة', '✗ Loss') : s.status === 'VOID' ? t('⊘ ملغاة', '⊘ Void') : t('● مفتوحة', '● Open')}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', fontWeight: 700, color: s.pnl_pct ? (parseFloat(s.pnl_pct) > 0 ? 'var(--green)' : 'var(--red)') : 'var(--muted)' }}>

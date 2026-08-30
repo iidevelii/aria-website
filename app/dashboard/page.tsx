@@ -12,7 +12,7 @@ import { apiFetch } from '../lib/apiFetch'
 type Signal = {
   id: number; pair: string; side: 'LONG' | 'SHORT'
   entry: string; tp: string; sl: string; tp_pct: string; sl_pct: string
-  regime: string | null; ai_score: number; status: 'OPEN' | 'WIN' | 'LOSS'
+  regime: string | null; ai_score: number; status: 'OPEN' | 'WIN' | 'LOSS' | 'VOID'
   leverage: number; created_at: string; closed_at: string | null
   close_price: string | null; pnl_pct: string | null; market: 'SPOT' | 'FUTURES'
   engine: string | null; confirmed: boolean; confirmed_by: string | null
@@ -176,6 +176,7 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
   const isOpen = s.status === 'OPEN'
   const isWin = s.status === 'WIN'
   const isLoss = s.status === 'LOSS'
+  const isVoid = s.status === 'VOID'
 
   let livePct = 0
   if (cur && isOpen) {
@@ -189,7 +190,7 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
     else if (s.side === 'SHORT' && sl > tp) progress = Math.max(0, Math.min(100, ((sl - cur) / (sl - tp)) * 100))
   }
 
-  const statusColor = isWin ? 'var(--green)' : isLoss ? 'var(--red)' : 'var(--yellow)'
+  const statusColor = isWin ? 'var(--green)' : isLoss ? 'var(--red)' : isVoid ? 'var(--muted)' : 'var(--yellow)'
   const sideColor = s.side === 'LONG' ? 'var(--green)' : 'var(--red)'
   const pnlColor = levPct >= 0 ? 'var(--green)' : 'var(--red)'
   const barColor = progress > 70 ? 'var(--green)' : progress > 35 ? 'var(--yellow)' : 'var(--red)'
@@ -236,13 +237,13 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
           <span style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--muted)', borderRadius: '6px', padding: '3px 8px', fontSize: '11px' }}>
             {s.regime}
           </span>
-          <span style={{
-            background: isWin ? 'rgba(0,230,100,0.1)' : isLoss ? 'rgba(255,85,85,0.1)' : 'rgba(251,191,36,0.1)',
+          <span title={isVoid ? t('أُلغيت إدارياً — العملة اتلغت من المنصة بعد فتح الصفقة، عطل تقني مو نتيجة تحليل', 'Administratively voided — the symbol was delisted after the trade opened, a technical issue not a trading outcome') : undefined} style={{
+            background: isWin ? 'rgba(0,230,100,0.1)' : isLoss ? 'rgba(255,85,85,0.1)' : isVoid ? 'rgba(255,255,255,0.06)' : 'rgba(251,191,36,0.1)',
             color: statusColor,
             border: `1px solid ${statusColor}30`,
             borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700,
           }}>
-            {isWin ? t('✓ ربح', '✓ Win') : isLoss ? t('✗ خسارة', '✗ Loss') : t('● مفتوحة', '● Open')}
+            {isWin ? t('✓ ربح', '✓ Win') : isLoss ? t('✗ خسارة', '✗ Loss') : isVoid ? t('⊘ ملغاة', '⊘ Void') : t('● مفتوحة', '● Open')}
           </span>
           {closedPnl !== null && !isOpen && (
             <span style={{ fontWeight: 800, fontSize: '13px', color: closedPnl > 0 ? 'var(--green)' : 'var(--red)' }}>
