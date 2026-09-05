@@ -7,7 +7,7 @@ import { fetchKlines } from '../lib/klines'
 import { API_ORIGIN as API } from '../lib/api'
 import { apiFetch } from '../lib/apiFetch'
 
-// شكل صف signals بباك اند aria-bot (database.py Signal model، مصفّى للحقول
+// شكل صف signals بباك اند DevelBot (database.py Signal model، مصفّى للحقول
 // اللي فعلياً تُستخدم بهالصفحة) -- موحّد هنا بدل any مبعثرة بكل استخدام.
 type Signal = {
   id: number; pair: string; side: 'LONG' | 'SHORT'

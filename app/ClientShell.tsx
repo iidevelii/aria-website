@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { API_ORIGIN as API } from './lib/api'
 
 // ── Auth Context ──────────────────────────────────────────
-// شكل رد /user/{id} بباك اند aria-bot (main.py get_user) -- موحّد هنا
+// شكل رد /user/{id} بباك اند DevelBot (main.py get_user) -- موحّد هنا
 // عشان كل الصفحات اللي تستخدم useAuth() تعرف شكله بدل any مبعثرة بكل مكان.
 export type User = {
   id: number; email: string; username: string; telegram_id: string | null
