@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
+import { EngineBadge, RiskLadder, ScoreMeter, PerformanceStrip } from '../ui/v2'
+import { blendedBaseline } from '../lib/backtestBaselines'
 import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
 import { API_ORIGIN as API } from '../lib/api'
@@ -16,6 +18,17 @@ type Signal = {
   leverage: number; created_at: string; closed_at: string | null
   close_price: string | null; pnl_pct: string | null; market: 'SPOT' | 'FUTURES'
   engine: string | null; confirmed: boolean; confirmed_by: string | null
+}
+
+// شكل استجابة GET /v1/performance (main.py: _summarize_trades) -- بس الحقول
+// المستخدمة فعلياً بشريط الأداء الحي مقابل الباك تست.
+type PerformanceSummary = {
+  n: number; wins: number; losses: number; win_rate: number | null
+  avg_win_pct: number | null; avg_loss_pct: number | null
+}
+type PerformanceResponse = {
+  overall: PerformanceSummary
+  by_strategy: (PerformanceSummary & { engine: string })[]
 }
 
 function fmt(p: number | string) {
@@ -228,6 +241,7 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
             border: `1px solid ${s.market === 'SPOT' ? 'rgba(251,191,36,0.35)' : 'rgba(0,196,239,0.35)'}`,
             borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: 800,
           }}>{s.market === 'SPOT' ? t('🟡 سبوت', '🟡 Spot') : t('🔵 فيوتشر', '🔵 Futures')}</span>
+          {s.engine && <EngineBadge engine={s.engine} />}
           <span style={{
             background: s.side === 'LONG' ? 'rgba(0,230,100,0.12)' : 'rgba(255,85,85,0.12)',
             color: sideColor,
@@ -257,9 +271,8 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
               {fmtDate(s.created_at)}
             </span>
           )}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '9px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Score</div>
-            <div style={{ fontSize: '20px', fontWeight: 900, color: '#00c4ef', lineHeight: 1 }}>{s.ai_score}</div>
+          <div style={{ minWidth: 110 }} title={t('الثقة: A ≥90 · B ≥80 · C <80', 'Confidence: A ≥90 · B ≥80 · C <80')}>
+            <ScoreMeter score={s.ai_score} />
           </div>
         </div>
       </div>
@@ -318,19 +331,10 @@ function SignalCard({ s, prices }: { s: Signal, prices: Record<string, number> }
         </div>
       </div>
 
-      {/* ── Progress bar (OPEN only) ── */}
-      {isOpen && cur && (
-        <div style={{ marginTop: '4px' }}>
-          <div style={{ height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: '3px', transition: 'width 0.6s ease' }}/>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginTop: '5px' }}>
-            <span style={{ color: 'var(--red)' }}>{t('وقف', 'Stop')} ${fmt(sl)}</span>
-            <span style={{ color: barColor, fontWeight: 700 }}>{progress.toFixed(0)}% {t('نحو الهدف', 'to target')}</span>
-            <span style={{ color: 'var(--green)' }}>{t('هدف', 'Target')} ${fmt(tp)}</span>
-          </div>
-        </div>
-      )}
+      {/* ── سلّم المخاطرة: SL / الدخول / الآن / TP على محور واحد — R:R يُقرأ بالنظر ── */}
+      <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+        <RiskLadder side={s.side} entry={entry} sl={sl} tp={tp} current={isOpen && cur ? cur : undefined} />
+      </div>
 
       {/* ── شارت مضمّن — دخول/هدف/وقف على شموع حقيقية، زي شارت تلقرام ── */}
       <div style={{ marginTop: '12px' }}>
@@ -369,6 +373,25 @@ export default function Dashboard() {
   const [prices, setPrices] = useState<Record<string, number>>({})
   const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'WIN' | 'LOSS'>('ALL')
   const [marketFilter, setMarketFilter] = useState<'ALL' | 'SPOT' | 'FUTURES'>('ALL')
+  // شريط الأداء الحي مقابل الباك تست (UI v2) — /v1/performance للسوقين، آخر 30 يوم من by_month
+  const [perf, setPerf] = useState<{ live: { wr: number; pf: number; n: number }; bt: { wr: number; pf: number } } | null>(null)
+  useEffect(() => {
+    Promise.all(['FUTURES', 'SPOT'].map(m => apiFetch<PerformanceResponse>(`${API}/v1/performance?market=${m}`, { credentials: 'include' })))
+      .then(results => {
+        const byStrategy: { engine: string; n: number }[] = []
+        let n = 0, wins = 0, gw = 0, gl = 0
+        for (const rr of results) {
+          const r = rr.ok ? rr.data : null
+          if (!r?.overall) continue
+          for (const st of r.by_strategy || []) byStrategy.push({ engine: st.engine, n: st.n })
+          n += r.overall.n; wins += r.overall.wins
+          gw += (r.overall.avg_win_pct || 0) * r.overall.wins; gl += (r.overall.avg_loss_pct || 0) * r.overall.losses
+        }
+        if (!n) return
+        const bt = blendedBaseline(byStrategy)
+        if (bt) setPerf({ live: { wr: wins / n * 100, pf: gl > 0 ? gw / gl : 0, n }, bt })
+      })
+  }, [])
 
   useEffect(() => {
     const calc = () => { const n = new Date(); return 900 - ((n.getMinutes() % 15) * 60 + n.getSeconds()) }
@@ -827,6 +850,12 @@ export default function Dashboard() {
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {perf && (
+              <div style={{ marginBottom: '16px' }}>
+                <PerformanceStrip live={perf.live} backtest={perf.bt} period={t('كل الصفقات المغلقة', 'All closed trades')} />
               </div>
             )}
 

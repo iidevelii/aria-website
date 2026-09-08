@@ -1,0 +1,91 @@
+/* DevelBot UI v2 — كل الألوان من tokens.css (لا قيم حرفية). RTL-first؛ يعمل LTR تلقائياً عبر logical properties. */
+.v2-label { font-size: var(--fs-micro); font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.v2-num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; direction: ltr; unicode-bidi: isolate; }
+.v2-num--lg { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.up { color: var(--c-profit); } .down { color: var(--c-loss); }
+
+/* badges / chips / pills */
+.v2-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: var(--radius-pill);
+  font-size: var(--fs-micro); font-weight: 700; color: var(--badge-c); background: color-mix(in srgb, var(--badge-c) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--badge-c) 30%, transparent); }
+.v2-badge__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--badge-c); }
+.v2-chip { padding: 3px 9px; border-radius: var(--radius-sm); font-size: var(--fs-micro); font-weight: 800; letter-spacing: .04em; }
+.v2-chip--long { color: var(--c-long); background: var(--green-soft); }
+.v2-chip--short { color: var(--c-short); background: var(--red-soft); }
+.v2-pill { padding: 3px 10px; border-radius: var(--radius-pill); font-size: var(--fs-micro); font-weight: 700; border: 1px solid transparent; }
+.v2-pill--open { color: var(--c-open); background: var(--cyan-soft); }
+.v2-pill--pending { color: var(--c-pending); background: var(--yellow-soft); }
+.v2-pill--tp { color: var(--c-profit); background: var(--green-soft); }
+.v2-pill--sl { color: var(--c-loss); background: var(--red-soft); }
+.v2-pill--void, .v2-pill--expired { color: var(--c-void); border-color: var(--border); }
+.v2-market { font-size: var(--fs-micro); color: var(--muted); font-family: var(--mono); }
+.v2-auto { font-size: var(--fs-micro); color: var(--c-accent); font-weight: 700; }
+.v2-time { font-size: var(--fs-micro); color: var(--muted); }
+
+/* signal card */
+.v2-signal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4);
+  display: grid; gap: var(--space-4); transition: border-color var(--motion-base) var(--motion-ease); position: relative; }
+.v2-signal:hover { border-color: var(--border-hover); }
+.v2-signal::before { content: ""; position: absolute; inset-inline-start: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--border); }
+.v2-signal--open::before { background: var(--c-open); }
+.v2-signal--tp::before { background: var(--c-profit); }
+.v2-signal--sl::before { background: var(--c-loss); }
+.v2-signal--void { opacity: .8; }
+.v2-signal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); flex-wrap: wrap; }
+.v2-signal__id, .v2-signal__meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.v2-signal__pair { font-size: var(--fs-h3); font-weight: 800; letter-spacing: -.02em; margin: 0; direction: ltr; unicode-bidi: isolate; }
+.v2-signal__body { display: grid; grid-template-columns: 1fr minmax(120px, 160px); gap: var(--space-3) var(--space-4); align-items: center; }
+.v2-signal__body > .v2-ladder { grid-column: 1 / -1; }
+.v2-signal__void { margin: 0; font-size: var(--fs-small); color: var(--c-void); border-top: 1px dashed var(--border); padding-top: var(--space-3); }
+.v2-signal__result { margin: 0; font-size: var(--fs-small); font-weight: 700; }
+.v2-signal__foot { display: flex; gap: var(--space-2); }
+@media (max-width: 640px) { .v2-signal__body { grid-template-columns: 1fr; } }
+.v2-signal__entry { display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
+
+/* risk ladder */
+.v2-ladder { display: grid; gap: 6px; direction: ltr; }
+.v2-ladder__track { position: relative; height: 10px; border-radius: 5px; background: var(--surface-3); overflow: visible; }
+.v2-ladder__zone { position: absolute; top: 0; height: 100%; border-radius: 5px; }
+.v2-ladder__zone--risk { background: var(--red-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-loss) 35%, transparent); }
+.v2-ladder__zone--reward { background: var(--green-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-profit) 35%, transparent); }
+.v2-ladder__tick { position: absolute; top: -3px; width: 2px; height: 16px; margin-left: -1px; border-radius: 1px; }
+.v2-ladder__tick--entry { background: var(--text); }
+.v2-ladder__tick--now { background: var(--c-open); box-shadow: 0 0 0 3px var(--cyan-soft); }
+.v2-ladder__labels { display: flex; justify-content: space-between; font-size: var(--fs-micro); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.v2-ladder__l--sl { color: var(--c-loss); } .v2-ladder__l--tp { color: var(--c-profit); } .v2-ladder__l--rr { color: var(--muted); font-weight: 700; }
+.v2-ladder__l--rr em { font-style: normal; }
+
+/* score */
+.v2-score { display: grid; gap: 4px; }
+.v2-score__bar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.v2-score__bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-accent)); border-radius: 3px; }
+.v2-score__num { font-family: var(--mono); font-weight: 800; font-size: var(--fs-h3); color: var(--c-primary); }
+.v2-score__num small { font-size: var(--fs-micro); color: var(--muted); margin-inline-start: 4px; font-weight: 700; }
+
+/* stats */
+.v2-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); display: grid; gap: 4px; align-content: start; }
+.v2-stat__value { font-family: var(--mono); font-size: 26px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.v2-stat__sub { font-size: var(--fs-small); color: var(--muted); }
+.v2-spark polyline { stroke: var(--muted); } .v2-spark circle { fill: var(--muted); }
+.v2-spark.up polyline { stroke: var(--c-profit); } .v2-spark.up circle { fill: var(--c-profit); }
+.v2-spark.down polyline { stroke: var(--c-loss); } .v2-spark.down circle { fill: var(--c-loss); }
+
+/* performance strip */
+.v2-perf { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-4); align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); }
+.v2-perf__col { display: grid; gap: 2px; }
+.v2-perf__col--bt { border-inline-start: 1px solid var(--border); padding-inline-start: var(--space-4); opacity: .85; }
+.v2-perf__gap { font-size: var(--fs-small); font-weight: 700; padding: 6px 12px; border-radius: var(--radius-pill); }
+.v2-perf__gap.ok { color: var(--c-profit); background: var(--green-soft); }
+.v2-perf__gap.warn { color: var(--c-pending); background: var(--yellow-soft); }
+@media (max-width: 640px) { .v2-perf { grid-template-columns: 1fr 1fr; } .v2-perf__gap { grid-column: 1 / -1; text-align: center; } }
+
+/* buttons / misc */
+.v2-btn { font: inherit; font-size: var(--fs-small); font-weight: 700; padding: 8px 14px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); transition: background var(--motion-fast), border-color var(--motion-fast); }
+.v2-btn:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.v2-btn:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+.v2-btn--primary { background: var(--c-primary); color: #000; border-color: transparent; }
+.v2-btn--danger { background: var(--c-loss); color: #fff; border-color: transparent; }
+.v2-empty { display: grid; gap: 4px; place-items: center; padding: var(--space-7); color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius-lg); }
+.v2-skel { border-radius: var(--radius-md); background: linear-gradient(90deg, var(--surface-2), var(--surface-3), var(--surface-2)); background-size: 200% 100%; animation: v2-shimmer 1.2s infinite; }
+@keyframes v2-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .v2-skel { animation: none; } .v2-signal, .v2-btn { transition: none; } }

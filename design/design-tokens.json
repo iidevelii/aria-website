@@ -1,0 +1,46 @@
+{
+  "$schema": "develbot-tokens/v1",
+  "meta": { "name": "DevelBot Design Tokens", "version": "2.0.0", "source_of_truth": true,
+            "note": "يُولَّد منه app/tokens.css (الموقع) و lib/core/tokens.dart (Flutter) عبر gen_tokens.py — لا تعدّل الملفات المولَّدة يدوياً" },
+  "color": {
+    "dark": {
+      "bg": "#080a10", "surface": "#0d1017", "surface2": "#131720", "surface3": "#181d28",
+      "border": "rgba(255,255,255,0.06)", "borderHover": "rgba(255,255,255,0.11)",
+      "text": "#e8ecf4", "textSecondary": "#a9b3c4", "muted": "#5a6478", "dim": "#252b38",
+      "cyan": "#00c4ef", "cyanSoft": "rgba(0,196,239,0.10)",
+      "purple": "#7c3aed", "purpleSoft": "rgba(124,58,237,0.12)",
+      "green": "#22d06e", "greenSoft": "rgba(34,208,110,0.10)",
+      "red": "#f04060", "redSoft": "rgba(240,64,96,0.10)",
+      "yellow": "#f59e0b", "yellowSoft": "rgba(245,158,11,0.12)",
+      "void": "#8b93a7"
+    },
+    "light": {
+      "bg": "#f0f4f8", "surface": "#ffffff", "surface2": "#f6f8fb", "surface3": "#eef1f6",
+      "border": "rgba(13,17,23,0.08)", "borderHover": "rgba(13,17,23,0.16)",
+      "text": "#0d1117", "textSecondary": "#3d4656", "muted": "#6b7486", "dim": "#d7dce5",
+      "cyan": "#0088bb", "cyanSoft": "rgba(0,136,187,0.10)",
+      "purple": "#5a16d4", "purpleSoft": "rgba(90,22,212,0.10)",
+      "green": "#009944", "greenSoft": "rgba(0,153,68,0.10)",
+      "red": "#cc2233", "redSoft": "rgba(204,34,51,0.10)",
+      "yellow": "#b8860b", "yellowSoft": "rgba(184,134,11,0.12)",
+      "void": "#6b7486"
+    }
+  },
+  "semantic": {
+    "long": "green", "short": "red", "profit": "green", "loss": "red", "void": "void",
+    "open": "cyan", "pending": "yellow", "primary": "cyan", "accent": "purple",
+    "engine": { "SMC_MTF": "cyan", "RETEST_MTF": "purple", "BOLLINGER_REVERSION": "yellow",
+                "FUNDING_SQUEEZE": "green", "AVWAP_RETEST": "cyan", "US_TREND_PULLBACK": "purple" }
+  },
+  "font": {
+    "arabic": "IBM Plex Sans Arabic", "latin": "Inter", "mono": "JetBrains Mono",
+    "fallback": "system-ui, -apple-system, Segoe UI, sans-serif",
+    "note": "قرار التوحيد: التطبيق ينتقل من Cairo إلى IBM Plex Sans Arabic (أرقام جدولية أوضح)"
+  },
+  "typeScale": { "display": 44, "h1": 32, "h2": 24, "h3": 18, "body": 15, "small": 13, "micro": 11 },
+  "lineHeight": { "tight": 1.1, "normal": 1.5, "relaxed": 1.7 },
+  "space": { "1": 4, "2": 8, "3": 12, "4": 16, "5": 24, "6": 32, "7": 48, "8": 64 },
+  "radius": { "sm": 8, "md": 12, "lg": 16, "xl": 24, "pill": 999 },
+  "shadow": { "card": "0 8px 24px rgba(0,0,0,0.28)", "cardLg": "0 20px 60px rgba(0,0,0,0.35)" },
+  "motion": { "fast": "120ms", "base": "180ms", "slow": "320ms", "ease": "cubic-bezier(.2,.7,.2,1)" }
+}

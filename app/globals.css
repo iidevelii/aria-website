@@ -1,28 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&display=swap');
+/* مصدر الحقيقة الوحيد للألوان/الخطوط/المسافات: design-tokens.json → tokens.css (مولَّد، لا يُعدَّل يدوياً)
+   نفس الملف يولّد lib/core/tokens.dart في التطبيق — فالموقع والتطبيق يتطابقان بالضرورة. */
+@import './tokens.css';
+@import './ui/v2/v2.css';
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:            #080a10;
-  --surface:       #0d1017;
-  --surface-2:     #131720;
-  --surface-3:     #181d28;
-  --border:        rgba(255,255,255,0.06);
-  --border-hover:  rgba(255,255,255,0.11);
-  --cyan:          #00c4ef;
-  --purple:        #7c3aed;
-  --green:         #22d06e;
-  --red:           #f04060;
-  --yellow:        #f59e0b;
-  --text:          #e8ecf4;
-  --muted:         #5a6478;
-  --dim:           #252b38;
-  --mono:          ui-monospace, 'Cascadia Code', 'Roboto Mono', monospace;
-  --font-ar:       'IBM Plex Sans Arabic', sans-serif;
-  --font-en:       'Inter', 'IBM Plex Sans Arabic', sans-serif;
-  --font-sans:     var(--font-ar);
-
+  /* الألوان والخطوط تأتي من tokens.css */
   /* ── Spacing scale ── */
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
   --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
@@ -246,21 +233,7 @@ a:focus-visible, button:focus-visible, .btn-primary:focus-visible,
 }
 
 /* ── Light Theme ── */
-[data-theme="light"] {
-  --bg:           #f0f4f8;
-  --surface:      #ffffff;
-  --surface-2:    #f5f7fc;
-  --border:       rgba(0,0,0,0.08);
-  --border-hover: rgba(0,0,0,0.15);
-  --cyan:         #0088bb;
-  --purple:       #5a16d4;
-  --green:        #009944;
-  --red:          #cc2233;
-  --yellow:       #b8860b;
-  --text:         #0d1117;
-  --muted:        #6b7280;
-  --dim:          #d1d5db;
-}
+/* ألوان الوضع الفاتح في tokens.css ([data-theme="light"] + prefers-color-scheme) */
 [data-theme="light"] body { background: var(--bg); }
 [data-theme="light"] .btn-primary { background: var(--cyan); color: #fff; }
 [data-theme="light"] .btn-ghost { border-color: rgba(0,0,0,0.15); color: var(--text); }
