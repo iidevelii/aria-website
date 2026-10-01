@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useLang } from '../ClientShell'
-import { EngineBadge, RiskLadder, ScoreMeter, PerformanceStrip } from '../ui/v2'
+import { EngineBadge, RiskLadder, ScoreMeter, PerformanceStrip, SideChip } from '../ui/v2'
 import { blendedBaseline } from '../lib/backtestBaselines'
 import TradeChart from '../TradeChart'
 import { fetchKlines } from '../lib/klines'
@@ -26,9 +26,13 @@ type PerformanceSummary = {
   n: number; wins: number; losses: number; win_rate: number | null
   avg_win_pct: number | null; avg_loss_pct: number | null
 }
+type RecentTrade = {
+  pair: string; side: 'LONG' | 'SHORT'; engine: string; win: boolean; pnl: number; closed_at: string
+}
 type PerformanceResponse = {
   overall: PerformanceSummary
   by_strategy: (PerformanceSummary & { engine: string })[]
+  recent_trades: RecentTrade[]
 }
 
 function fmt(p: number | string) {
@@ -375,18 +379,29 @@ export default function Dashboard() {
   const [marketFilter, setMarketFilter] = useState<'ALL' | 'SPOT' | 'FUTURES'>('ALL')
   // شريط الأداء الحي مقابل الباك تست (UI v2) — /v1/performance للسوقين، آخر 30 يوم من by_month
   const [perf, setPerf] = useState<{ live: { wr: number; pf: number; n: number }; bt: { wr: number; pf: number } } | null>(null)
+  // لوحة الاستراتيجيات الناجحة + آخر الصفقات — نفس /v1/performance، by_strategy/recent_trades
+  // يستبعدان المحركات المُتوقَّفة (archived=True) تلقائياً بالباك اند، بدون أي فلترة إضافية هنا.
+  const [topStrategies, setTopStrategies] = useState<(PerformanceSummary & { engine: string })[]>([])
+  const [recentTrades, setRecentTrades] = useState<RecentTrade[]>([])
   useEffect(() => {
     Promise.all(['FUTURES', 'SPOT'].map(m => apiFetch<PerformanceResponse>(`${API}/v1/performance?market=${m}`, { credentials: 'include' })))
       .then(results => {
         const byStrategy: { engine: string; n: number }[] = []
+        const byStrategyFull: (PerformanceSummary & { engine: string })[] = []
+        const allRecent: RecentTrade[] = []
         let n = 0, wins = 0, gw = 0, gl = 0
         for (const rr of results) {
           const r = rr.ok ? rr.data : null
           if (!r?.overall) continue
-          for (const st of r.by_strategy || []) byStrategy.push({ engine: st.engine, n: st.n })
+          for (const st of r.by_strategy || []) { byStrategy.push({ engine: st.engine, n: st.n }); byStrategyFull.push(st) }
+          allRecent.push(...(r.recent_trades || []))
           n += r.overall.n; wins += r.overall.wins
           gw += (r.overall.avg_win_pct || 0) * r.overall.wins; gl += (r.overall.avg_loss_pct || 0) * r.overall.losses
         }
+        setTopStrategies(
+          byStrategyFull.filter(st => st.n >= 5).sort((a, b) => (b.win_rate || 0) - (a.win_rate || 0))
+        )
+        setRecentTrades(allRecent.sort((a, b) => +new Date(b.closed_at) - +new Date(a.closed_at)).slice(0, 10))
         if (!n) return
         const bt = blendedBaseline(byStrategy)
         if (bt) setPerf({ live: { wr: wins / n * 100, pf: gl > 0 ? gw / gl : 0, n }, bt })
@@ -856,6 +871,41 @@ export default function Dashboard() {
             {perf && (
               <div style={{ marginBottom: '16px' }}>
                 <PerformanceStrip live={perf.live} backtest={perf.bt} period={t('كل الصفقات المغلقة', 'All closed trades')} />
+              </div>
+            )}
+
+            {(topStrategies.length > 0 || recentTrades.length > 0) && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+                {topStrategies.length > 0 && (
+                  <div className="card" style={{ padding: '14px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', marginBottom: '10px' }}>{t('الاستراتيجيات الناجحة', 'Successful Strategies')}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {topStrategies.map(st => (
+                        <div key={st.engine} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+                          <EngineBadge engine={st.engine} />
+                          <span style={{ color: 'var(--muted)' }}>{st.n} {t('صفقة', 'trades')}</span>
+                          <b style={{ color: (st.win_rate || 0) >= 50 ? 'var(--green)' : 'var(--red)' }}>{st.win_rate}%</b>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {recentTrades.length > 0 && (
+                  <div className="card" style={{ padding: '14px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', marginBottom: '10px' }}>{t('آخر الصفقات', 'Latest Trades')}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {recentTrades.map((tr, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <SideChip side={tr.side} /><span style={{ fontWeight: 700 }}>{tr.pair}</span>
+                          </span>
+                          <EngineBadge engine={tr.engine} />
+                          <b style={{ color: tr.win ? 'var(--green)' : 'var(--red)' }}>{tr.win ? '+' : ''}{tr.pnl.toFixed(2)}%</b>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
