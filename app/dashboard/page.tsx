@@ -35,6 +35,16 @@ type PerformanceResponse = {
   recent_trades: RecentTrade[]
 }
 
+// شكل استجابة GET /v1/owner-portfolio (main.py) -- محاكاة شفافة، مو رصيد حي.
+type OwnerPortfolio = {
+  is_simulation: true
+  start_total: number; start_spot: number; start_futures: number
+  now_total: number; now_spot: number; now_futures: number
+  trades_spot: number; trades_futures: number
+  leverage_futures: number; risk_pct_spot: number; risk_pct_futures: number
+  last_updated: string | null
+}
+
 function fmt(p: number | string) {
   const n = parseFloat(String(p))
   if (isNaN(n)) return '—'
@@ -383,6 +393,16 @@ export default function Dashboard() {
   // يستبعدان المحركات المُتوقَّفة (archived=True) تلقائياً بالباك اند، بدون أي فلترة إضافية هنا.
   const [topStrategies, setTopStrategies] = useState<(PerformanceSummary & { engine: string })[]>([])
   const [recentTrades, setRecentTrades] = useState<RecentTrade[]>([])
+  // محفظة المالك (محاكاة) -- /v1/owner-portfolio، عام بلا تسجيل دخول، تتحدّث
+  // تلقائياً كل ما صفقة جديدة تُغلق لأن الباك اند يحسبها من سجل الصفقات مباشرة
+  const [ownerPortfolio, setOwnerPortfolio] = useState<OwnerPortfolio | null>(null)
+  useEffect(() => {
+    apiFetch<OwnerPortfolio>(`${API}/v1/owner-portfolio`).then(r => { if (r.ok) setOwnerPortfolio(r.data) })
+    const iv = setInterval(() => {
+      apiFetch<OwnerPortfolio>(`${API}/v1/owner-portfolio`).then(r => { if (r.ok) setOwnerPortfolio(r.data) })
+    }, 60000)
+    return () => clearInterval(iv)
+  }, [])
   useEffect(() => {
     Promise.all(['FUTURES', 'SPOT'].map(m => apiFetch<PerformanceResponse>(`${API}/v1/performance?market=${m}`, { credentials: 'include' })))
       .then(results => {
@@ -867,6 +887,65 @@ export default function Dashboard() {
                 })}
               </div>
             )}
+
+            {ownerPortfolio && (() => {
+              const op = ownerPortfolio
+              const totalChangePct = (op.now_total / op.start_total - 1) * 100
+              const futChangePct = (op.now_futures / op.start_futures - 1) * 100
+              const spotChangePct = (op.now_spot / op.start_spot - 1) * 100
+              const fmtUsd = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 0 })
+              return (
+                <div className="card" style={{ padding: '20px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '18px' }}>💼</span>
+                      <span style={{ fontWeight: 900, fontSize: '15px' }}>{t('محفظة صاحب المنصة', "Platform Owner's Portfolio")}</span>
+                    </div>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--muted)', background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px' }}>
+                      {t('محاكاة شفافة · ليست رصيداً حياً', 'Transparent simulation · not a live balance')}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '16px', lineHeight: 1.6 }}>
+                    {t(
+                      `بدأ بـ$${fmtUsd(op.start_total)} ($${fmtUsd(op.start_spot)} سبوت + $${fmtUsd(op.start_futures)} فيوتشر) من أول صفقة حقيقية مسجَّلة، بإعدادات المخاطرة المعتمدة (${op.risk_pct_spot}% سبوت، ${op.risk_pct_futures}%×رافعة ${op.leverage_futures}x فيوتشر) مطبَّقة على كل صفقة حقيقية مغلقة منذ ذلك الحين.`,
+                      `Started with $${fmtUsd(op.start_total)} ($${fmtUsd(op.start_spot)} spot + $${fmtUsd(op.start_futures)} futures) from the first recorded trade, applying the currently-approved risk settings (${op.risk_pct_spot}% spot, ${op.risk_pct_futures}%×${op.leverage_futures}x futures) to every real closed trade since.`
+                    )}
+                  </div>
+
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '2px' }}>{t('رأس المال الآن', 'Capital now')}</div>
+                    <div style={{ fontSize: '34px', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>${fmtUsd(op.now_total)}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: totalChangePct >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                      {totalChangePct >= 0 ? '+' : ''}{totalChangePct.toFixed(1)}% {t('من', 'from')} ${fmtUsd(op.start_total)}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 160px', padding: '14px', borderRadius: '10px', background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.2)' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#00c4ef', marginBottom: '6px' }}>🔵 {t('فيوتشر', 'Futures')}</div>
+                      <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>${fmtUsd(op.now_futures)}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('من', 'from')} ${fmtUsd(op.start_futures)}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: futChangePct >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                        {futChangePct >= 0 ? '+' : ''}{futChangePct.toFixed(1)}%
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '4px' }}>{op.trades_futures} {t('صفقة', 'trades')} · {op.risk_pct_futures}% × {op.leverage_futures}x</div>
+                    </div>
+                    <div style={{ flex: '1 1 160px', padding: '14px', borderRadius: '10px', background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--yellow)', marginBottom: '6px' }}>🟡 {t('سبوت', 'Spot')}</div>
+                      <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>${fmtUsd(op.now_spot)}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('من', 'from')} ${fmtUsd(op.start_spot)}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: spotChangePct >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                        {spotChangePct >= 0 ? '+' : ''}{spotChangePct.toFixed(1)}%
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '4px' }}>{op.trades_spot} {t('صفقة', 'trades')} · {op.risk_pct_spot}%</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '12px', textAlign: 'center' }}>
+                    {t('تتحدّث تلقائياً مع كل صفقة تُغلق', 'Updates automatically with every closed trade')}
+                  </div>
+                </div>
+              )
+            })()}
 
             {perf && (
               <div style={{ marginBottom: '16px' }}>
