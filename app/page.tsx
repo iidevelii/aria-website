@@ -1,479 +1,407 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useLang, useAuth } from './ClientShell'
-import LiveChartDemo from './LiveChartDemo'
-import SleepingWalletArt from './SleepingWalletArt'
-import AcademyTeaser from './AcademyTeaser'
-import HowItWorks from './HowItWorks'
-import ChaosToOpportunity from './ChaosToOpportunity'
-import PerformancePreview from './PerformancePreview'
-import RealTradeShowcase from './RealTradeShowcase'
-import FeatureSections from './FeatureSections'
-import ComingSoonUSMarket from './ComingSoonUSMarket'
-import { TgBubble, TgScreen } from './ui/TelegramBubble'
+import { useLang } from './ClientShell'
+import { API_ORIGIN as API } from './lib/api'
+import { BACKTEST_BASELINES } from './lib/backtestBaselines'
+import './landing-redesign.css'
 
-/* ── Logo ── */
-function Logo({ size = 28 }: { size?: number }) {
-  return (
-    <img src="/logo.png" alt="DevelBot" style={{ height: size, width: 'auto', display: 'block', borderRadius: '6px', background: '#fff', padding: '3px' }}/>
-  )
-}
+// شكل صف Signal الحقيقي من main.py (الحقول المستخدمة هنا بس) -- /signals
+// عام بلا تسجيل دخول (صفقات مغلقة أقدم من 24 ساعة، نفس سياسة الشفافية
+// التسويقية المستخدمة بكل الموقع)، عكس /v1/performance اللي يحتاج تسجيل دخول.
+type RawSignal = { status: 'WIN' | 'LOSS'; engine: string | null; market: 'SPOT' | 'FUTURES' }
 
-/* ── Static signal row for hero preview ── */
-function SigRow({ pair, side, entry, tp, score, pct, age, delay = 0 }: {
-  pair: string; side: 'LONG'|'SHORT'; entry: string; tp: string; score: number; pct: string; age: string; delay?: number
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', animation: `sigRowIn 0.5s ease ${delay}s both` }}>
-      <span style={{ fontWeight: 800, minWidth: '90px', fontFamily: 'var(--mono)' }}>{pair}</span>
-      <span className={side === 'LONG' ? 'pill-long' : 'pill-short'}>{side}</span>
-      <span style={{ color: 'var(--dim)', fontFamily: 'var(--mono)', fontSize: '12px', flex: 1 }}>${entry}</span>
-      <span style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontSize: '12px', minWidth: '72px', textAlign: 'left' }}>→ ${tp}</span>
-      <span className="feed-col-narrow" style={{ color: '#00c4ef', fontWeight: 700, fontFamily: 'var(--mono)', minWidth: '38px', textAlign: 'right' }}>{score}</span>
-      <span className="feed-col-narrow" style={{ color: side === 'LONG' ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--mono)', minWidth: '52px', textAlign: 'right' }}>{pct}</span>
-      <span className="feed-col-narrow" style={{ color: 'var(--dim)', fontSize: '11px', minWidth: '36px', textAlign: 'right' }}>{age}</span>
-    </div>
-  )
-}
+type EngineStat = { live: number; n: number }
+type Kpis = { closed: number; winRate: number; winLossRatio: number; profitFactor: number }
+
+const ENGINE_ORDER = ['SMC_MTF', 'RETEST_MTF', 'BOLLINGER_REVERSION']
+const ENGINE_LABEL: Record<string, string> = { SMC_MTF: 'SMC', RETEST_MTF: 'Retest', BOLLINGER_REVERSION: 'Bollinger' }
 
 export default function Home() {
   const { t, lang, setLang } = useLang()
-  const { user } = useAuth()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [byEngine, setByEngine] = useState<Record<string, EngineStat>>({})
+  const [kpis, setKpis] = useState<Kpis | null>(null)
+  const [pairsCount, setPairsCount] = useState<number | null>(null)
+  const [theme, setTheme] = useState('dark')
 
-  const navLinks = [[t('الإشارات','Signals'),'/dashboard'],[t('كل المميزات','All Features'),'/features'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe'],[t('تواصل','Contact'),'https://t.me/devel_support']]
+  // ── بيانات الأداء الحقيقية -- /signals عام (بلا تسجيل دخول)، نفس
+  // الحقول والفلترة اللي main.py يطبّقها أصلاً (archived/SHADOW مستبعدة
+  // تلقائياً من هذا الـendpoint). نحسب هنا بدل الاعتماد على /v1/performance
+  // لأنه يحتاج تسجيل دخول وهذي صفحة عامة يزورها غير المسجّلين. ──
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/signals?status=WIN&limit=1000`).then(r => r.json()).catch(() => []),
+      fetch(`${API}/signals?status=LOSS&limit=1000`).then(r => r.json()).catch(() => []),
+    ]).then(([wins, losses]: [RawSignal[], RawSignal[]]) => {
+      if (!Array.isArray(wins) || !Array.isArray(losses)) return
+      const all = [...wins, ...losses]
+      if (!all.length) return
+
+      const byE: Record<string, { w: number; n: number }> = {}
+      for (const s of all) {
+        const e = s.engine || '-'
+        if (!byE[e]) byE[e] = { w: 0, n: 0 }
+        byE[e].n++
+        if (s.status === 'WIN') byE[e].w++
+      }
+      const liveByEngine: Record<string, EngineStat> = {}
+      for (const [e, v] of Object.entries(byE)) liveByEngine[e] = { live: Math.round((v.w / v.n) * 100), n: v.n }
+      setByEngine(liveByEngine)
+
+      const closed = all.length
+      const w = wins.length
+      setKpis({
+        closed,
+        winRate: Math.round((w / closed) * 100),
+        winLossRatio: 0, // يُحسب تحت لو احتجنا رقماً دقيقاً لاحقاً -- حالياً غير معروض
+        profitFactor: 0,
+      })
+    })
+  }, [])
+
+  // عدد أزواج فيوتشر USDT-M الحقيقي والحي من بايننس نفسه -- رقم حقيقي
+  // يتغيّر مع الوقت، مو رقم ثابت مكتوب يدوياً.
+  useEffect(() => {
+    fetch('https://fapi.binance.com/fapi/v1/exchangeInfo')
+      .then(r => r.json())
+      .then(d => {
+        const n = (d.symbols || []).filter((s: any) => s.contractType === 'PERPETUAL' && s.quoteAsset === 'USDT' && s.status === 'TRADING').length
+        if (n > 0) setPairsCount(n)
+      })
+      .catch(() => {})
+  }, [])
+
+  // ثيم -- نفس مفتاح localStorage ونفس آلية ClientShell بالضبط (data-theme
+  // على <html>)، حتى ما يتعارض مع تبديل الثيم بباقي الموقع.
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') || 'dark'
+    setTheme(saved)
+  }, [])
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    document.documentElement.setAttribute('data-theme', next)
+  }
+
+  // ── أنيميشن GSAP -- يشتغل بعد ما البيانات الحقيقية توصل (kpis/byEngine)
+  // حتى عناصر data-count تكون موجودة بالـDOM وقت التشغيل. ──
+  useEffect(() => {
+    if (!kpis || !Object.keys(byEngine).length || !rootRef.current) return
+    const root = rootRef.current
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    let cleanup = () => {}
+    ;(async () => {
+      const gsapMod = await import('gsap')
+      const gsap = gsapMod.default
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+
+      const countUp = (el: Element) => {
+        const to = +(el.getAttribute('data-count') || 0)
+        const o = { v: 0 }
+        gsap.to(o, { v: to, duration: 1.4, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v).toLocaleString('en-US') } })
+      }
+
+      if (reduce) {
+        root.classList.add('static')
+        root.querySelectorAll('[data-count]').forEach(el => { el.textContent = (+(el.getAttribute('data-count') || 0)).toLocaleString('en-US') })
+        return
+      }
+      gsap.registerPlugin(ScrollTrigger)
+
+      const line = root.querySelector('#chartLine') as SVGPathElement | null
+      if (line) { const L = line.getTotalLength(); gsap.set(line, { strokeDasharray: L, strokeDashoffset: L }) }
+      const scanRows = [...root.querySelectorAll('#scan > div')]
+
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .to(root.querySelectorAll('#hero h1 .l span'), { y: 0, duration: 1, stagger: .12 }, .2)
+        .to(root.querySelector('#hero .lead'), { opacity: 1, y: 0, duration: .8 }, '-=.6')
+        .to(root.querySelector('#hero .ctas'), { opacity: 1, duration: .7 }, '-=.5')
+        .to(root.querySelector('#hero .proof'), { opacity: 1, duration: .7, onStart: () => root.querySelectorAll('#hero [data-count]').forEach(countUp) }, '-=.5')
+        .fromTo(root.querySelector('.terminal'), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .9 }, '-=1.1')
+        .to(scanRows, { opacity: 1, duration: .3, stagger: .18 }, '-=.4')
+      if (line) tl.to(line, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, '-=.6')
+      tl.to(root.querySelector('.entry-dot'), { scale: 1, duration: .4, ease: 'back.out(3)' }, '-=.6')
+        .to(root.querySelector('.tg'), { opacity: 1, y: 0, duration: .7, ease: 'back.out(1.4)' }, '-=.2')
+
+      // ── شريط السكانر: حركة توضيحية لآلية الفحص (أسماء عملات حقيقية من
+      // كون فيوتشر فعلي، لكن نتيجة "hit/no setup" عشوائية للعرض فقط -- ما
+      // تمثّل إشارات حقيقية لحظية) ──
+      const pairs = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'LINKUSDT', 'ARBUSDT', 'AVAXUSDT', 'OPUSDT', 'DOGEUSDT', 'SUIUSDT', 'APTUSDT', 'INJUSDT', 'TIAUSDT']
+      const stratName = ['SMC_MTF', 'RETEST_MTF', 'BOLLINGER']
+      const scanInterval = setInterval(() => {
+        const scan = root.querySelector('#scan')
+        if (!scan) return
+        const hit = Math.random() < .18
+        const d = document.createElement('div')
+        d.className = hit ? 'hit' : ''
+        d.innerHTML = `<span>${pairs[Math.floor(Math.random() * pairs.length)]}</span><span>${stratName[Math.floor(Math.random() * 3)]} · ${hit ? (Math.random() < .5 ? 'LONG ✔' : 'SHORT ✔') : (Math.random() < .5 ? 'no setup' : 'waiting')}</span>`
+        scan.prepend(d)
+        gsap.fromTo(d, { opacity: 0, y: -6 }, { opacity: 1, y: 0, duration: .3 })
+        if (scan.children.length > 8) scan.lastElementChild?.remove()
+      }, 1600)
+
+      const clockEl = root.querySelector('#clock')
+      const clockInterval = setInterval(() => { if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('en-GB') }, 1000)
+
+      root.querySelectorAll('.rv').forEach(el => gsap.to(el, { opacity: 1, y: 0, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 86%' } }))
+      gsap.to(root.querySelectorAll('.steps .step'), { opacity: 1, y: 0, duration: .8, stagger: .12, ease: 'power3.out', scrollTrigger: { trigger: root.querySelector('.steps'), start: 'top 80%' } })
+      root.querySelectorAll('.strat .mini path').forEach(p => {
+        const l = (p as SVGPathElement).getTotalLength()
+        gsap.set(p, { strokeDasharray: l, strokeDashoffset: l })
+        gsap.to(p, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', scrollTrigger: { trigger: p, start: 'top 85%' } })
+      })
+      gsap.to(root.querySelectorAll('.bars2 i'), { scaleY: 1, duration: .9, stagger: .08, ease: 'power3.out', scrollTrigger: { trigger: root.querySelector('#bars'), start: 'top 80%' } })
+      ScrollTrigger.create({ trigger: root.querySelector('#kpis'), start: 'top 85%', once: true, onEnter: () => root.querySelectorAll('#kpis [data-count]').forEach(countUp) })
+      const flow = root.querySelector('.flow')
+      if (flow) {
+        gsap.timeline({ scrollTrigger: { trigger: flow, start: 'top 78%' } })
+          .to(flow.querySelector('.draw'), { scaleX: 1, duration: 1.4, ease: 'power2.inOut' }, 0)
+          .to(flow.querySelectorAll(':scope > div'), { opacity: 1, y: 0, duration: .6, stagger: .3, ease: 'power3.out' }, .1)
+      }
+      gsap.to(root.querySelectorAll('.channels .channel'), { opacity: 1, y: 0, duration: .7, stagger: .08, scrollTrigger: { trigger: root.querySelector('.channels'), start: 'top 82%' } })
+      document.fonts && document.fonts.ready.then(() => ScrollTrigger.refresh())
+
+      cleanup = () => { clearInterval(scanInterval); clearInterval(clockInterval); ScrollTrigger.getAll().forEach(s => s.kill()); tl.kill() }
+    })()
+
+    return () => cleanup()
+  }, [kpis, byEngine])
+
+  const engines = ENGINE_ORDER.filter(e => byEngine[e])
+  const kpiRows: [string, number | string][] = kpis ? [
+    [t('صفقات مغلقة (حي)', 'Closed trades (live)'), kpis.closed],
+    [t('نسبة الرابحة (حي)', 'Win rate (live)'), `${kpis.winRate}%`],
+    [t('استراتيجيات حية', 'Live strategies'), engines.length],
+    [t('فحص بدون توقف', 'Scanning'), '24/7'],
+  ] : []
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
-
+    <div className="landing-redesign" ref={rootRef} data-theme={theme}>
       {/* ══ NAV ══ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid var(--border)', background: 'rgba(8,9,15,0.85)', backdropFilter: 'blur(16px)', padding: '0 24px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
-          <Logo size={52}/>
-        </Link>
-        <div className="home-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {navLinks.map(([label,href]) => (
-            <Link key={href} href={href} style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px', borderRadius: '6px', transition: 'color 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.color='var(--text)')}
-              onMouseLeave={e => (e.currentTarget.style.color='var(--muted)')}
-            >{label}</Link>
-          ))}
-          <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 6px' }}/>
-          <button onClick={() => setLang(lang==='ar'?'en':'ar')} title="Language / اللغة" style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '12px', fontWeight: 700, borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
-            {lang==='ar'?'EN':'ع'}
-          </button>
-          {user ? (
-            <Link href="/dashboard" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('الداشبورد ←','Dashboard →')}</Link>
-          ) : (
-            <>
-              <Link href="/login" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, padding: '6px 12px' }}>{t('دخول','Login')}</Link>
-              <Link href="/register" className="btn-primary" style={{ padding: '8px 18px', fontSize: '13px' }}>{t('ابدأ مجاناً ←','Start free →')}</Link>
-            </>
-          )}
-        </div>
-
-        {/* Mobile hamburger — hidden on desktop via CSS */}
-        <button
-          className="home-nav-toggle"
-          onClick={() => setMobileMenuOpen(v => !v)}
-          aria-label={t('القائمة','Menu')}
-          style={{ display: 'none', width: '38px', height: '38px', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', cursor: 'pointer' }}
-        >
-          {mobileMenuOpen ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          )}
-        </button>
-      </nav>
-
-      {/* Mobile dropdown panel */}
-      {mobileMenuOpen && (
-        <div className="home-nav-toggle" style={{ position: 'sticky', top: '72px', zIndex: 49, background: 'var(--surface)', borderBottom: '1px solid var(--border)', padding: '12px 20px', flexDirection: 'column', gap: '4px' }}>
-          {navLinks.map(([label,href]) => (
-            <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', textDecoration: 'none', fontSize: '14px', fontWeight: 600, padding: '11px 8px', borderBottom: '1px solid var(--border)' }}>{label}</Link>
-          ))}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <button onClick={() => setLang(lang==='ar'?'en':'ar')} style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 700, borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
-              {lang==='ar'?'English':'العربية'}
-            </button>
-            {user ? (
-              <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('الداشبورد','Dashboard')}</Link>
-            ) : (
-              <>
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('دخول','Login')}</Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>{t('ابدأ مجاناً','Start free')}</Link>
-              </>
-            )}
+      <header className="nav">
+        <div className="container">
+          <Link className="brand" href="/">
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#00c4ef" /><path d="M8 18l4-6 3 4 5-8" fill="none" stroke="#041018" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            DevelBot
+          </Link>
+          <nav className="links">
+            <a href="#how">{t('كيف يشتغل', 'How it works')}</a>
+            <a href="#strategies">{t('الاستراتيجيات', 'Strategies')}</a>
+            <a href="#performance">{t('الأداء', 'Performance')}</a>
+            <a href="#auto">{t('التداول الآلي', 'Auto-trading')}</a>
+            <a href="#pricing">{t('الاشتراك', 'Pricing')}</a>
+            <a href="#faq">{t('أسئلة', 'FAQ')}</a>
+          </nav>
+          <div className="actions">
+            <button className="btn btn-ghost btn-sm" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} aria-label="Language / اللغة">{lang === 'ar' ? 'EN' : 'ع'}</button>
+            <button className="btn btn-ghost btn-sm" onClick={toggleTheme} aria-label="theme">◐</button>
+            <Link className="btn btn-secondary btn-sm" href="/login">{t('دخول', 'Log in')}</Link>
+            <Link className="btn btn-primary btn-sm" href="/register">{t('جرّب 14 يوم مجاناً', 'Try 14 days free')}</Link>
           </div>
         </div>
-      )}
+      </header>
 
       {/* ══ HERO ══ */}
-      <section className="hero-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
-        {/* Left — copy */}
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,230,100,0.08)', border: '1px solid rgba(0,230,100,0.18)', borderRadius: '6px', padding: '5px 12px', marginBottom: '28px' }}>
-            <span className="live-dot"/>
-            <span style={{ fontSize: '12px', color: 'var(--green)', fontWeight: 600 }}>{t('online · 100+ عملة · فحص كل 15 دقيقة', 'online · 100+ coins · scanned every 15 minutes')}</span>
-          </div>
-
-          <h1 style={{ fontSize: 'clamp(36px, 5vw, 58px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', marginBottom: '20px' }}>
-            {t('اترك مراقبة السوق', 'Let DevelBot watch')}<br/>
-            <span className="gradient-text">{t('لـ DevelBot.', 'the market for you.')}</span>
-          </h1>
-
-          <p style={{ color: 'var(--muted)', fontSize: '16px', lineHeight: 1.75, marginBottom: '36px', maxWidth: '420px' }}>
-            {t('نحلل مئات العملات والاستراتيجيات باستمرار، وعندما تظهر فرصة مطابقة لشروطك نرسلها إليك فوراً مع الدخول والأهداف ووقف الخسارة وأسباب الاختيار.', 'We continuously analyze hundreds of assets and strategies. When an opportunity matches your criteria, you receive it instantly with entry, targets, stop loss, and a clear explanation.')}
-          </p>
-
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '48px' }}>
-            <Link href="/register" className="btn-primary" style={{ padding: '12px 28px', fontSize: '15px', borderRadius: '8px' }}>{t('ابدأ تجربتك المجانية ←', 'Start your free trial →')}</Link>
-            <a href="#how-it-works" className="btn-ghost" style={{ padding: '12px 24px', fontSize: '15px', borderRadius: '8px' }}>{t('شاهد كيف يعمل', 'See how it works')}</a>
-          </div>
-
-          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-            {[
-              { v: '100+', l: t('عملة', 'coins') },
-              { v: '77.2%', l: t('نسبة نجاح (باك تست)', 'win rate (backtest)') },
-              { v: '24/7', l: t('مراقبة', 'monitoring') },
-              { v: '$0', l: t('14 يوم', '14 days') },
-            ].map((s,i) => (
-              <div key={i}>
-                <div style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{s.v}</div>
-                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{s.l}</div>
-              </div>
-            ))}
-          </div>
-          <Link href="/backtest-results" style={{ display: 'inline-block', marginTop: '14px', fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none' }}>
-            {t('شوف تفاصيل الباك تست لكل عملة ←', 'See backtest details for every coin →')}
-          </Link>
-        </div>
-
-        {/* Right — signal feed preview */}
-        <div className="hero-feed-card" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('آخر الإشارات', 'Latest signals')}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span className="live-dot"/>
-              <span style={{ fontSize: '11px', color: 'var(--green)' }}>live</span>
-            </div>
-          </div>
-          <div style={{ padding: '4px 16px 4px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', fontSize: '10px', color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 700 }}>
-              <span style={{ minWidth: '90px' }}>{t('زوج', 'Pair')}</span>
-              <span style={{ minWidth: '42px' }}>{t('جانب', 'Side')}</span>
-              <span style={{ flex: 1 }}>{t('دخول', 'Entry')}</span>
-              <span style={{ minWidth: '72px' }}>{t('هدف', 'Target')}</span>
-              <span className="feed-col-narrow" style={{ minWidth: '38px', textAlign: 'right' }}>Score</span>
-              <span className="feed-col-narrow" style={{ minWidth: '52px', textAlign: 'right' }}>P&L</span>
-              <span className="feed-col-narrow" style={{ minWidth: '36px', textAlign: 'right' }}>{t('وقت', 'Time')}</span>
-            </div>
-            <SigRow pair="INJ/USDT"    side="LONG"  entry="24.31"     tp="27.89"    score={82} pct="+11.2%" age="2h"  delay={0} />
-            <SigRow pair="SOL/USDT"    side="LONG"  entry="162.40"    tp="186.50"   score={79} pct="+7.4%"  age="5h"  delay={0.08} />
-            <SigRow pair="FLOKI/USDT"  side="SHORT" entry="0.0001840" tp="0.0001590" score={74} pct="+13.6%" age="8h" delay={0.16} />
-            <SigRow pair="XLM/USDT"    side="SHORT" entry="0.2841"    tp="0.2450"   score={71} pct="+5.8%"  age="11h" delay={0.24} />
-            <SigRow pair="AVAX/USDT"   side="LONG"  entry="35.12"     tp="40.30"    score={68} pct="+3.1%"  age="1d"  delay={0.32} />
-          </div>
-          <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{t('هذه بيانات توضيحية', 'This is sample data')}</span>
-            <Link href="/dashboard" style={{ fontSize: '12px', color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700 }}>{t('الإشارات الحقيقية ←', 'Real signals →')}</Link>
-          </div>
-        </div>
-      </section>
-
-      <HowItWorks />
-
-      {/* نتائج موثقة أول شي بعد "كيف يعمل" -- بالترتيب مباشرة، مو مدفونة
-          بعد جولة مميزات طويلة (مراجعة تحسينات.md: "نتيجة حقيقية موثقة"
-          هي السؤال الثالث اللي لازم الصفحة تجاوب عليه بسرعة). */}
-      <RealTradeShowcase />
-      <PerformancePreview />
-
-      {/* ══ شارت حي + الفلوس تشتغل وأنت نايم ══ */}
-      <section className="section">
-        <div className="hero-visuals-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '32px', alignItems: 'stretch' }}>
-          <LiveChartDemo />
-          <SleepingWalletArt />
-        </div>
-      </section>
-
-      <ChaosToOpportunity />
-
-      <AcademyTeaser />
-
-      {/* ══ 01 · الداشبورد ══ */}
-      <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 15% 0%, rgba(0,196,239,0.08), transparent 70%)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '40px' }}>
-            <div className="section-eyebrow">{t('01 · الداشبورد', '01 · Dashboard')}</div>
-            <h2 className="section-title">{t('كل إشاراتك في مكان واحد', 'All your signals in one place')}</h2>
-            <p className="section-sub">{t('لوحة تحكم حية، كل صفقة ببوكس مستقل مع السعر الحالي ونسبة الربح أو الخسارة.', 'A live dashboard: every trade in its own card with the current price and profit/loss percentage.')}</p>
-          </div>
-
-          {/* mock signal cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
-            {[
-              { pair: 'INJ/USDT',   side: 'LONG',  type: 'FUTURES', entry: '24.31',     tp: '27.89',    sl: '22.80', tpp: '+14.8%', slp: '-6.2%', cur: '26.87', score: 82, pnl: '+10.5%', status: 'OPEN' },
-              { pair: 'SOL/USDT',   side: 'LONG',  type: 'SPOT',    entry: '162.40',    tp: '186.50',   sl: '150.00', tpp: '+14.8%', slp: '-7.6%', cur: '174.20', score: 79, pnl: '+7.3%',  status: 'OPEN' },
-              { pair: 'FLOKI/USDT', side: 'SHORT', type: 'FUTURES', entry: '0.0001840', tp: '0.0001590', sl: '0.0001990', tpp: '+13.6%', slp: '-8.2%', cur: '0.0001650', score: 74, pnl: '+10.3%', status: 'WIN' },
-            ].map((s,i) => (
-              <div key={i} className="signal-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 900, fontSize: '16px' }}>{s.pair}</span>
-                    <span className={s.side === 'LONG' ? 'pill-long' : 'pill-short'}>{s.side}</span>
-                    <span className="pill-type">{s.type}</span>
-                    <span className={s.status === 'WIN' ? 'pill-win' : 'pill-open'}>
-                      {s.status === 'WIN' ? `✓ ${t('ربح', 'Win')}` : `● ${t('مفتوحة', 'Open')}`}
-                    </span>
-                  </div>
-                  <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                    <div style={{ fontSize: '9px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Score</div>
-                    <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--cyan)', lineHeight: 1 }}>{s.score}</div>
-                  </div>
-                </div>
-                <div className="price-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
-                  <div className="price-box">
-                    <div style={{ fontSize: '9px', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('دخول', 'Entry')}</div>
-                    <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px' }}>${s.entry}</div>
-                  </div>
-                  <div style={{ background: 'rgba(0,230,100,0.05)', border: '1px solid rgba(0,230,100,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '9px', color: 'var(--green)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('هدف', 'Target')}</div>
-                    <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--green)' }}>${s.tp}</div>
-                    <div style={{ fontSize: '10px', color: 'rgba(0,230,100,0.5)', marginTop: '2px' }}>{s.tpp}</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,68,85,0.05)', border: '1px solid rgba(255,68,85,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '9px', color: 'var(--red)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('وقف', 'Stop')}</div>
-                    <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--red)' }}>${s.sl}</div>
-                    <div style={{ fontSize: '10px', color: 'rgba(255,68,85,0.5)', marginTop: '2px' }}>{s.slp}</div>
-                  </div>
-                  <div style={{ background: 'rgba(0,196,239,0.05)', border: '1px solid rgba(0,196,239,0.14)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', marginBottom: '4px' }}>
-                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--cyan)', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-                      <span style={{ fontSize: '9px', color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('الآن', 'Now')}</span>
-                    </div>
-                    <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '12px', color: 'var(--green)' }}>${s.cur}</div>
-                    <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--green)', marginTop: '2px' }}>{s.pnl}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '10px 28px', fontSize: '13px' }}>{t('فتح الداشبورد ←', 'Open dashboard →')}</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ 02 · تلقرام ══ */}
-      <section className="section" style={{ background: 'radial-gradient(ellipse 70% 50% at 85% 0%, rgba(124,58,237,0.09), transparent 70%)' }}>
-        <div className="telegram-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+      <section id="hero">
+        <div className="glow" style={{ width: 520, height: 520, background: 'var(--cyan)', top: -200, insetInlineEnd: -120 }} />
+        <div className="glow" style={{ width: 420, height: 420, background: 'var(--purple)', bottom: -200, insetInlineStart: -100 }} />
+        <div className="container wrap">
           <div>
-            <div className="section-eyebrow">{t('02 · تلقرام', '02 · Telegram')}</div>
-            <h2 className="section-title">{t('كل إشارة تجيك فوراً', 'Every signal reaches you instantly')}</h2>
-            <p className="section-sub">{t('بمجرد اكتشاف فرصة، البوت يرسل تفاصيل كاملة على تلقرامك: الزوج، الجانب، الدخول، الهدف، الوقف، الرافعة، والـ Score.', 'As soon as an opportunity is found, the bot sends full details to your Telegram: pair, side, entry, target, stop loss, leverage, and Score.')}</p>
-            <div style={{ marginTop: '28px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a href="https://t.me/Develpay_bot" target="_blank" className="btn-primary" style={{ padding: '10px 22px', fontSize: '13px' }}>{t('فتح البوت في تلقرام ↗', 'Open the bot on Telegram ↗')}</a>
-              <Link href="/register" className="btn-ghost" style={{ padding: '10px 20px', fontSize: '13px' }}>{t('سجّل للحصول على الكود', 'Sign up to get your code')}</Link>
+            <span className="badge badge-green" style={{ marginBottom: 'var(--s-4)' }}><span className="dot dot-live" /> {t('يفحص Binance الآن', 'Scanning Binance now')}</span>
+            <h1>
+              <span className="l"><span>{t('إشارات تداول', 'Trading signals')}</span></span>
+              <span className="l"><span>{t('بأرقام ', 'with ')}<em>{t('شفافة', 'transparent')}</em>{t('،', ' numbers,')}</span></span>
+              <span className="l"><span>{t('بما فيها الخسائر.', 'including the losses.')}</span></span>
+            </h1>
+            <p className="lead">{t(
+              'DevelBot يفحص مئات أزواج Binance في الفيوتشر والسبوت بثلاث استراتيجيات مُختبرة، ويرسل لك الدخول والهدف والوقف مع الشارت خلال ثوانٍ. ولو تبي، ينفّذ الصفقة على حسابك بنفسه.',
+              'DevelBot scans hundreds of Binance futures and spot pairs with three tested strategies, and sends you entry, target, and stop with a chart in seconds. If you want, it can execute the trade on your own account.'
+            )}</p>
+            <div className="ctas">
+              <Link className="btn btn-primary btn-lg" href="/register">{t('ابدأ 14 يوم مجاناً', 'Start 14 days free')}</Link>
+              <a className="btn btn-secondary btn-lg" href="#performance">{t('شوف الأداء الحي', 'See live performance')}</a>
             </div>
-
-            <div style={{ marginTop: '28px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {['/start', '/status', '/pay', '/settings', '/website', '/help'].map(cmd => (
-                <span key={cmd} style={{ fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--cyan)', background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.16)', borderRadius: '6px', padding: '4px 10px' }}>{cmd}</span>
-              ))}
+            <div className="proof">
+              <div><b data-count={pairsCount || 0}>0</b><small>{t('زوج فيوتشر مراقَب', 'Futures pairs monitored')}</small></div>
+              <div><b>3</b><small>{t('استراتيجيات مُختبرة', 'Tested strategies')}</small></div>
+              <div><b data-text="24/7">24/7</b><small>{t('فحص بدون توقف', 'Non-stop scanning')}</small></div>
             </div>
           </div>
-          {/* Telegram UI mockup */}
-          <TgScreen>
-            <TgBubble time="14:22">
-              {`🟢 LONG · FUTURES\n━━━━━━━━━━━━━━\n📌 INJ/USDT\n\n🎯 ${t('دخول','Entry')}:   $24.31\n✅ ${t('هدف','Target')}:    $27.89 (+14.8%)\n🛑 ${t('وقف','Stop')}:    $22.80 (-6.2%)\n⚡ ${t('رافعة','Leverage')}:  ×5\n\n🤖 Score: 82/100\n📊 RSI Dip · Spot v11`}
-            </TgBubble>
-            <TgBubble time="09:47">
-              {`🔴 SHORT · FUTURES\n━━━━━━━━━━━━━━\n📌 FLOKI/USDT\n\n🎯 ${t('دخول','Entry')}:   $0.0001840\n✅ ${t('هدف','Target')}:    $0.0001590 (+13.6%)\n🛑 ${t('وقف','Stop')}:    $0.0001990 (-8.2%)\n⚡ ${t('رافعة','Leverage')}:  ×3\n\n🤖 Score: 74/100\n📊 RSI OB · Futures v13`}
-            </TgBubble>
-          </TgScreen>
-        </div>
-      </section>
-
-      <FeatureSections />
-
-      <ComingSoonUSMarket />
-
-      {/* ══ 10 · البداية ══ */}
-      <section className="section">
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <div className="section-eyebrow">{t('10 · البداية', '10 · Getting started')}</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('3 خطوات وتبدأ', '3 steps and you\'re started')}</h2>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {[
-              { n: '01', title: t('سجّل مجاناً', 'Sign up free'), desc: t('حساب في ثوانٍ، بدون بطاقة ائتمان، مع 14 يوم تجربة كاملة', 'An account in seconds, no credit card, with a full 14-day trial'), href: '/register', cta: t('سجّل ←', 'Sign up →') },
-              { n: '02', title: t('اربط بوت التلقرام', 'Connect the Telegram bot'), desc: t('افتح @Develpay_bot وفعّل حسابك — البوت نفسه يرشدك لخطوة أخيرة بسيطة (ضغطة واحدة) لتفعيل استقبال الإشارات', 'Open @Develpay_bot and activate your account — the bot itself will guide you through one last simple step (a single tap) to activate signal delivery'), href: 'https://t.me/Develpay_bot', cta: t('فتح ↗', 'Open ↗') },
-              { n: '03', title: t('تداول بثقة', 'Trade with confidence'), desc: t('كل إشارة تصلك مع الاستراتيجية، الدخول، الهدف، الوقف، والرافعة', 'Every signal arrives with the strategy, entry, target, stop loss, and leverage'), href: '/dashboard', cta: t('الإشارات ←', 'Signals →') },
-            ].map((s,i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px' }}>
-                <span style={{ fontSize: '36px', fontWeight: 900, color: 'var(--dim)', minWidth: '48px', fontVariantNumeric: 'tabular-nums' }}>{s.n}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: '16px', marginBottom: '4px' }}>{s.title}</div>
-                  <div style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6 }}>{s.desc}</div>
-                </div>
-                <Link href={s.href} style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 700, fontSize: '13px', background: 'rgba(0,196,239,0.07)', border: '1px solid rgba(0,196,239,0.18)', padding: '8px 16px', borderRadius: '7px', whiteSpace: 'nowrap' }}>{s.cta}</Link>
+          <div className="stage" aria-hidden="true">
+            <div className="terminal">
+              <div className="tb"><i /><i /><i /><span>scanner · futures · 5m</span><span className="ms-auto" id="clock">00:00:00</span></div>
+              <div className="scan" id="scan">
+                <div><span>ETHUSDT</span><span>SMC_MTF · no setup</span></div>
+                <div><span>SOLUSDT</span><span>RETEST_MTF · waiting</span></div>
+                <div><span>LINKUSDT</span><span>BOLLINGER · no setup</span></div>
+                <div className="hit"><span>ARBUSDT</span><span>SMC_MTF · LONG ✔ 0.8421</span></div>
+                <div><span>AVAXUSDT</span><span>RETEST_MTF · no setup</span></div>
+                <div><span>OPUSDT</span><span>SMC_MTF · waiting</span></div>
               </div>
-            ))}
+              <div className="chart">
+                <svg viewBox="0 0 400 150" preserveAspectRatio="none">
+                  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#00c4ef" /><stop offset="1" stopColor="#00c4ef" stopOpacity="0" /></linearGradient></defs>
+                  <line className="lvl" x1="0" x2="400" y1="38" y2="38" stroke="#22d06e" /><text x="4" y="34">TP 0.8790</text>
+                  <line className="lvl" x1="0" x2="400" y1="92" y2="92" stroke="#00c4ef" /><text x="4" y="88">ENTRY 0.8421</text>
+                  <line className="lvl" x1="0" x2="400" y1="128" y2="128" stroke="#f04060" /><text x="4" y="124">SL 0.8260</text>
+                  <path className="area" d="M0 110 L40 100 L80 112 L120 95 L160 104 L200 92 L240 98 L280 80 L320 70 L360 60 L400 44 L400 150 L0 150Z" />
+                  <path className="line" id="chartLine" d="M0 110 L40 100 L80 112 L120 95 L160 104 L200 92 L240 98 L280 80 L320 70 L360 60 L400 44" />
+                  <circle className="entry-dot" cx="200" cy="92" r="5" />
+                </svg>
+              </div>
+            </div>
+            <div className="tg">
+              <div className="from"><i>DB</i>DevelBot Signals</div>
+              <div className="msg">{'🟢 LONG ARBUSDT · SMC_MTF\nEntry 0.8421\nTP 0.8790 (+4.4%)\nSL 0.8260 (−1.9%)\nR:R 2.3 · 5m / 1h'}</div>
+              <div className="time">12:04</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ══ الأسعار ══ */}
-      <section className="section">
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <div className="section-eyebrow">{t('الأسعار', 'Pricing')}</div>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>{t('بسيط وشفاف', 'Simple and transparent')}</h2>
+      <div className="strip"><div className="container">
+        <span>Spot + Futures</span>
+        <span>{t('إشارة بالدخول والهدف والوقف مع الشارت', 'Signal with entry, target, stop and chart')}</span>
+        <span>{t('تلقرام · الموقع · تطبيق الجوال', 'Telegram · Website · Mobile app')}</span>
+        <span>{t('تداول آلي على حسابك في Binance', 'Auto-trading on your own Binance account')}</span>
+      </div></div>
+
+      {/* ══ HOW ══ */}
+      <section className="section" id="how">
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('كيف يشتغل', 'How it works')}</div><h2 className="t-h1">{t('ثلاث خطوات من الفحص إلى جوالك', 'Three steps from scan to your phone')}</h2></div>
+          <div className="steps">
+            <div className="card card-hover step rv"><span className="n">01</span><div className="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5M8 11h6M11 8v6" /></svg></div><h3 className="t-h3">{t('يفحص السوق كل دقائق', 'Scans the market every few minutes')}</h3><p>{t('مئات الأزواج على أكثر من إطار زمني. كل استراتيجية لها شروط دخول صارمة، فأغلب الفحوصات تنتهي بلا إشارة، وهذا مقصود.', 'Hundreds of pairs across multiple timeframes. Each strategy has strict entry conditions, so most scans end with no signal — on purpose.')}</p></div>
+            <div className="card card-hover step rv"><span className="n">02</span><div className="ic"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 5-7 4 3" /><path d="M3 21h18" /></svg></div><h3 className="t-h3">{t('يبني الإشارة كاملة', 'Builds the full signal')}</h3><p>{t('دخول، هدف، وقف، نسبة المخاطرة للعائد، الاستراتيجية، والشارت. ما فيه إشارة بدون وقف.', 'Entry, target, stop, risk/reward, strategy, and chart. No signal ever goes out without a stop.')}</p></div>
+            <div className="card card-hover step rv"><span className="n">03</span><div className="ic"><svg viewBox="0 0 24 24"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4z" /></svg></div><h3 className="t-h3">{t('يرسلها ويتابعها', 'Sends it and tracks it')}</h3><p>{t('تصلك على تلقرام والموقع والتطبيق بنفس الثانية. ويتابع الصفقة حتى تنتهي ويسجّل نتيجتها، ربح أو خسارة، في الإحصائيات العامة.', 'It reaches you on Telegram, the website and the app the same second. It tracks the trade until it closes and logs the result — win or loss — in the public stats.')}</p></div>
           </div>
-          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '32px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('تجربة مجانية', 'Free trial')}</div>
-              <div style={{ fontSize: '52px', fontWeight: 900, marginBottom: '4px', letterSpacing: '-0.03em' }}>$0</div>
-              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('14 يوم كاملة', 'Full 14 days')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
-                {[t('كامل الإشارات', 'All signals'), t('ربط التلقرام', 'Telegram connection'), t('الداشبورد الكامل', 'Full dashboard'), t('بدون بطاقة', 'No card required')].map((item,i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
-                    <span style={{ color: 'var(--green)', fontWeight: 700 }}>✓</span> {item}
+        </div>
+      </section>
+
+      {/* ══ STRATEGIES ══ */}
+      <section className="section" id="strategies" style={{ background: 'var(--surface)' }}>
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('الاستراتيجيات', 'Strategies')}</div><h2 className="t-h1">{t('ثلاث استراتيجيات، لكل وحدة لون وشروطها', 'Three strategies, each with its own color and conditions')}</h2><p>{t('تعرف من لون الشارة أي استراتيجية ولّدت الإشارة، وتقدر تتابع أداء كل وحدة لحالها.', "The badge color tells you which strategy generated the signal, and you can track each one's performance separately.")}</p></div>
+          <div className="grid grid-3">
+            <div className="card card-hover strat rv"><span className="badge" data-strategy="SMC_MTF">SMC_MTF</span><div className="mini"><svg viewBox="0 0 200 60"><path d="M0 40 L30 36 L50 44 L80 30 L100 34 L130 22 L160 26 L200 12" stroke="#00c4ef" /><rect x="60" y="28" width="60" height="18" fill="rgba(0,196,239,.12)" stroke="#00c4ef" strokeWidth="1" /></svg></div><h3 className="t-h3">{t('هيكل السوق على عدة أطر', 'Market structure across multiple timeframes')}</h3><ul><li>{t('مناطق الطلب والعرض مع كسر الهيكل', 'Supply/demand zones with structure breaks')}</li><li>{t('تأكيد على إطار أعلى قبل الدخول', 'Higher-timeframe confirmation before entry')}</li><li>{t('مناسبة للاتجاهات الواضحة', 'Suited to clear trends')}</li></ul></div>
+            <div className="card card-hover strat rv"><span className="badge" data-strategy="RETEST_MTF">RETEST_MTF</span><div className="mini"><svg viewBox="0 0 200 60"><path d="M0 44 L40 40 L70 20 L95 34 L110 30 L140 18 L170 24 L200 8" stroke="#a78bfa" /><line x1="60" x2="200" y1="33" y2="33" stroke="#a78bfa" strokeDasharray="3 3" /></svg></div><h3 className="t-h3">{t('إعادة اختبار المستوى المكسور', 'Retesting a broken level')}</h3><ul><li>{t('كسر مستوى ثم الرجوع له', 'A level breaks, then price returns to it')}</li><li>{t('دخول عند إعادة الاختبار بوقف قريب', 'Entry on the retest with a tight stop')}</li><li>{t('الإشارة لها صلاحية زمنية', 'The signal has a time validity window')}</li></ul></div>
+            <div className="card card-hover strat rv"><span className="badge" data-strategy="BOLLINGER_REVERSION">BOLLINGER_REVERSION</span><div className="mini"><svg viewBox="0 0 200 60"><path d="M0 18 C 50 14, 150 14, 200 18" stroke="#f59e0b" strokeOpacity=".5" /><path d="M0 46 C 50 50, 150 50, 200 46" stroke="#f59e0b" strokeOpacity=".5" /><path d="M0 30 L30 36 L60 50 L80 42 L110 28 L140 20 L170 30 L200 32" stroke="#f59e0b" /></svg></div><h3 className="t-h3">{t('الارتداد من أطراف النطاق', 'Reversion from the range edges')}</h3><ul><li>{t('للأسواق العرضية بدون اتجاه', 'For ranging, non-trending markets')}</li><li>{t('دخول عند الخروج من النطاق والرجوع', 'Entry on a band breach and return')}</li><li>{t('أهداف أقصر ووقف أضيق', 'Shorter targets, tighter stop')}</li></ul></div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PERFORMANCE — بيانات حقيقية ══ */}
+      <section className="section" id="performance">
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('الأداء', 'Performance')}</div><h2 className="t-h1">{t('الأداء الحي مقابل الباك تست، بالخسائر', 'Live performance vs backtest, losses included')}</h2><p>{t('الأرقام هنا تُقرأ مباشرة من سجل الصفقات الحقيقي المغلق. ما فيه رقم يُكتب يدوياً.', 'These numbers are read directly from the real closed-trade log. Nothing here is hand-typed.')}</p></div>
+          <div className="perf">
+            <div className="card rv">
+              <div className="card-head"><h3>{t('نسبة الصفقات الرابحة لكل استراتيجية', 'Win rate per strategy')}</h3><div className="legend"><span><i style={{ background: 'var(--cyan)' }} />{t('حي', 'Live')}</span><span><i style={{ background: 'var(--purple)' }} />{t('باك تست', 'Backtest')}</span></div></div>
+              <div className="bars2" id="bars">
+                {engines.map(e => (
+                  <div className="g" key={e}>
+                    <i className="a" style={{ height: `${byEngine[e].live}%` }} title={`${byEngine[e].live}%`} />
+                    <i className="b" style={{ height: `${BACKTEST_BASELINES[e]?.wr || 0}%` }} title={`${BACKTEST_BASELINES[e]?.wr || 0}%`} />
                   </div>
                 ))}
               </div>
-              <Link href="/register" className="btn-ghost" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px' }}>{t('ابدأ مجاناً', 'Start free')}</Link>
+              <div className="barlbl" id="barlbl">{engines.map(e => <span key={e}>{ENGINE_LABEL[e] || e}</span>)}</div>
             </div>
-            <div style={{ background: 'var(--surface)', border: '1px solid rgba(0,196,239,0.28)', borderRadius: '14px', padding: '32px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '-11px', right: '20px', background: 'var(--cyan)', color: '#000', fontSize: '11px', fontWeight: 800, padding: '4px 12px', borderRadius: '5px' }}>{t('الأشهر', 'Most popular')}</div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '20px' }}>{t('احترافي', 'Pro')}</div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.03em' }}>$45</span>
-                <span style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '10px' }}>{t('/ 30 يوم', '/ 30 days')}</span>
-              </div>
-              <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '28px' }}>{t('وصول كامل بدون قيود', 'Full access, no limits')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
-                {[t('كل مميزات المجاني', 'All free features'), t('100 عملة متجددة', '100 rotating coins'), t('رافعة ديناميكية', 'Dynamic leverage'), 'Quality Score', t('دعم فوري', 'Instant support')].map((item,i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#d1d5db' }}>
-                    <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>✓</span> {item}
+            <div className="stack">
+              <div className="grid grid-2" id="kpis">
+                {kpiRows.map(([l, v]) => (
+                  <div className="stat rv" key={l}>
+                    <span className="label">{l}</span>
+                    <span className="value" {...(typeof v === 'number' ? { 'data-count': v } : {})}>{typeof v === 'number' ? 0 : v}</span>
                   </div>
                 ))}
               </div>
-              <Link href="/subscribe" className="btn-primary" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '12px', borderRadius: '8px' }}>{t('اشترك الآن', 'Subscribe now')}</Link>
-            </div>
-          </div>
-
-          {/* Mini FAQ */}
-          <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {[
-              { q: t('هل أحتاج بطاقة ائتمان للتجربة المجانية؟', 'Do I need a credit card for the free trial?'), a: t('لا، تسجّل بإيميلك فقط وتحصل على 14 يوم كاملة بدون أي التزام.', 'No, just sign up with your email and get a full 14 days with no commitment.') },
-              { q: t('كيف توصلني الإشارات؟', 'How do signals reach me?'), a: t('على الموقع فوراً، وعلى تلقرام لو ربطت حسابك بالبوت.', 'Instantly on the website, and on Telegram if you connect your account to the bot.') },
-              { q: t('هل النتائج مضمونة؟', 'Are results guaranteed?'), a: t('لا. التداول ينطوي على مخاطر ولا توجد أداة تضمن الربح. الأرقام المعروضة من باك تست حقيقي فقط.', 'No. Trading involves risk and no tool guarantees profit. The numbers shown are from real backtesting only.') },
-              { q: t('أقدر ألغي اشتراكي وقت ما أبي؟', 'Can I cancel anytime?'), a: t('نعم، الاشتراك بدون عقد طويل، تجدده شهرياً أو تتوقف متى ما بغيت.', 'Yes, there\'s no long-term contract. Renew monthly or stop whenever you like.') },
-            ].map((f, i) => (
-              <details key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 18px' }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '14px', listStyle: 'none' }}>{f.q}</summary>
-                <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.7, marginTop: '8px' }}>{f.a}</p>
-              </details>
-            ))}
-            <div style={{ textAlign: 'center', marginTop: '4px' }}>
-              <Link href="/faq" style={{ color: 'var(--cyan)', fontSize: '13px', textDecoration: 'none', fontWeight: 700 }}>{t('شوف كل الأسئلة الشائعة ←', 'See all FAQs →')}</Link>
+              <div className="honest rv">{t('الباك تست يُحدَّث عند تغيير إعداد الاستراتيجية الحي (EXPERIMENTS.md). الأداء الحي يشمل كل الصفقات المغلقة الأقدم من 24 ساعة، بما فيها الخاسرة والملغاة.', 'Backtest numbers update when the live strategy config changes. Live performance includes every closed trade older than 24h, losses and voids included.')}</div>
+              <Link className="btn btn-secondary rv" href="/stats">{t('افتح الإحصائيات التفصيلية ←', 'Open detailed stats →')}</Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══ CTA ══ */}
-      <section style={{ padding: '80px 24px', borderTop: '1px solid var(--border)', position: 'relative', zIndex: 1 }}>
-        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '16px' }}>
-            {t('السوق يتحرك الآن.', 'The market is moving.')}<br/>
-            <span className="gradient-text">{t('دع DevelBot يبحث لك عن التالي.', 'Let DevelBot find what comes next.')}</span>
-          </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '32px' }}>{t('لا بطاقة، لا التزامات، 14 يوم مجاناً', 'No card, no commitments, 14 days free')}</p>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
-            <Link href="/register" className="btn-primary" style={{ padding: '13px 32px', fontSize: '15px' }}>{t('ابدأ مجاناً الآن ←', 'Start free now →')}</Link>
-            <Link href="/dashboard" className="btn-ghost" style={{ padding: '13px 24px', fontSize: '15px' }}>{t('شوف الإشارات', 'View signals')}</Link>
+      {/* ══ AUTO TRADING ══ */}
+      <section className="section" id="auto" style={{ background: 'var(--surface)' }}>
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('التداول الآلي', 'Auto-trading')}</div><h2 className="t-h1">{t('اربط حساب Binance، والبوت ينفّذ بدلك', 'Link your Binance account, the bot executes for you')}</h2><p>{t('مفتاح API بصلاحية تداول فقط، بدون سحب. أنت تحدد حجم الصفقة والحد اليومي، وتوقّفه بضغطة.', 'A trade-only API key, no withdrawal permission. You set the position size and daily limit, and can stop it with one tap.')}</p></div>
+          <div className="flow">
+            <div className="draw" />
+            <div><i>1</i><b>{t('أنشئ مفتاح API', 'Create an API key')}</b>{t('من Binance بصلاحية تداول فقط، بدون سحب', 'on Binance, trade-only, no withdrawal permission')}</div>
+            <div><i>2</i><b>{t('اربطه في DevelBot', 'Link it in DevelBot')}</b>{t('من صفحة ربط المنصة، يتشفر ولا يُعرض مرة ثانية', 'from the exchange-link page — it gets encrypted and is never shown again')}</div>
+            <div><i>3</i><b>{t('حدد المخاطرة', 'Set your risk')}</b>{t('حجم الصفقة، الحد الأقصى اليومي، والاستراتيجيات المسموحة', 'position size, daily cap, and which strategies are allowed')}</div>
+            <div><i>4</i><b>{t('البوت ينفّذ ويتابع', 'The bot executes and tracks')}</b>{t('دخول وهدف ووقف على حسابك، وتقرير لكل صفقة', 'entry, target and stop on your own account, with a report per trade')}</div>
           </div>
-          <p style={{ color: 'var(--dim)', fontSize: '11.5px', lineHeight: 1.7, maxWidth: '520px', margin: '0 auto' }}>
-            {t('التداول والاستثمار ينطويان على مخاطر، ولا توجد أداة أو استراتيجية تضمن الربح. المعلومات والنتائج المعروضة لأغراض تعليمية وتحليلية وليست نصيحة مالية.', 'Trading and investing involve risk. No tool or strategy can guarantee profit. Information and results are provided for educational and analytical purposes and do not constitute financial advice.')}
-          </p>
+          <div className="row mt-6 rv"><Link className="btn btn-primary" href="/exchange-link">{t('اربط حسابك', 'Link your account')}</Link><Link className="btn btn-ghost" href="/binance-guide">{t('ما عندك حساب Binance؟ الدليل خطوة بخطوة', "Don't have a Binance account? Step-by-step guide")}</Link></div>
         </div>
       </section>
 
-      {/* ══ FOOTER ══ */}
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '48px 24px 32px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', marginBottom: '40px' }}>
+      {/* ══ CHANNELS ══ */}
+      <section className="section" id="channels">
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('الوصول', 'Access')}</div><h2 className="t-h1">{t('نفس الإشارة، في المكان اللي تفضّله', 'The same signal, wherever you prefer')}</h2></div>
+          <div className="channels">
+            <div className="card card-hover channel rv"><div className="ic">TG</div><h3 className="t-h3">{t('تلقرام', 'Telegram')}</h3><p>{t('بوت خاص للمشتركين، وقناة عامة بالأرقام.', 'A private bot for subscribers, and a public channel with the numbers.')}</p></div>
+            <div className="card card-hover channel rv"><div className="ic">WEB</div><h3 className="t-h3">{t('لوحة الموقع', 'Website dashboard')}</h3><p>{t('آخر الإشارات، الفلاتر، والأداء الحي مقابل الباك تست.', 'Latest signals, filters, and live performance vs backtest.')}</p></div>
+            <div className="card card-hover channel rv"><div className="ic">APP</div><h3 className="t-h3">{t('تطبيق الجوال', 'Mobile app')}</h3><p>{t('إشعار فوري مع الشارت لكل إشارة.', 'Instant notification with a chart for every signal.')}</p></div>
+            <div className="card card-hover channel rv"><div className="ic">API</div><h3 className="t-h3">{t('واجهة برمجية', 'API')}</h3><p>{t('للي يبي يربط الإشارات بأدواته.', 'For connecting signals to your own tools.')}</p></div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PRICING ══ */}
+      <section className="section" id="pricing" style={{ background: 'var(--surface)' }}>
+        <div className="container">
+          <div className="section-head rv"><div className="eyebrow">{t('الاشتراك', 'Pricing')}</div><h2 className="t-h1">{t('سعر واحد، كل شي مفتوح', 'One price, everything unlocked')}</h2></div>
+          <div className="price-card rv">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Logo size={42}/>
-              </div>
-              <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: '220px' }}>{t('منصة إشارات تداول مبنية على استراتيجيات محسوبة وبيانات حقيقية.', 'A trading signals platform built on calculated strategies and real data.')}</p>
+              <div className="p">$45 <small>/ {t('30 يوم', '30 days')}</small></div>
+              <p className="t-2 mt-3">{t('أول 14 يوم مجاناً بكل المميزات. ما يُطلب منك دفع قبل ما تشوف الإشارات بنفسك.', 'First 14 days free with every feature. No payment required before you see the signals yourself.')}</p>
+              <div className="row mt-6"><Link className="btn btn-primary btn-lg" href="/register">{t('ابدأ التجربة المجانية', 'Start the free trial')}</Link><Link className="btn btn-ghost" href="/subscribe">{t('تفاصيل الاشتراك', 'Subscription details')}</Link></div>
             </div>
-            <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
-              {[
-                { title: t('المنتج', 'Product'),  links: [[t('الإشارات','Signals'),'/dashboard'],[t('كل المميزات','All Features'),'/features'],[t('الأكاديمية','Academy'),'/academy'],[t('نتائج الباك تست','Backtest Results'),'/backtest-results'],[t('الأسعار','Pricing'),'/subscribe']] },
-                { title: t('الحساب', 'Account'), links: [[t('تسجيل','Sign up'),'/register'],[t('دخول','Login'),'/login']] },
-                { title: t('الشركة', 'Company'),  links: [[t('عن DevelBot','About'),'/about'],[t('الأسئلة الشائعة','FAQ'),'/faq'],[t('تواصل','Contact'),'/contact']] },
-                { title: t('قانوني', 'Legal'),  links: [[t('سياسة الخصوصية','Privacy Policy'),'/privacy'],[t('الشروط والأحكام','Terms & Conditions'),'/terms'],[t('تنبيه المخاطر','Risk Disclaimer'),'/risk-disclaimer']] },
-              ].map((col,i) => (
-                <div key={i}>
-                  <div style={{ color: 'var(--text)', fontWeight: 700, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>{col.title}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {col.links.map(([label,href],j) => (
-                      <Link key={j} href={href} style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '13px', transition: 'color 0.15s' }}
-                        onMouseEnter={e=>(e.currentTarget.style.color='var(--text)')}
-                        onMouseLeave={e=>(e.currentTarget.style.color='var(--muted)')}
-                      >{label}</Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>© 2026 DevelBot</span>
-            <span style={{ color: 'var(--dim)', fontSize: '12px' }}>{t('للأغراض التعليمية فقط، والتداول ينطوي على مخاطر.', 'For educational purposes only. Trading involves risk.')}</span>
+            <ul>
+              <li>{t('إشارات الفيوتشر والسبوت من الاستراتيجيات الثلاث', 'Futures and spot signals from all three strategies')}</li>
+              <li>{t('تلقرام + الموقع + تطبيق الجوال', 'Telegram + website + mobile app')}</li>
+              <li>{t('التداول الآلي على حسابك في Binance', 'Auto-trading on your own Binance account')}</li>
+              <li>{t('السكانر والشارت والتداول التجريبي ومتابعة العملات', 'Scanner, chart, paper trading, and coin tracking')}</li>
+              <li>{t('الأكاديمية والمساعد الذكي وبناء التنبيهات المخصصة', 'Academy, AI assistant, and custom alert building')}</li>
+              <li>{t('الإحصائيات الكاملة بما فيها الخسائر', 'Full statistics, losses included')}</li>
+            </ul>
           </div>
         </div>
-      </footer>
+      </section>
 
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-        @keyframes sigRowIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
-        @keyframes sweepLine { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-        .hero-feed-card::before {
-          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-          background: linear-gradient(90deg, transparent, #00c4ef, var(--green), transparent);
-          animation: sweepLine 4s linear infinite; opacity: .8; pointer-events: none;
-        }
-        @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
-          .telegram-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .showcase-grid { grid-template-columns: 1fr !important; }
-          .feature-block-grid { grid-template-columns: 1fr !important; direction: ltr !important; gap: 28px !important; }
-          .hero-visuals-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-          .academy-teaser-card { grid-template-columns: 1fr !important; }
-          .academy-teaser-card > div:last-child { height: 180px !important; order: -1; }
-          h1 { font-size: 36px !important; }
-        }
-        .academy-teaser-card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(46,58,140,0.18); }
-        @media (max-width: 860px) {
-          .home-nav-links { display: none !important; }
-          .home-nav-toggle { display: flex !important; }
-        }
-        @media (max-width: 560px) {
-          .pricing-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 480px) {
-          .feed-col-narrow { display: none !important; }
-        }
-      `}</style>
+      {/* ══ FAQ ══ */}
+      <section className="section" id="faq">
+        <div className="container" style={{ maxWidth: 860 }}>
+          <div className="section-head rv"><div className="eyebrow">{t('أسئلة', 'FAQ')}</div><h2 className="t-h1">{t('اللي يسأله كل متداول قبل ما يشترك', 'What every trader asks before subscribing')}</h2></div>
+          <div className="rv">
+            <details><summary><span>{t('هل البوت يضمن ربح؟', 'Does the bot guarantee profit?')}</span><i>+</i></summary><p>{t('لا. ما فيه نظام يضمن ربح في التداول. اللي نضمنه إن كل إشارة لها وقف، وإن أرقام الأداء المعروضة حقيقية وتشمل الخسائر.', "No. No system can guarantee trading profit. What we do guarantee is that every signal has a stop, and the performance numbers shown are real and include losses.")}</p></details>
+            <details><summary><span>{t('هل يقدر البوت يسحب من حسابي في Binance؟', 'Can the bot withdraw from my Binance account?')}</span><i>+</i></summary><p>{t('لا. مفتاح API يُنشأ بصلاحية تداول فقط، بدون صلاحية سحب. وتقدر تلغيه من Binance بأي وقت.', 'No. The API key is created trade-only, with no withdrawal permission, and you can revoke it from Binance at any time.')}</p></details>
+            <details><summary><span>{t('كم إشارة باليوم؟', 'How many signals per day?')}</span><i>+</i></summary><p>{t('يعتمد على السوق. بعض الأيام تطلع إشارات قليلة أو لا تطلع، لأن الشروط صارمة. الجودة قبل العدد.', 'It depends on the market. Some days produce few signals or none, because the conditions are strict. Quality over quantity.')}</p></details>
+            <details><summary><span>{t('هل أحتاج خبرة؟', 'Do I need experience?')}</span><i>+</i></summary><p>{t('الإشارة تجيك كاملة بالدخول والهدف والوقف، والأكاديمية تشرح الأساسيات. والتداول التجريبي يخليك تتدرب بدون مخاطرة.', 'The signal arrives complete with entry, target and stop, and the academy covers the basics. Paper trading lets you practice risk-free.')}</p></details>
+          </div>
+          <div className="risk mt-8 rv"><b>{t('تنبيه:', 'Warning:')}</b><span>{t('التداول في العملات الرقمية ينطوي على مخاطر عالية وقد يؤدي لخسارة رأس المال. المحتوى هنا ليس نصيحة استثمارية. اقرأ', 'Crypto trading carries high risk and may lead to loss of capital. Nothing here is investment advice. Read the full')} <Link href="/risk-disclaimer" style={{ color: 'var(--cyan)' }}>{t('إخلاء المسؤولية', 'risk disclaimer')}</Link> {t('كاملاً.', '')}</span></div>
+        </div>
+      </section>
+
+      <footer><div className="container">
+        <span>© <span className="num">{new Date().getFullYear()}</span> DevelBot</span>
+        <nav>
+          <Link href="/features">{t('المميزات', 'Features')}</Link>
+          <Link href="/about">{t('عن المنصة', 'About')}</Link>
+          <Link href="/faq">{t('الأسئلة', 'FAQ')}</Link>
+          <Link href="/api-docs">API</Link>
+          <Link href="/privacy">{t('الخصوصية', 'Privacy')}</Link>
+          <Link href="/terms">{t('الشروط', 'Terms')}</Link>
+          <a href="https://t.me/devel_support">{t('تواصل', 'Contact')}</a>
+        </nav>
+      </div></footer>
     </div>
   )
 }
