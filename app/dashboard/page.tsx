@@ -463,7 +463,10 @@ export default function Dashboard() {
       .then(u => { if (u) setUser(u) })
       .catch(() => {})
 
-    const fetchSignals = () => apiFetch<any[]>(`${API}/signals`, { credentials: 'include' })
+    // limit=1000 (أقصى مسموح) -- بدونها الافتراضي 50 صف يجعل عدّاد تبويب
+    // "الاشارات (N)" يعرض سقف الصفحة الأولى بدل العدد الحقيقي (نفس فخ §5.38
+    // بـKNOWLEDGE.md: سقف الخمسين يُعمي متابعة الصفقات القديمة/المفتوحة)
+    const fetchSignals = () => apiFetch<any[]>(`${API}/signals?limit=1000`, { credentials: 'include' })
       .then(res => {
         if (res.ok) {
           setSignals(Array.isArray(res.data) ? res.data : [])
