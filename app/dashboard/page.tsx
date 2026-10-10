@@ -43,6 +43,9 @@ type OwnerPortfolio = {
   trades_spot: number; trades_futures: number
   leverage_futures: number; risk_pct_spot: number; risk_pct_futures: number
   last_updated: string | null
+  first_trade_date: string | null
+  active_days: number
+  calendar_days: number
 }
 
 function fmt(p: number | string) {
@@ -624,12 +627,27 @@ export default function Dashboard() {
               const futChangePct = (op.now_futures / op.start_futures - 1) * 100
               const spotChangePct = (op.now_spot / op.start_spot - 1) * 100
               const fmtUsd = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 0 })
+              const fmtDateOnly = (raw: string | null) => {
+                if (!raw) return ''
+                const d = new Date(raw)
+                if (isNaN(d.getTime())) return ''
+                const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+                const monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+                return lang === 'en' ? `${monthsEn[d.getMonth()]} ${d.getDate()}` : `${d.getDate()} ${months[d.getMonth()]}`
+              }
+              const today = fmtDateOnly(new Date().toISOString())
+              const pausedDays = op.calendar_days - op.active_days
               return (
                 <div className="card" style={{ padding: '20px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '18px' }}>💼</span>
                     <span style={{ fontWeight: 900, fontSize: '15px' }}>{t('محفظة صاحب المنصة', "Platform Owner's Portfolio")}</span>
                   </div>
+                  {op.first_trade_date && (
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '16px' }}>
+                      {fmtDateOnly(op.first_trade_date)} — {today}
+                    </div>
+                  )}
 
                   <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                     <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '2px' }}>{t('رأس المال الآن', 'Capital now')}</div>
@@ -657,6 +675,21 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
+
+                  {op.calendar_days > 0 && (
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '14px', textAlign: 'center', lineHeight: 1.6 }}>
+                      {t(
+                        `صفقات أثّرت على المحفظة بـ${op.active_days} يوم من أصل ${op.calendar_days} يوم تقويمي`,
+                        `Trades affected the portfolio on ${op.active_days} of ${op.calendar_days} calendar days`
+                      )}
+                      {pausedDays > 0 && (
+                        <> — {t(
+                          `${pausedDays} يوم بدون أي صفقة (فترات إيقاف حقيقية للتطوير/الصيانة حصلت أكثر من مرة هذا الموسم، مو تداول مستمر غير منقطع)`,
+                          `${pausedDays} days with no trades (real development/maintenance pause periods happened more than once this season, not uninterrupted trading)`
+                        )}</>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })()}
