@@ -10,6 +10,7 @@ export default function Stats() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [activeMonth, setActiveMonth] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'WIN' | 'LOSS'>('ALL')
 
   useEffect(() => {
     fetch(`${API_ORIGIN}/signals?limit=1000`)
@@ -42,6 +43,8 @@ export default function Stats() {
   const totalPnlWin = wins.reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const totalPnlLoss = losses.reduce((sum, s) => sum + parseFloat(s.pnl_pct || '0'), 0)
   const netPnl = totalPnlWin + totalPnlLoss
+
+  const tableSignals = statusFilter === 'ALL' ? currentSignals : currentSignals.filter(s => s.status === statusFilter)
 
   const getDuration = (s: any) => {
     if (!s.closed_at) return '—'
@@ -115,11 +118,28 @@ export default function Stats() {
 
         {/* Signals Table */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden' }}>
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '15px' }}>
-            {t('سجل الصفقات', 'Trade Log')} · {monthName(currentMonth)}
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ fontWeight: 700, fontSize: '15px' }}>{t('سجل الصفقات', 'Trade Log')} · {monthName(currentMonth)}</div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {([
+                ['ALL', t('الكل', 'All'), currentSignals.length, 'var(--cyan)', 'rgba(0,196,239,0.15)'],
+                ['WIN', t('رابحة', 'Winning'), wins.length, 'var(--green)', 'rgba(0,230,100,0.15)'],
+                ['LOSS', t('خاسرة', 'Losing'), losses.length, 'var(--red)', 'rgba(255,85,85,0.15)'],
+              ] as [typeof statusFilter, string, number, string, string][]).map(([key, label, count, color, bg]) => (
+                <button key={key} onClick={() => setStatusFilter(key)} style={{
+                  padding: '7px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  background: statusFilter === key ? bg : 'var(--surface-2)',
+                  color: statusFilter === key ? color : 'var(--muted)',
+                  border: statusFilter === key ? `1px solid ${color}` : '1px solid var(--border)',
+                }}>
+                  {label} ({count})
+                </button>
+              ))}
+            </div>
           </div>
-          {currentSignals.length === 0 ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>{t('لا توجد صفقات في هذا الشهر', 'No trades this month')}</div>
+          {tableSignals.length === 0 ? (
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>{t('لا توجد صفقات مطابقة لهذا الفلتر', 'No trades match this filter')}</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -135,7 +155,7 @@ export default function Stats() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentSignals.map((s: any) => (
+                  {tableSignals.map((s: any) => (
                     <tr key={s.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
