@@ -172,7 +172,6 @@ export default function ExchangeLinkPage() {
 
   const exchanges: { key: 'binance' | 'alpaca'; title: string; subtitle: [string, string] }[] = [
     { key: 'binance', title: 'Binance', subtitle: [t('كريبتو — فيوتشر/سبوت', 'Crypto — Futures/Spot'), ''] },
-    { key: 'alpaca', title: 'Alpaca', subtitle: [t('السوق الأمريكي — أسهم', 'US Market — Stocks'), ''] },
   ]
 
   return (
