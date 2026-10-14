@@ -89,21 +89,32 @@ function TickerBar() {
 }
 
 // ── Nav Config ────────────────────────────────────────────
-const NAV = [
-  { href:'/dashboard',        label:'الداشبورد',       labelEn:'Dashboard',       icon:Icons.dashboard },
-  { href:'/binance-guide',    label:'شرح Binance',     labelEn:'Binance Guide',   icon:Icons.bank },
-  { href:'/scanner',          label:'السكانر',         labelEn:'Scanner',         icon:Icons.scanner },
-  { href:'/strategy-builder', label:'ستراتيجي',        labelEn:'Strategy',        icon:Icons.strategy },
-  { href:'/paper-trading',    label:'التداول',          labelEn:'Paper Trading',   icon:Icons.paper },
-  { href:'/coin-tracker',     label:'تتبع العملات',    labelEn:'Coin Tracker',    icon:Icons.tracker },
-  { href:'/ai-assistant',     label:'مساعد AI',        labelEn:'AI Assistant',    icon:Icons.ai },
-  { href:'/backtest-results', label:'نتائج الباك تست', labelEn:'Backtest Results',icon:Icons.backtest },
-  { href:'/academy',          label:'الأكاديمية',      labelEn:'Academy',         icon:Icons.academy },
-  { href:'/us-market',        label:'السوق الأمريكي',  labelEn:'US Market',       icon:Icons.usMarket },
-  { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
-  { href:'/exchange-link',    label:'التداول الآلي',   labelEn:'Auto-Trade',      icon:Icons.autoTrade },
-  { href:'/settings',         label:'الإعدادات',       labelEn:'Settings',        icon:Icons.settings },
+// مجمّعة بأقسام (التداول/الأداء/الأدوات/الحساب) بدل قائمة مسطّحة واحدة --
+// 13 عنصر بقائمة وحدة بدون تقسيم كان صعب المسح البصري السريع.
+const NAV_GROUPS: { group: [string, string]; items: { href: string; label: string; labelEn: string; icon: React.ReactNode }[] }[] = [
+  { group: ['التداول', 'Trading'], items: [
+    { href:'/dashboard',        label:'الداشبورد',       labelEn:'Dashboard',       icon:Icons.dashboard },
+    { href:'/scanner',          label:'السكانر',         labelEn:'Scanner',         icon:Icons.scanner },
+    { href:'/strategy-builder', label:'ستراتيجي',        labelEn:'Strategy',        icon:Icons.strategy },
+    { href:'/paper-trading',    label:'التداول',          labelEn:'Paper Trading',   icon:Icons.paper },
+    { href:'/coin-tracker',     label:'تتبع العملات',    labelEn:'Coin Tracker',    icon:Icons.tracker },
+    { href:'/us-market',        label:'السوق الأمريكي',  labelEn:'US Market',       icon:Icons.usMarket },
+    { href:'/exchange-link',    label:'التداول الآلي',   labelEn:'Auto-Trade',      icon:Icons.autoTrade },
+  ]},
+  { group: ['الأداء', 'Performance'], items: [
+    { href:'/backtest-results', label:'نتائج الباك تست', labelEn:'Backtest Results',icon:Icons.backtest },
+  ]},
+  { group: ['الأدوات', 'Tools'], items: [
+    { href:'/ai-assistant',     label:'مساعد AI',        labelEn:'AI Assistant',    icon:Icons.ai },
+    { href:'/academy',          label:'الأكاديمية',      labelEn:'Academy',         icon:Icons.academy },
+    { href:'/binance-guide',    label:'شرح Binance',     labelEn:'Binance Guide',   icon:Icons.bank },
+  ]},
+  { group: ['الحساب', 'Account'], items: [
+    { href:'/subscribe',        label:'اشتراك',          labelEn:'Subscribe',       icon:Icons.subscribe },
+    { href:'/settings',         label:'الإعدادات',       labelEn:'Settings',        icon:Icons.settings },
+  ]},
 ]
+const NAV = NAV_GROUPS.flatMap(g => g.items)
 
 // ── Help Content ──────────────────────────────────────────
 const PAGE_HELP: Record<string,{title:[string,string];sections:{icon:string;heading:[string,string];body:[string,string]}[]}> = {
@@ -190,28 +201,41 @@ function Sidebar({theme,toggleTheme,user,pathname,helpOpen,setHelpOpen,collapsed
           <img src="/logo.png" alt="DevelBot" style={{height:44,width:'auto',display:'block',borderRadius:'9px',background:'#fff',padding:'4px',flexShrink:0}}/>
         </Link>
 
-        {/* Nav */}
+        {/* Nav — مجمّعة بأقسام (التداول/الأداء/الأدوات/الحساب) */}
         <nav style={{flex:1,padding:'8px 6px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
-          {NAV.filter(l => l.href !== '/paper-trading' || user?.is_admin).map(l=>{
-            const active=pathname===l.href
+          {NAV_GROUPS.map(({group, items}) => {
+            const visible = items.filter(l => l.href !== '/paper-trading' || user?.is_admin)
+            if (!visible.length) return null
             return (
-              <Link key={l.href} href={l.href} onClick={()=>setMobileOpen(false)} title={collapsedEff?t(l.label,l.labelEn):undefined} style={{
-                display:'flex', alignItems:'center', gap:'10px',
-                padding: collapsedEff?'10px 0':'9px 12px',
-                justifyContent: collapsedEff?'center':'flex-start',
-                borderRadius:'8px', textDecoration:'none',
-                background: active?'rgba(0,196,239,0.1)':'transparent',
-                color: active?'var(--cyan)':'var(--muted)',
-                fontWeight: active?700:500, fontSize:'13px',
-                transition:'all 0.15s', whiteSpace:'nowrap',
-                borderRight: active?'2px solid var(--cyan)':'2px solid transparent',
-              }}
-                onMouseEnter={e=>{if(!active){e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}}
-                onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}}
-              >
-                <span style={{flexShrink:0,display:'flex'}}>{l.icon}</span>
-                {!collapsedEff && t(l.label,l.labelEn)}
-              </Link>
+              <div key={group[0]}>
+                {!collapsedEff && (
+                  <div style={{padding:'10px 12px 4px',fontSize:'10px',fontWeight:700,color:'var(--muted)',letterSpacing:'0.06em',textTransform:'uppercase'}}>
+                    {t(group[0], group[1])}
+                  </div>
+                )}
+                {visible.map(l=>{
+                  const active=pathname===l.href
+                  return (
+                    <Link key={l.href} href={l.href} onClick={()=>setMobileOpen(false)} title={collapsedEff?t(l.label,l.labelEn):undefined} style={{
+                      display:'flex', alignItems:'center', gap:'10px',
+                      padding: collapsedEff?'10px 0':'9px 12px',
+                      justifyContent: collapsedEff?'center':'flex-start',
+                      borderRadius:'8px', textDecoration:'none',
+                      background: active?'rgba(0,196,239,0.1)':'transparent',
+                      color: active?'var(--cyan)':'var(--muted)',
+                      fontWeight: active?700:500, fontSize:'13px',
+                      transition:'all 0.15s', whiteSpace:'nowrap',
+                      borderRight: active?'2px solid var(--cyan)':'2px solid transparent',
+                    }}
+                      onMouseEnter={e=>{if(!active){e.currentTarget.style.background='var(--surface-2)';e.currentTarget.style.color='var(--text)'}}}
+                      onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted)'}}}
+                    >
+                      <span style={{flexShrink:0,display:'flex'}}>{l.icon}</span>
+                      {!collapsedEff && t(l.label,l.labelEn)}
+                    </Link>
+                  )
+                })}
+              </div>
             )
           })}
         </nav>
