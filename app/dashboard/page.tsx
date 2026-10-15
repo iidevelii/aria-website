@@ -48,6 +48,23 @@ type OwnerPortfolio = {
   calendar_days: number
 }
 
+// شكل استجابة GET /v1/my-auto-trade-performance (main.py) -- أداء حساب
+// المستخدم الفعلي المربوط ببايننس عبر الـAPI (AutoTrade)، مختلف عن
+// /v1/owner-portfolio (محاكاة عامة). مصادقة بالكوكي، مخصوص لكل مستخدم.
+type MyAutoTradeOverall = {
+  n: number; wins: number; losses: number; win_rate: number | null
+  expectancy_pct: number | null; avg_win_pct: number | null; avg_loss_pct: number | null
+  profit_factor: number | null; max_drawdown_pct: number | null; avg_duration_hours: number | null
+}
+type MyRecentTrade = {
+  symbol: string; side: 'LONG' | 'SHORT'; market: 'SPOT' | 'FUTURES'; leverage: number
+  win: boolean; pnl: number; closed_at: string
+}
+type MyAutoTradePerformance = {
+  is_linked: boolean; open_count: number
+  overall: MyAutoTradeOverall; recent_trades: MyRecentTrade[]
+}
+
 function fmt(p: number | string) {
   const n = parseFloat(String(p))
   if (isNaN(n)) return '—'
@@ -406,6 +423,19 @@ export default function Dashboard() {
     }, 60000)
     return () => clearInterval(iv)
   }, [])
+
+  // محفظتك الحقيقية المرتبطة ببايننس (مختلفة عن محاكاة محفظة المالك فوق) --
+  // طلب مستخدم صريح 2026-10-15، نفس بيانات شاشة الأداء بالتطبيق. يحتاج تسجيل
+  // دخول (كوكي الجلسة)، فلا نجلبها إلا بعد ما /me يرجع مستخدم فعلي.
+  const [myPortfolio, setMyPortfolio] = useState<MyAutoTradePerformance | null>(null)
+  useEffect(() => {
+    if (!user) { setMyPortfolio(null); return }
+    const fetchMine = () => apiFetch<MyAutoTradePerformance>(`${API}/v1/my-auto-trade-performance`, { credentials: 'include' })
+      .then(r => { if (r.ok) setMyPortfolio(r.data) })
+    fetchMine()
+    const iv = setInterval(fetchMine, 60000)
+    return () => clearInterval(iv)
+  }, [user])
   useEffect(() => {
     Promise.all(['FUTURES', 'SPOT'].map(m => apiFetch<PerformanceResponse>(`${API}/v1/performance?market=${m}`, { credentials: 'include' })))
       .then(results => {
@@ -693,6 +723,90 @@ export default function Dashboard() {
                 </div>
               )
             })()}
+
+            {user && myPortfolio && (
+              <div className="card" style={{ padding: '20px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <span style={{ fontSize: '18px' }}>💰</span>
+                  <span style={{ fontWeight: 900, fontSize: '15px' }}>{t('محفظتك المرتبطة', 'Your Linked Portfolio')}</span>
+                </div>
+
+                {!myPortfolio.is_linked ? (
+                  <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
+                    <div style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '14px' }}>
+                      {t('اربط حساب بايننس عشان تشوف أداء محفظتك الحقيقي هنا', 'Link your Binance account to see your real portfolio performance here')}
+                    </div>
+                    <Link href="/exchange-link" className="btn-primary" style={{ padding: '10px 20px', fontSize: '13px' }}>
+                      {t('اربط حسابك ←', 'Link your account →')}
+                    </Link>
+                  </div>
+                ) : myPortfolio.overall.n === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '12px 0 20px', color: 'var(--muted)', fontSize: '13px' }}>
+                    {t('ما فيه صفقات مغلقة بعد على حسابك المرتبط', 'No closed trades yet on your linked account')}
+                    {myPortfolio.open_count > 0 && (
+                      <div style={{ marginTop: '6px' }}>
+                        {t(`${myPortfolio.open_count} صفقة مفتوحة الآن`, `${myPortfolio.open_count} trade(s) open now`)}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 110px', padding: '14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('نسبة الفوز', 'Win rate')}</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: (myPortfolio.overall.win_rate || 0) >= 50 ? 'var(--green)' : 'var(--red)' }}>
+                          {myPortfolio.overall.win_rate ?? '—'}%
+                        </div>
+                      </div>
+                      <div style={{ flex: '1 1 110px', padding: '14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('المتوقع/صفقة', 'Expectancy/trade')}</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: (myPortfolio.overall.expectancy_pct || 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                          {myPortfolio.overall.expectancy_pct != null ? `${myPortfolio.overall.expectancy_pct >= 0 ? '+' : ''}${myPortfolio.overall.expectancy_pct}%` : '—'}
+                        </div>
+                      </div>
+                      <div style={{ flex: '1 1 110px', padding: '14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>Profit Factor</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+                          {myPortfolio.overall.profit_factor != null ? myPortfolio.overall.profit_factor.toFixed(2) : '—'}
+                        </div>
+                      </div>
+                      <div style={{ flex: '1 1 110px', padding: '14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('عدد الصفقات', 'Trades')}</div>
+                        <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{myPortfolio.overall.n}</div>
+                      </div>
+                      {myPortfolio.open_count > 0 && (
+                        <div style={{ flex: '1 1 110px', padding: '14px', borderRadius: '10px', background: 'rgba(0,196,239,0.06)', border: '1px solid rgba(0,196,239,0.2)', textAlign: 'center' }}>
+                          <div style={{ fontSize: '11px', color: '#00c4ef', marginBottom: '6px' }}>{t('مفتوحة الآن', 'Open now')}</div>
+                          <div style={{ fontSize: '20px', fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: '#00c4ef' }}>{myPortfolio.open_count}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {myPortfolio.recent_trades.length > 0 && (
+                      <div style={{ marginTop: '18px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          {t('آخر صفقاتك', 'Your recent trades')}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {myPortfolio.recent_trades.slice(0, 6).map((tr, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', fontSize: '12px' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontWeight: 700 }}>{tr.symbol}</span>
+                                <span style={{ color: tr.side === 'LONG' ? 'var(--green)' : 'var(--red)' }}>{tr.side}</span>
+                                <span style={{ color: 'var(--muted)' }}>×{tr.leverage}</span>
+                              </span>
+                              <span style={{ fontWeight: 800, color: tr.win ? 'var(--green)' : 'var(--red)' }}>
+                                {tr.pnl >= 0 ? '+' : ''}{tr.pnl.toFixed(2)}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
           <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
