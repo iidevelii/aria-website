@@ -245,7 +245,7 @@ export default function ExchangeLinkPage() {
                       <SegRow
                         value={String(s.leverage_pref)}
                         onChange={(v) => updateSettings(key, { leverage_pref: Number(v) })}
-                        options={[1, 2, 3, 5, 10].map((n) => [String(n), `${n}x`] as [string, string])}
+                        options={[1, 2, 3, 5, 10, 15, 20, 25, 30, 35].map((n) => [String(n), `${n}x`] as [string, string])}
                       />
                     </>
                   )}
